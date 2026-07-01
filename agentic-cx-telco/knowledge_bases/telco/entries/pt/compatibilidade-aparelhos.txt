@@ -1,0 +1,26 @@
+Compatibilidade de aparelhos e trazer o seu próprio telefone
+============================================================
+
+A maioria dos telefones desbloqueados recentes funciona com a nossa rede. Você pode trazer o seu próprio telefone ou comprar um novo conosco.
+
+Como sei se o meu telefone é compatível?
+----------------------------------------
+
+Você precisa do número IMEI do seu telefone. Encontre-o digitando asterisco, cerquilha, zero, seis, cerquilha, ou nas configurações do telefone, na seção de informações. Com esse número você pode verificar a compatibilidade no nosso site antes de mudar.
+
+O que significa um telefone estar desbloqueado?
+-----------------------------------------------
+
+Um telefone desbloqueado não está preso a outra operadora e pode usar um chip SIM ou eSIM de qualquer operadora compatível. Se o seu telefone está bloqueado por outra operadora, primeiro você deve pedir a ela que o desbloqueie.
+
+O meu telefone atual vai funcionar com 5G?
+------------------------------------------
+
+Para usar 5G, o telefone precisa ser compatível com essa rede. Muitos modelos dos últimos anos são. Se o seu aparelho só é compatível com 4G LTE, ele continuará funcionando bem, apenas sem a velocidade adicional do 5G.
+
+Posso manter o meu número?
+--------------------------
+
+Sim. Você pode manter o seu número atual ao mudar. Para isso, não cancele primeiro com a sua operadora anterior, pois o número precisa estar ativo durante a portabilidade.
+
+A compatibilidade exata depende do modelo. Verifique o seu IMEI no site para confirmar.

@@ -1,0 +1,26 @@
+Device compatibility and bring your own phone
+=============================================
+
+Most recent unlocked phones work with our network. You can bring your own phone or buy a new one with us.
+
+How do I know if my phone is compatible?
+----------------------------------------
+
+You need your phone's IMEI number. Find it by dialing star, pound, zero, six, pound, or in your phone settings under the information section. With that number you can check compatibility on our website before switching.
+
+What does it mean for a phone to be unlocked?
+---------------------------------------------
+
+An unlocked phone is not tied to another carrier and can use a SIM card or eSIM from any compatible carrier. If your phone is locked by another carrier, you first need to ask that carrier to unlock it.
+
+Will my current phone work with 5G?
+-----------------------------------
+
+To use 5G, the phone must support that network. Many models from the last few years do. If your device only supports 4G LTE, it will keep working well, just without the extra speed of 5G.
+
+Can I keep my number?
+---------------------
+
+Yes. You can keep your current number when you switch. To do so, do not cancel with your previous carrier first, since the number must stay active during the transfer.
+
+Exact compatibility depends on the model. Check your IMEI on the website to confirm.

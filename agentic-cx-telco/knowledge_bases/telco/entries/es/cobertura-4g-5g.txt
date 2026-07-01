@@ -1,0 +1,26 @@
+Cobertura 4G y 5G por zona
+==========================
+
+Tenemos cobertura 5G en la mayoría de las áreas metropolitanas y cobertura 4G LTE en casi todo el país. La disponibilidad exacta depende de tu ubicación y del equipo que uses.
+
+¿Cómo sé si hay 5G en mi zona?
+------------------------------
+
+La forma más rápida es revisar el mapa de cobertura en nuestro sitio web y escribir tu código postal. El mapa muestra si tu zona tiene 5G, 4G LTE o ambas. Tu teléfono también debe ser compatible con 5G para usar esa red.
+
+¿Qué diferencia hay entre 4G y 5G?
+----------------------------------
+
+El 5G ofrece velocidades más altas y menor demora que el 4G LTE. Para tareas como navegar, redes sociales y llamadas, el 4G LTE funciona muy bien. El 5G se nota más al descargar archivos grandes o ver video en alta definición.
+
+Tengo señal débil en casa. ¿Qué puedo hacer?
+--------------------------------------------
+
+Primero, confirma en el mapa de cobertura que tu zona tiene servicio. Si la cobertura es buena pero la señal es débil dentro de casa, las llamadas por wifi pueden ayudar cuando tienes una red inalámbrica disponible. Reiniciar el teléfono también puede mejorar la conexión.
+
+¿La cobertura tiene costo adicional?
+------------------------------------
+
+No. El acceso a la red 4G LTE y 5G está incluido en los planes que lo ofrecen, sin cargo extra por usar 5G donde está disponible.
+
+La información de cobertura es general y puede variar por zona. Para revisar tu dirección específica, consulta el mapa de cobertura en el sitio web.

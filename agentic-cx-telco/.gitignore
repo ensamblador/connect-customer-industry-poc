@@ -1,0 +1,19 @@
+# CDK
+cdk.out/
+.cdk.staging/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+
+# Env
+.env
+
+# Website (Vite)
+website/node_modules/
+website/dist/
+website/.env
+website/.env.production

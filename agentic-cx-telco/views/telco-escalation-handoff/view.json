@@ -1,0 +1,145 @@
+{
+  "Template": {
+    "Head": {
+      "Title": "Contacto escalado",
+      "Configuration": {
+        "Layout": {
+          "Columns": ["4", "8", "12"]
+        }
+      }
+    },
+    "Body": [
+      {
+        "Type": "Container",
+        "_id": "left-col",
+        "Configuration": { "Layout": { "Columns": "12" } },
+        "Props": { "Visibility": "true", "HideBorder": "false" },
+        "Content": [
+          {
+            "Type": "Alert",
+            "_id": "priority-alert",
+            "Props": {
+              "type": "warning",
+              "level": "page",
+              "dismissible": "false",
+              "heading": "Prioridad"
+            },
+            "Content": ["$.escalationPriority"]
+          },
+          {
+            "Type": "TextBox",
+            "_id": "ctx-heading",
+            "Props": {
+              "Variant": "div",
+              "FontWeight": "bold",
+              "FontSize": "heading-m",
+              "TextAlign": "left"
+            },
+            "Content": ["Contexto de escalación"]
+          },
+          {
+            "Type": "AttributeSection",
+            "_id": "esc-attrs",
+            "Configuration": { "Layout": { "Columns": "12" } },
+            "Props": {
+              "Columns": "",
+              "Items": [
+                { "Label": "Motivo", "Value": "$.escalationReason" },
+                { "Label": "Sentimiento", "Value": "$.sentiment" },
+                { "Label": "Prioridad", "Value": "$.escalationPriority" }
+              ]
+            },
+            "Content": []
+          }
+        ]
+      },
+      {
+        "Type": "Container",
+        "_id": "right-col",
+        "Configuration": { "Layout": { "Columns": "12" } },
+        "Props": { "Visibility": "true", "HideBorder": "false" },
+        "Content": [
+          {
+            "Type": "Alert",
+            "_id": "reason-alert",
+            "Props": {
+              "type": "info",
+              "level": "page",
+              "dismissible": "false",
+              "heading": "Motivo de escalación"
+            },
+            "Content": ["$.customerIntent"]
+          },
+          {
+            "Type": "AttributeBar",
+            "_id": "intent-bar",
+            "Props": {
+              "Attributes": [
+                { "Label": "Intención del cliente", "Value": "$.customerIntent" },
+                { "Label": "Temas tratados", "Value": "$.topicsDiscussed" }
+              ]
+            },
+            "Content": []
+          },
+          {
+            "Type": "TextArea",
+            "_id": "esc-summary",
+            "Props": {
+              "Label": "Resumen de escalación",
+              "Name": "escalationSummary",
+              "DefaultValue": "$.escalationSummary",
+              "HelperText": "Resumen generado por el asistente de IA.",
+              "Disabled": "true",
+              "Required": "false",
+              "MaxLength": "2000"
+            },
+            "Content": []
+          },
+          {
+            "Type": "TextArea",
+            "_id": "recommended",
+            "Props": {
+              "Label": "Acción recomendada",
+              "Name": "recommendedAction",
+              "DefaultValue": "$.recommendedAction",
+              "Disabled": "true",
+              "Required": "false",
+              "MaxLength": "500"
+            },
+            "Content": []
+          },
+          {
+            "Type": "TextBox",
+            "_id": "attempted-label",
+            "Props": { "Variant": "div", "FontWeight": "bold", "TextAlign": "left" },
+            "Content": ["Ya intentado en autoservicio:"]
+          },
+          {
+            "Type": "TextBox",
+            "_id": "attempted",
+            "Props": { "Variant": "p", "TextAlign": "left" },
+            "Content": ["$.resolutionAttempted"]
+          }
+        ]
+      },
+      {
+        "Type": "Container",
+        "_id": "footer-col",
+        "Configuration": { "Layout": { "Columns": "12" } },
+        "Props": { "Visibility": "true", "HideBorder": "true" },
+        "Content": [
+          {
+            "Type": "Button",
+            "_id": "ack",
+            "Props": {
+              "Variant": "primary",
+              "Action": "ActionSelected"
+            },
+            "Content": ["Entendido"]
+          }
+        ]
+      }
+    ]
+  },
+  "Actions": ["ActionSelected"]
+}

@@ -1,0 +1,31 @@
+Frequently asked questions
+==========================
+
+Answers to the most common questions about activation, setup, and using the service.
+
+I just activated my line and have no internet. What do I do?
+------------------------------------------------------------
+
+The first step is to restart your phone, since that lets it pick up the network configuration. If after restarting you still have no data, check that mobile data is turned on in settings and that you have signal. The internet configuration, called APN, is usually loaded automatically.
+
+How do I set up the internet if it does not load on its own?
+------------------------------------------------------------
+
+In most cases the APN configuration installs itself when the line is activated. If it does not, you can reset the network settings from your phone settings, under the network options section, and then restart. If it still does not work, a representative can send you the configuration.
+
+How do I turn on Wi-Fi calling?
+-------------------------------
+
+Go to your phone settings, find the calls or network section, and turn on the Wi-Fi calling option. It is useful when the signal is weak but you have a wireless network available.
+
+Does the service work across the whole country?
+-----------------------------------------------
+
+Yes, we have nationwide 4G LTE coverage and 5G in many areas. Exact availability depends on your location; you can check the coverage map with your zip code.
+
+How do I change the language of support?
+----------------------------------------
+
+You can request support in English at any time. If you prefer another language, a representative can help or transfer you to someone who speaks it.
+
+If your question is about your account, your bill, or a network issue in your area, a representative with access to those systems can help you best.

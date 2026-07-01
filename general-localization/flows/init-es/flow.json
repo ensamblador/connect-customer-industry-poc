@@ -1,0 +1,140 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "set-logging",
+  "Metadata": {
+    "entryPointPosition": { "x": -377.6, "y": 345.6 },
+    "ActionMetadata": {
+      "set-logging": { "position": { "x": -255.2, "y": 344 } },
+      "set-customer-queue-flow": { "position": { "x": -100, "y": 344 } },
+      "set-recording-voice": { "position": { "x": 356, "y": 244.8 } },
+      "check-channel": {
+        "position": { "x": 38.4, "y": 413.6 },
+        "conditions": [],
+        "conditionMetadata": [
+          {
+            "id": "92bd9bb9-99ab-4d36-9d66-0e28b706d25c",
+            "operator": { "name": "Equals", "value": "Equals", "shortDisplay": "=" },
+            "value": "VOICE"
+          },
+          {
+            "id": "1d367ef8-6e79-404f-ace8-ec8f05e68314",
+            "operator": { "name": "Equals", "value": "Equals", "shortDisplay": "=" },
+            "value": "CHAT"
+          }
+        ]
+      },
+      "return": { "position": { "x": 745.6, "y": 708 } },
+      "set-recording-chat": { "position": { "x": 380, "y": 518.4 } }
+    },
+    "Annotations": []
+  },
+  "Actions": [
+    {
+      "Parameters": { "FlowLoggingBehavior": "Enabled" },
+      "Identifier": "set-logging",
+      "Type": "UpdateFlowLoggingBehavior",
+      "Transitions": { "NextAction": "check-channel" }
+    },
+    {
+      "Parameters": {
+        "EventHooks": {
+          "CustomerQueue": "QUEUE_FLOW_ARN_PLACEHOLDER"
+        }
+      },
+      "Identifier": "set-customer-queue-flow",
+      "Type": "UpdateContactEventHooks",
+      "Transitions": {
+        "NextAction": "set-recording-voice",
+        "Errors": [
+          { "NextAction": "set-recording-voice", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "VoiceBehavior": {
+          "VoiceRecordingBehavior": {
+            "RecordedParticipants": ["Agent", "Customer"],
+            "IVRRecordingBehavior": "Enabled"
+          },
+          "VoiceAnalyticsBehavior": {
+            "Enabled": "True",
+            "AnalyticsLanguage": "es-US",
+            "AnalyticsModes": ["RealTime", "AutomatedInteraction"],
+            "ConversationalAnalyticsRedactionConfiguration": { "Enabled": "False" },
+            "SentimentConfiguration": { "Enabled": "False" }
+          }
+        }
+      },
+      "Identifier": "set-recording-voice",
+      "Type": "UpdateContactRecordingAndAnalyticsBehavior",
+      "Transitions": {
+        "NextAction": "return",
+        "Errors": [
+          { "NextAction": "return", "ErrorType": "NoMatchingError" },
+          { "NextAction": "return", "ErrorType": "ChannelMismatch" }
+        ]
+      }
+    },
+    {
+      "Parameters": { "ComparisonValue": "$.Channel" },
+      "Identifier": "check-channel",
+      "Type": "Compare",
+      "Transitions": {
+        "NextAction": "return",
+        "Conditions": [
+          {
+            "NextAction": "set-customer-queue-flow",
+            "Condition": { "Operator": "Equals", "Operands": ["VOICE"] }
+          },
+          {
+            "NextAction": "set-recording-chat",
+            "Condition": { "Operator": "Equals", "Operands": ["CHAT"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "return", "ErrorType": "NoMatchingCondition" }
+        ]
+      }
+    },
+    {
+      "Parameters": {},
+      "Identifier": "return",
+      "Type": "EndFlowModuleExecution",
+      "Transitions": {}
+    },
+    {
+      "Parameters": {
+        "ChatBehavior": {
+          "ChatAnalyticsBehavior": {
+            "Enabled": "True",
+            "AnalyticsLanguage": "es-US",
+            "AnalyticsModes": ["ContactLens"],
+            "ConversationalAnalyticsRedactionConfiguration": { "Enabled": "False" },
+            "InFlightChatRedactionConfiguration": { "Enabled": "False" },
+            "SentimentConfiguration": { "Enabled": "True" },
+            "SummaryConfiguration": { "SummaryModes": ["PostContact", "AutomatedInteraction"] }
+          }
+        }
+      },
+      "Identifier": "set-recording-chat",
+      "Type": "UpdateContactRecordingAndAnalyticsBehavior",
+      "Transitions": {
+        "NextAction": "return",
+        "Errors": [
+          { "NextAction": "return", "ErrorType": "NoMatchingError" },
+          { "NextAction": "return", "ErrorType": "ChannelMismatch" },
+          { "NextAction": "return", "ErrorType": "InFlightRedactionConfigurationFailed" }
+        ]
+      }
+    }
+  ],
+  "Settings": {
+    "InputParameters": [],
+    "OutputParameters": [],
+    "Transitions": [
+      { "DisplayName": "Success", "ReferenceName": "Success", "Description": "" },
+      { "DisplayName": "Error", "ReferenceName": "Error", "Description": "" }
+    ]
+  }
+}

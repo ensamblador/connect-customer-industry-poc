@@ -1,0 +1,23 @@
+graph LR
+    Start([Start]) --> Log[Set logging behavior<br/>UpdateFlowLoggingBehavior: Enabled]
+    Log --> CL[Set recording and analytics behavior<br/>Voice / Contact Lens RealTime / es-US]
+    CL -->|Success| Assist[Connect assistant<br/>CreateWisdomSession<br/>domain: telco-selfservice]
+    CL -->|Error| Assist
+    Assist -->|Success| Voice[Set voice<br/>Polly Lupe / Generative<br/>+ language attribute es-US]
+    Assist -->|Error| Voice
+    Voice -->|Success| Input[Get customer input<br/>ConnectParticipantWithLexBot<br/>telco-selfservice-bot alias prod / es_US / Nova Sonic<br/>opening Text prompt required]
+    Voice -->|Error| Input
+    Input -->|Default / NoMatchingCondition: bot turn ends| CheckTool[Check contact attributes<br/>Compare $.Lex.SessionAttributes.Tool]
+    Input -->|Error: NoMatchingError| SetQueue
+    CheckTool -->|Equals 'Escalate'| CopyCtx[Set contact attributes<br/>copy escalationReason / escalationSummary<br/>customerIntent / sentiment from Lex]
+    CheckTool -->|Equals 'Complete'| Bye[Play prompt<br/>'Gracias por llamar. Hasta luego.']
+    CheckTool -->|No match| SetQueue
+    CopyCtx -->|Success| SetQueue[Set working queue<br/>BasicQueue]
+    CopyCtx -->|Error| SetQueue
+    SetQueue -->|Success| Xfer[Transfer to queue<br/>TransferContactToQueue]
+    SetQueue -->|Error| Disc
+    Xfer -->|Success| Disc
+    Xfer -->|Error: QueueAtCapacity| Full[Play prompt<br/>'Todos los representantes estan ocupados.']
+    Xfer -->|Error: NoMatchingError| Disc
+    Bye --> Disc([Disconnect / hang up])
+    Full --> Disc

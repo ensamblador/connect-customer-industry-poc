@@ -1,0 +1,55 @@
+{
+  "Template": {
+    "Head": {
+      "Title": "Nueva línea",
+      "Configuration": {
+        "Layout": {
+          "Columns": ["12"]
+        }
+      }
+    },
+    "Body": [
+      {
+        "Type": "Container",
+        "_id": "c1",
+        "Props": {
+          "Visibility": "true",
+          "HideBorder": "false"
+        },
+        "Content": [
+          {
+            "Type": "TextBox",
+            "_id": "intro",
+            "Props": { "Variant": "h3" },
+            "Content": ["Elige el plan para tu nueva línea"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-basic",
+            "Props": { "Variant": "primary", "Action": "plan-basic" },
+            "Content": ["Telco Basic — 5 GB — $25/mes"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-plus",
+            "Props": { "Variant": "primary", "Action": "plan-plus" },
+            "Content": ["Telco Plus — 25 GB — $45/mes"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-unlimited",
+            "Props": { "Variant": "primary", "Action": "plan-unlimited" },
+            "Content": ["Telco Unlimited 5G — 100 GB — $70/mes"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-cancel",
+            "Props": { "Variant": "normal", "Action": "Cancel" },
+            "Content": ["Cancelar"]
+          }
+        ]
+      }
+    ]
+  },
+  "Actions": ["plan-basic", "plan-plus", "plan-unlimited", "Cancel"]
+}

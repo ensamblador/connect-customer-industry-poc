@@ -1,0 +1,17 @@
+{
+  "name": "latam-telco-website",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "fast-check": "^3.23.2",
+    "vite": "6.3.5",
+    "vitest": "^2.1.8"
+  }
+}

@@ -1,0 +1,26 @@
+eSIM: what it is and how to activate it
+=======================================
+
+An eSIM is a digital SIM card built into the phone. It does the same thing as a physical SIM, but you do not need to insert a card: you activate the line by downloading a profile.
+
+Is my phone eSIM compatible?
+----------------------------
+
+Most phones from the last few years support eSIM. You can confirm this in your phone settings, under the network or mobile data section, where the option to add an eSIM or a data plan will appear.
+
+How do I activate my eSIM?
+--------------------------
+
+First, make sure you are connected to Wi-Fi. Then go to your phone's network settings and choose to add an eSIM. Scan the code we sent you by email or follow the on-screen instructions. Activation usually takes only a few minutes.
+
+Can I move my line from a physical SIM to an eSIM?
+--------------------------------------------------
+
+Yes. You can convert a line from a physical SIM to an eSIM from your phone settings or with help from a representative. Once the eSIM is active, the physical card stops working.
+
+Can I have two lines on the same phone?
+---------------------------------------
+
+Many phones let you use an eSIM and a physical SIM at the same time, or two eSIMs, depending on the model. That way you can have, for example, a personal line and a work line on the same device.
+
+The exact steps vary by phone brand and model. If you have questions, a representative can guide you.

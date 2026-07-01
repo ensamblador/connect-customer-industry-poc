@@ -1,0 +1,26 @@
+4G and 5G coverage by area
+==========================
+
+We have 5G coverage in most metropolitan areas and 4G LTE coverage across nearly the entire country. Exact availability depends on your location and the device you use.
+
+How do I know if there is 5G in my area?
+----------------------------------------
+
+The fastest way is to check the coverage map on our website and enter your zip code. The map shows whether your area has 5G, 4G LTE, or both. Your phone also needs to support 5G to use that network.
+
+What is the difference between 4G and 5G?
+-----------------------------------------
+
+5G offers higher speeds and lower latency than 4G LTE. For tasks like browsing, social media, and calls, 4G LTE works very well. 5G is most noticeable when downloading large files or watching high-definition video.
+
+I have a weak signal at home. What can I do?
+--------------------------------------------
+
+First, confirm on the coverage map that your area has service. If coverage is good but the signal is weak indoors, Wi-Fi calling can help when you have a wireless network available. Restarting your phone can also improve the connection.
+
+Does coverage have an additional cost?
+--------------------------------------
+
+No. Access to the 4G LTE and 5G networks is included in the plans that offer it, with no extra charge for using 5G where it is available.
+
+Coverage information is general and may vary by area. To check your specific address, see the coverage map on the website.

@@ -1,0 +1,64 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "set-agent-ui",
+  "Metadata": {
+    "Name": "escalate-to-agent",
+    "Description": "Reusable escalation module: registers the DefaultAgentUI screen-pop flow as the agent UI event hook, sets the target queue to BasicQueue, and transfers the contact to queue. Escalation context attributes must already be set on the contact by the caller (modules cannot read $.Lex session attributes). Locale es-US."
+  },
+  "Actions": [
+    {
+      "Identifier": "set-agent-ui",
+      "Type": "UpdateContactEventHooks",
+      "Parameters": {
+        "EventHooks": {
+          "DefaultAgentUI": "SCREENPOP_FLOW_ARN_PLACEHOLDER"
+        }
+      },
+      "Transitions": {
+        "NextAction": "set-queue",
+        "Errors": [
+          { "NextAction": "set-queue", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "set-queue",
+      "Type": "UpdateContactTargetQueue",
+      "Parameters": {
+        "QueueId": "BASIC_QUEUE_ARN_PLACEHOLDER"
+      },
+      "Transitions": {
+        "NextAction": "transfer-queue",
+        "Errors": [
+          { "NextAction": "return", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "transfer-queue",
+      "Type": "TransferContactToQueue",
+      "Parameters": {},
+      "Transitions": {
+        "NextAction": "return",
+        "Errors": [
+          { "NextAction": "return", "ErrorType": "QueueAtCapacity" },
+          { "NextAction": "return", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "return",
+      "Type": "EndFlowModuleExecution",
+      "Parameters": {},
+      "Transitions": {}
+    }
+  ],
+  "Settings": {
+    "InputParameters": [],
+    "OutputParameters": [],
+    "Transitions": [
+      { "DisplayName": "Success", "ReferenceName": "Success", "Description": "Screen-pop hook set and contact transferred to queue." }
+    ]
+  }
+}
+

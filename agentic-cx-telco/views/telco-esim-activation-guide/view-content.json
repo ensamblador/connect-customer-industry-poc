@@ -1,0 +1,137 @@
+{
+  "Template": {
+    "Head": {
+      "Title": "Guía de activación de eSIM",
+      "Configuration": {
+        "Layout": {
+          "Columns": ["12", "12", "12"]
+        }
+      }
+    },
+    "Body": [
+      {
+        "Type": "Container",
+        "_id": "header-col",
+        "Configuration": {
+          "Layout": {
+            "Columns": "12"
+          }
+        },
+        "Props": {
+          "Visibility": "true",
+          "HideBorder": "false"
+        },
+        "Content": [
+          {
+            "Type": "TextBox",
+            "_id": "step-counter",
+            "Props": {
+              "Variant": "div",
+              "FontWeight": "bold",
+              "TextAlign": "left"
+            },
+            "Content": ["$.stepCounter"]
+          },
+          {
+            "Type": "TextBox",
+            "_id": "step-heading",
+            "Props": {
+              "Variant": "h3",
+              "TextAlign": "left"
+            },
+            "Content": ["$.stepHeading"]
+          },
+          {
+            "Type": "TextBox",
+            "_id": "step-body",
+            "Props": {
+              "Variant": "p",
+              "TextAlign": "left"
+            },
+            "Content": ["$.stepBody"]
+          },
+          {
+            "Type": "Alert",
+            "_id": "brand-model-note",
+            "Props": {
+              "type": "info",
+              "level": "page",
+              "dismissible": "false",
+              "heading": "Nota"
+            },
+            "Content": [
+              "Los pasos exactos varían según la marca y el modelo del teléfono."
+            ]
+          }
+        ]
+      },
+      {
+        "Type": "Container",
+        "_id": "prev-col",
+        "Configuration": {
+          "Layout": {
+            "Columns": "12"
+          }
+        },
+        "Props": {
+          "Visibility": {
+            "Conditions": [
+              { "Equals": { "ElementByKey": "showPrevious", "ElementByValue": "true" } }
+            ]
+          },
+          "HideBorder": "true"
+        },
+        "Content": [
+          {
+            "Type": "Button",
+            "_id": "btn-previous",
+            "Props": {
+              "Variant": "normal",
+              "Action": "Previous"
+            },
+            "Content": ["Anterior"]
+          }
+        ]
+      },
+      {
+        "Type": "Container",
+        "_id": "footer-col",
+        "Configuration": {
+          "Layout": {
+            "Columns": "12"
+          }
+        },
+        "Props": {
+          "Visibility": "true",
+          "HideBorder": "true"
+        },
+        "Content": [
+          {
+            "Type": "Button",
+            "_id": "btn-next",
+            "Props": {
+              "Variant": "primary",
+              "Action": "Next",
+              "Visibility": {
+                "Conditions": [
+                  { "Equals": { "ElementByKey": "showNext", "ElementByValue": "true" } }
+                ]
+              }
+            },
+            "Content": ["Siguiente"]
+          },
+          {
+            "Type": "Button",
+            "_id": "btn-end",
+            "Props": {
+              "Variant": "normal",
+              "Action": "End"
+            },
+            "Content": ["Finalizar"]
+          }
+        ]
+      }
+    ]
+  },
+  "Actions": ["Previous", "Next", "End"]
+}

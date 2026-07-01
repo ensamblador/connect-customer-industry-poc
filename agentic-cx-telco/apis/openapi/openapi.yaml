@@ -1,0 +1,526 @@
+openapi: 3.0.1
+info:
+  title: Telco Self-Service API
+  description: >
+    REST API for telco self-service: mobile plan catalog, customer account
+    lookup (by id or phone number), balance inquiry, and new-line requests.
+    Exposed to the Connect AI agent as MCP tools through a Bedrock
+    AgentCore gateway.
+  version: 3.0.0
+  contact:
+    name: telco-cx
+
+# The server URL is rendered at deploy time. ${ApiId} and ${Stage} are
+# substituted (CloudFormation Fn::Sub) with the real deployed REST API id and
+# stage; ${AWS::Region} is the deploy region pseudo-parameter. Do not hardcode
+# a real host here — the rendered spec is what the gateway uses.
+servers:
+  - url: https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
+    description: Deployed Telco self-service API Gateway endpoint
+
+tags:
+  - name: Accounts
+    description: Customer account profile, balance, and phone-number lookup
+  - name: Plans
+    description: Mobile plan catalog operations
+  - name: Lines
+    description: New mobile line request operations
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /accounts:
+    get:
+      operationId: getAccountByPhone
+      summary: Look up a customer account by phone number
+      description: >
+        Find a customer's telco account by their mobile phone number (E.164
+        format, e.g. +12065550101). Use this when the customer is identified by
+        phone rather than account id. Returns the full account profile.
+      tags:
+        - Accounts
+      parameters:
+        - name: phoneNumber
+          in: query
+          required: true
+          description: The customer's phone number in E.164 format.
+          schema:
+            type: string
+          example: '+12065550101'
+      responses:
+        '200':
+          description: The matching account profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Missing phoneNumber query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No account found for the supplied phone number.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /accounts/by-email:
+    get:
+      operationId: getAccountByEmail
+      summary: Look up a customer account by email address
+      description: >
+        Find a customer's telco account by their email address. Use this when
+        the customer is identified by email rather than account id or phone.
+        Returns the full account profile.
+      tags:
+        - Accounts
+      parameters:
+        - name: email
+          in: query
+          required: true
+          description: The customer's email address.
+          schema:
+            type: string
+            format: email
+          example: maria.gonzalez@example.com
+      responses:
+        '200':
+          description: The matching account profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Missing email query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No account found for the supplied email.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /accounts/{accountId}:
+    get:
+      operationId: getAccount
+      summary: Get a customer account profile
+      description: >
+        Retrieve a customer's telco account profile by account id, including
+        plan id, account status, balance, currency, and contact details.
+      tags:
+        - Accounts
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: The unique telco account identifier.
+          schema:
+            type: string
+          example: acct-1001
+      responses:
+        '200':
+          description: The account profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Missing or invalid accountId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No account found for the supplied accountId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /accounts/{accountId}/balance:
+    get:
+      operationId: getAccountBalance
+      summary: Get a customer's current balance
+      description: >
+        Get the current outstanding balance, currency, and payment due date for
+        a telco account by account id. Use this for "how much do I owe" or "when
+        is my bill due" questions.
+      tags:
+        - Accounts
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: The unique telco account identifier.
+          schema:
+            type: string
+          example: acct-1001
+      responses:
+        '200':
+          description: The account's current balance.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - accountId
+                  - balance
+                  - currency
+                properties:
+                  accountId:
+                    type: string
+                    example: acct-1001
+                  balance:
+                    type: number
+                    description: Current outstanding balance.
+                    example: 42.5
+                  currency:
+                    type: string
+                    example: USD
+                  dueDate:
+                    type: string
+                    format: date
+                    example: '2026-06-20'
+        '404':
+          description: No account found for the supplied accountId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /plans:
+    get:
+      operationId: listPlans
+      summary: List mobile plans
+      description: >
+        List the available mobile plans, optionally filtered by a minimum data
+        allowance in GB (minGb). Use this to recommend plans, e.g. "plans with
+        at least 25 GB". Results are ordered by data allowance ascending.
+      tags:
+        - Plans
+      parameters:
+        - name: minGb
+          in: query
+          required: false
+          description: Only return plans with at least this many GB of data.
+          schema:
+            type: number
+          example: 25
+      responses:
+        '200':
+          description: The matching plans.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - plans
+                  - count
+                properties:
+                  plans:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Plan'
+                  count:
+                    type: integer
+                    example: 2
+        '400':
+          description: minGb was not a valid number.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /plans/{planId}:
+    get:
+      operationId: getPlan
+      summary: Get a mobile plan's details
+      description: >
+        Get the full details of a single mobile plan by plan id, including data
+        allowance, monthly price, and included features.
+      tags:
+        - Plans
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          description: The unique plan identifier.
+          schema:
+            type: string
+          example: plan-plus
+      responses:
+        '200':
+          description: The plan details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+        '404':
+          description: No plan found for the supplied planId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /lines:
+    post:
+      operationId: newLine
+      summary: Request a new mobile line
+      description: >
+        Request a new mobile line for an existing customer. This is a
+        state-changing action — confirm with the customer before calling.
+        Provide the customerId and the planId for the new line; optionally a
+        preferred 3-digit area code and free-text notes. Returns the created
+        line request with its generated lineId and status "requested".
+      tags:
+        - Lines
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customerId
+                - planId
+              properties:
+                customerId:
+                  type: string
+                  description: The customer the new line is requested for.
+                  example: cust-5001
+                planId:
+                  type: string
+                  description: The mobile plan the new line will use.
+                  example: plan-plus
+                areaCode:
+                  type: string
+                  description: Preferred 3-digit area code for the new number.
+                  example: '206'
+                notes:
+                  type: string
+                  description: Optional free-text notes about the request.
+                  example: Additional line for a family member.
+      responses:
+        '201':
+          description: The created new-line request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Line'
+        '400':
+          description: Missing required fields or invalid area code.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      operationId: listCustomerLines
+      summary: List a customer's line requests
+      description: >
+        List all mobile lines and line requests for a customer by customerId.
+        Use this to check a customer's existing lines before requesting a new
+        one or to report status.
+      tags:
+        - Lines
+      parameters:
+        - name: customerId
+          in: query
+          required: true
+          description: The customer whose lines to list.
+          schema:
+            type: string
+          example: cust-5003
+      responses:
+        '200':
+          description: The customer's lines.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - customerId
+                  - lines
+                  - count
+                properties:
+                  customerId:
+                    type: string
+                    example: cust-5003
+                  lines:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Line'
+                  count:
+                    type: integer
+                    example: 1
+        '400':
+          description: Missing customerId query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /lines/{lineId}:
+    get:
+      operationId: getLine
+      summary: Get a line request
+      description: Get the status and details of a single line request by line id.
+      tags:
+        - Lines
+      parameters:
+        - name: lineId
+          in: path
+          required: true
+          description: The unique line identifier.
+          schema:
+            type: string
+          example: line-9001
+      responses:
+        '200':
+          description: The line details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Line'
+        '404':
+          description: No line found for the supplied lineId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    Account:
+      type: object
+      required:
+        - accountId
+        - customerId
+        - name
+        - phoneNumber
+        - planId
+        - status
+      properties:
+        accountId:
+          type: string
+          example: acct-1001
+        customerId:
+          type: string
+          description: Customer identifier (used for line requests).
+          example: cust-5001
+        name:
+          type: string
+          example: María González
+        phoneNumber:
+          type: string
+          description: Phone number in E.164 format.
+          example: '+12065550101'
+        planId:
+          type: string
+          description: The plan the account is subscribed to.
+          example: plan-unlimited
+        status:
+          type: string
+          enum: [active, suspended, closed]
+          example: active
+        balance:
+          type: number
+          example: 42.5
+        currency:
+          type: string
+          example: USD
+        dueDate:
+          type: string
+          format: date
+          example: '2026-06-20'
+        email:
+          type: string
+          format: email
+          example: maria.gonzalez@example.com
+    Plan:
+      type: object
+      required:
+        - planId
+        - name
+        - dataGb
+        - monthlyPrice
+      properties:
+        planId:
+          type: string
+          example: plan-plus
+        name:
+          type: string
+          example: Telco Plus
+        dataGb:
+          type: number
+          description: High-speed data allowance in GB.
+          example: 25
+        monthlyPrice:
+          type: number
+          example: 45.0
+        currency:
+          type: string
+          example: USD
+        unlimitedCalls:
+          type: boolean
+          example: true
+        hotspot:
+          type: boolean
+          description: Whether mobile hotspot is included.
+          example: true
+        description:
+          type: string
+          example: 25 GB high-speed data with mobile hotspot, unlimited talk and text.
+    Line:
+      type: object
+      required:
+        - lineId
+        - customerId
+        - planId
+        - status
+      properties:
+        lineId:
+          type: string
+          example: line-9001
+        customerId:
+          type: string
+          example: cust-5003
+        planId:
+          type: string
+          description: The mobile plan the line uses.
+          example: plan-plus
+        areaCode:
+          type: string
+          description: Preferred 3-digit area code for the number.
+          example: '206'
+        notes:
+          type: string
+          description: Free-text notes about the line request.
+          example: Additional line for a family member.
+        status:
+          type: string
+          enum: [requested, provisioning, active, cancelled]
+          example: requested
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-01T14:30:00Z'
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: account acct-1001 not found

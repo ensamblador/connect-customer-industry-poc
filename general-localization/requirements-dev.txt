@@ -1,0 +1,4 @@
+pytest==8.4.2
+hypothesis>=6.100,<7.0
+# aws-cdk-lib (which provides aws_cdk.assertions.Template for template tests) is
+# pinned in requirements.txt and shared by the test suite.

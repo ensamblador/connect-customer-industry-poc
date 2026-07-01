@@ -1,0 +1,289 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "check-language",
+  "Metadata": {
+    "entryPointPosition": {
+      "x": -260,
+      "y": 20
+    },
+    "ActionMetadata": {
+      "check-language": {
+        "position": {
+          "x": -80,
+          "y": 0
+        },
+        "parameters": {
+          "ComparisonValue": {
+            "useDynamic": true
+          }
+        },
+        "useDynamic": true,
+        "conditionMetadata": [
+          {
+            "id": "cond-spanish",
+            "operator": {
+              "name": "Starts With",
+              "value": "TextStartsWith",
+              "shortDisplay": "Starts With"
+            },
+            "value": "es"
+          },
+          {
+            "id": "cond-portuguese",
+            "operator": {
+              "name": "Starts With",
+              "value": "TextStartsWith",
+              "shortDisplay": "Starts With"
+            },
+            "value": "pt"
+          },
+          {
+            "id": "cond-english",
+            "operator": {
+              "name": "Starts With",
+              "value": "TextStartsWith",
+              "shortDisplay": "Starts With"
+            },
+            "value": "en"
+          }
+        ]
+      },
+      "es-set-voice": {
+        "position": {
+          "x": 220,
+          "y": -260
+        },
+        "parameters": {
+          "TextToSpeechVoice": {
+            "displayName": "Spanish voice"
+          }
+        },
+        "overrideConsoleVoice": true
+      },
+      "es-loop-prompts": {
+        "position": {
+          "x": 480,
+          "y": -260
+        }
+      },
+      "pt-set-voice": {
+        "position": {
+          "x": 220,
+          "y": 20
+        },
+        "parameters": {
+          "TextToSpeechVoice": {
+            "displayName": "Portuguese voice"
+          }
+        },
+        "overrideConsoleVoice": true
+      },
+      "pt-loop-prompts": {
+        "position": {
+          "x": 480,
+          "y": 20
+        }
+      },
+      "en-set-voice": {
+        "position": {
+          "x": 220,
+          "y": 300
+        },
+        "parameters": {
+          "TextToSpeechVoice": {
+            "displayName": "English voice"
+          }
+        },
+        "overrideConsoleVoice": true
+      },
+      "en-loop-prompts": {
+        "position": {
+          "x": 480,
+          "y": 300
+        }
+      },
+      "disconnect": {
+        "position": {
+          "x": 800,
+          "y": 20
+        }
+      }
+    },
+    "Annotations": [],
+    "name": "Localized Customer Queue",
+    "description": "Customer-queue hold flow that branches internally on the contact's $.LanguageCode (java.util.Locale, e.g. es-US) and loops a localized hold message and queue audio per language, defaulting to English."
+  },
+  "Actions": [
+    {
+      "Parameters": {
+        "ComparisonValue": "$.LanguageCode"
+      },
+      "Identifier": "check-language",
+      "Type": "Compare",
+      "Transitions": {
+        "NextAction": "en-set-voice",
+        "Conditions": [
+          {
+            "NextAction": "es-set-voice",
+            "Condition": {
+              "Operator": "TextStartsWith",
+              "Operands": [
+                "es"
+              ]
+            }
+          },
+          {
+            "NextAction": "pt-set-voice",
+            "Condition": {
+              "Operator": "TextStartsWith",
+              "Operands": [
+                "pt"
+              ]
+            }
+          },
+          {
+            "NextAction": "en-set-voice",
+            "Condition": {
+              "Operator": "TextStartsWith",
+              "Operands": [
+                "en"
+              ]
+            }
+          }
+        ],
+        "Errors": [
+          {
+            "NextAction": "en-set-voice",
+            "ErrorType": "NoMatchingCondition"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "TextToSpeechVoice": "__TTS_VOICE_ES__",
+        "TextToSpeechEngine": "__TTS_ENGINE__",
+        "TextToSpeechStyle": "None"
+      },
+      "Identifier": "es-set-voice",
+      "Type": "UpdateContactTextToSpeechVoice",
+      "Transitions": {
+        "NextAction": "es-loop-prompts",
+        "Errors": [
+          {
+            "NextAction": "es-loop-prompts",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Messages": [
+          {
+            "Text": "__HOLD_MESSAGE_ES__"
+          },
+          {
+            "PromptId": "__QUEUE_MUSIC_PROMPT_ARN__"
+          }
+        ]
+      },
+      "Identifier": "es-loop-prompts",
+      "Type": "MessageParticipantIteratively",
+      "Transitions": {
+        "Errors": [
+          {
+            "NextAction": "disconnect",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "TextToSpeechVoice": "__TTS_VOICE_PT__",
+        "TextToSpeechEngine": "__TTS_ENGINE__",
+        "TextToSpeechStyle": "None"
+      },
+      "Identifier": "pt-set-voice",
+      "Type": "UpdateContactTextToSpeechVoice",
+      "Transitions": {
+        "NextAction": "pt-loop-prompts",
+        "Errors": [
+          {
+            "NextAction": "pt-loop-prompts",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Messages": [
+          {
+            "Text": "__HOLD_MESSAGE_PT__"
+          },
+          {
+            "PromptId": "__QUEUE_MUSIC_PROMPT_ARN__"
+          }
+        ]
+      },
+      "Identifier": "pt-loop-prompts",
+      "Type": "MessageParticipantIteratively",
+      "Transitions": {
+        "Errors": [
+          {
+            "NextAction": "disconnect",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "TextToSpeechVoice": "__TTS_VOICE_EN__",
+        "TextToSpeechEngine": "__TTS_ENGINE__",
+        "TextToSpeechStyle": "None"
+      },
+      "Identifier": "en-set-voice",
+      "Type": "UpdateContactTextToSpeechVoice",
+      "Transitions": {
+        "NextAction": "en-loop-prompts",
+        "Errors": [
+          {
+            "NextAction": "en-loop-prompts",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Messages": [
+          {
+            "Text": "__HOLD_MESSAGE_EN__"
+          },
+          {
+            "PromptId": "__QUEUE_MUSIC_PROMPT_ARN__"
+          }
+        ]
+      },
+      "Identifier": "en-loop-prompts",
+      "Type": "MessageParticipantIteratively",
+      "Transitions": {
+        "Errors": [
+          {
+            "NextAction": "disconnect",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {},
+      "Identifier": "disconnect",
+      "Type": "DisconnectParticipant",
+      "Transitions": {}
+    }
+  ]
+}

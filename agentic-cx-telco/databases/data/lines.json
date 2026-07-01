@@ -1,0 +1,22 @@
+{
+  "Items": [
+    {
+      "lineId": {"S": "line-9001"},
+      "customerId": {"S": "cust-5001"},
+      "planId": {"S": "plan-plus"},
+      "status": {"S": "active"},
+      "areaCode": {"S": "206"},
+      "createdAt": {"S": "2026-05-20T11:00:00Z"},
+      "notes": {"S": "Additional line for a family member."}
+    },
+    {
+      "lineId": {"S": "line-9002"},
+      "customerId": {"S": "cust-5003"},
+      "planId": {"S": "plan-basic"},
+      "status": {"S": "requested"},
+      "areaCode": {"S": "305"},
+      "createdAt": {"S": "2026-06-03T16:45:00Z"},
+      "notes": {"S": "Customer requested a second line; awaiting provisioning."}
+    }
+  ]
+}

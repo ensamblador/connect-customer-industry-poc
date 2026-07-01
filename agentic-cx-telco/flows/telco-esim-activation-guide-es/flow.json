@@ -1,0 +1,260 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "set-logging",
+  "Metadata": {
+    "entryPointPosition": { "x": -240, "y": 0 },
+    "ActionMetadata": {
+      "set-logging": { "position": { "x": -40, "y": 0 } },
+      "step-1": { "position": { "x": 200, "y": 0 } },
+      "step-2": { "position": { "x": 480, "y": 0 } },
+      "step-3": { "position": { "x": 760, "y": 0 } },
+      "step-4": { "position": { "x": 1040, "y": 0 } },
+      "step-5": { "position": { "x": 1320, "y": 0 } },
+      "step-6": { "position": { "x": 1600, "y": 0 } },
+      "end-guide": { "position": { "x": 1880, "y": 0 } }
+    },
+    "Annotations": []
+  },
+  "Actions": [
+    {
+      "Identifier": "set-logging",
+      "Type": "UpdateFlowLoggingBehavior",
+      "Parameters": { "FlowLoggingBehavior": "Enabled" },
+      "Transitions": {
+        "NextAction": "step-1"
+      }
+    },
+    {
+      "Identifier": "step-1",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "ESIM_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 1 de 6",
+          "showPrevious": "false",
+          "showNext": "true",
+          "stepHeading": "Confirma que el teléfono es compatible con eSIM (ajustes de red / datos móviles)",
+          "stepBody": "En los ajustes del teléfono, ve a la sección de red o de datos móviles. Si aparece la opción de agregar una eSIM o un plan de datos, el equipo es compatible con eSIM."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-1",
+        "Conditions": [
+          {
+            "NextAction": "step-2",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-1", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-1", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-1", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-2",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "ESIM_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 2 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Conecta el teléfono a una red wifi",
+          "stepBody": "Conecta el teléfono a una red wifi antes de comenzar. La activación necesita conexión a internet para descargar el perfil de la eSIM."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-2",
+        "Conditions": [
+          {
+            "NextAction": "step-1",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-3",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-2", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-2", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-2", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-3",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "ESIM_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 3 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Abre los ajustes de red y elige \"agregar eSIM\"",
+          "stepBody": "Abre los ajustes de red del teléfono y elige la opción \"agregar eSIM\" (o agregar un plan de datos)."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-3",
+        "Conditions": [
+          {
+            "NextAction": "step-2",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-4",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-3", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-3", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-3", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-4",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "ESIM_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 4 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Escanea el código QR enviado por correo o sigue las instrucciones en pantalla",
+          "stepBody": "Escanea el código QR que enviamos por correo electrónico, o sigue las instrucciones en pantalla para descargar el perfil de la eSIM."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-4",
+        "Conditions": [
+          {
+            "NextAction": "step-3",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-5",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-4", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-4", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-4", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-5",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "ESIM_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 5 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Espera a que se complete la activación (suele tardar unos minutos)",
+          "stepBody": "Espera a que se complete la activación. Suele tardar solo unos minutos; mantén el teléfono conectado a wifi durante el proceso."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-5",
+        "Conditions": [
+          {
+            "NextAction": "step-4",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-6",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-5", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-5", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-5", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-6",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "ESIM_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 6 de 6",
+          "showPrevious": "true",
+          "showNext": "false",
+          "stepHeading": "Confirma que la línea está activa",
+          "stepBody": "Confirma que la línea está activa: verifica que el teléfono tenga señal y que pueda hacer llamadas o usar datos móviles con la nueva eSIM."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-6",
+        "Conditions": [
+          {
+            "NextAction": "step-5",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-6", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-6", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-6", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "end-guide",
+      "Type": "DisconnectParticipant",
+      "Parameters": {},
+      "Transitions": {}
+    }
+  ]
+}

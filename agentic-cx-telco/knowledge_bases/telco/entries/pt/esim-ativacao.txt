@@ -1,0 +1,26 @@
+eSIM: o que é e como ativar
+===========================
+
+Uma eSIM é um chip SIM digital que já vem dentro do telefone. Faz o mesmo que um SIM físico, mas você não precisa inserir um chip: ativa a linha baixando um perfil.
+
+O meu telefone é compatível com eSIM?
+-------------------------------------
+
+A maioria dos telefones dos últimos anos é compatível com eSIM. Você pode confirmar nas configurações do telefone, na seção de rede ou de dados móveis, onde aparecerá a opção de adicionar uma eSIM ou um plano de dados.
+
+Como ativo a minha eSIM?
+------------------------
+
+Primeiro, verifique se você está conectado ao wi-fi. Depois vá às configurações de rede do seu telefone e escolha adicionar uma eSIM. Escaneie o código que enviamos por e-mail ou siga as instruções na tela. A ativação costuma levar apenas alguns minutos.
+
+Posso passar a minha linha de um SIM físico para uma eSIM?
+----------------------------------------------------------
+
+Sim. É possível converter uma linha de SIM físico para eSIM pelas configurações do telefone ou com a ajuda de um representante. Depois que a eSIM está ativa, o chip físico deixa de funcionar.
+
+Posso ter duas linhas no mesmo telefone?
+----------------------------------------
+
+Muitos telefones permitem usar uma eSIM e um SIM físico ao mesmo tempo, ou duas eSIMs, conforme o modelo. Assim você pode ter, por exemplo, uma linha pessoal e uma de trabalho no mesmo aparelho.
+
+Os passos exatos variam conforme a marca e o modelo do telefone. Se tiver dúvidas, um representante pode orientar você.

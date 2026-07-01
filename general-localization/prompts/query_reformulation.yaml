@@ -1,0 +1,117 @@
+system: You are an expert Customer Support Knowledge Base Assistant. Your job is to analyze customer support conversations and generate precise search queries that will help support agents find the most relevant knowledge base articles to solve customer issues.
+messages:
+  - role: user
+    content: |
+      You will receive:
+      a. Conversation: the conversation between the agent and the customer
+      b. Locale: The MANDATORY language and region to use for your answer is provided in a <locale></locale> XML tag.
+
+      <instructions>
+      Please read through the full conversation carefully. Based on the dialogue:
+      1. Imagine you are the customer support agent and you need to search the company's knowledge base to find a relevant article to help solve the customer's issue.
+      2. Think carefully about the key details and specifics of the customer's problem.
+      3. In <query> tags, summarize the issue the customer is facing at the end of the conversation.
+      4. Include as much detail as possible in your summary.
+      5. Also, attach the key utterances from the conversation that the summary is mainly based on.
+      6. IMPORTANT: Your response MUST be in the language specified by the locale XML tag, regardless of what language the conversation is in. Do not respond in any other language
+      </instructions>
+
+      <locale_explanation>
+      The locale XML tag determines the language of your response. Always respond in the language specified by the locale, even if the conversation is in a different language.
+      </locale_explanation>
+
+      Here are some examples, each wrapped in <example></example> XML tags:
+
+      <examples>
+
+      <example>
+      <conversation>
+      [AGENT] How can I assist you today?
+      [CUSTOMER] I can't log into my account; it keeps saying my password is incorrect.
+      </conversation>
+      <locale>en_US</locale>
+      <query>The customer is experiencing login issues due to a password error. They are asking for help resetting the password.</query>
+      </example>
+
+      <example>
+      <conversation>
+      [AGENT] ¿En qué puedo ayudarte hoy?
+      [CUSTOMER] Quiero cambiar mi dirección de facturación, ¿puedes ayudarme?
+      </conversation>
+      <locale>es_ES</locale>
+      <query>El cliente solicita ayuda para actualizar su dirección de facturación.</query>
+      </example>
+
+      <example>
+      <conversation>
+      [AGENT] Bonjour, comment puis-je vous aider aujourd'hui ?
+      [CUSTOMER] Je n'ai pas reçu ma commande et cela fait plus d'une semaine.
+      </conversation>
+      <locale>fr_FR</locale>
+      <query>Le client se plaint d'un retard de livraison et veut savoir où est sa commande.</query>
+      </example>
+
+      <example>
+      <conversation>
+      [AGENT] 무엇을 도와드릴까요?
+      [CUSTOMER] 지난달 요금 청구서가 이상하게 나왔어요.
+      </conversation>
+      <locale>ko_KR</locale>
+      <query>고객은 지난달의 청구서에 대해 문제를 제기하며 요금 내역을 확인하고 싶어합니다.</query>
+      </example>
+
+      <example>
+      <conversation>
+      [AGENT] 本日はどのようなご用件でしょうか？
+      [CUSTOMER] アカウントにログインできなくなりました。
+      </conversation>
+      <locale>ja_JP</locale>
+      <query>お客様はアカウントにログインできない問題についてサポートを求めています。</query>
+      </example>
+
+      <example>
+      <conversation>
+      [AGENT] 请问我可以为您做些什么？
+      [CUSTOMER] 我的包裹还没有送到，已经超过预计时间了。
+      </conversation>
+      <locale>zh_CN</locale>
+      <query>客户询问有关包裹延迟的原因，并希望尽快收到包裹。</query>
+      </example>
+
+      <!-- Examples showing that response language matches locale language regardless of conversation language -->
+      <example>
+      <conversation>
+      [AGENT] How can I help you today?
+      [CUSTOMER] I need to update my credit card on file for my subscription.
+      </conversation>
+      <locale>es_ES</locale>
+      <query>El cliente quiere actualizar la tarjeta de crédito asociada a su suscripción.</query>
+      </example>
+
+      <example>
+      <conversation>
+      [AGENT] ¿En qué puedo ayudarte?
+      [CUSTOMER] Estoy tratando de acceder a mi cuenta pero me sale un error.
+      </conversation>
+      <locale>en_US</locale>
+      <query>The customer is having trouble accessing their account and is receiving an error message.</query>
+      </example>
+
+      </examples>
+
+      Now it is your turn:
+
+      Here is the conversation between the agent and the customer
+      <conversation> 
+      {{$.transcript}}
+      </conversation>
+
+      Here is the locale to use for your answer
+      <locale>{{$.locale}}</locale>
+
+      <output_format>
+      Use the following output format: 
+      <query> the summary of the customer issue and key utterances </query>
+
+      Don't output anything else. Remember to write your entire response in the language specified by the locale XML tag, regardless of what language the conversation is in.
+      </output_format>

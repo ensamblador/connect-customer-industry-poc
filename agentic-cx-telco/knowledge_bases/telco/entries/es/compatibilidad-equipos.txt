@@ -1,0 +1,26 @@
+Compatibilidad de equipos y traer tu propio teléfono
+====================================================
+
+La mayoría de los teléfonos desbloqueados recientes funcionan con nuestra red. Puedes traer tu propio teléfono o comprar uno nuevo con nosotros.
+
+¿Cómo sé si mi teléfono es compatible?
+--------------------------------------
+
+Necesitas el número IMEI de tu teléfono. Lo encuentras marcando asterisco, almohadilla, cero, seis, almohadilla, o en los ajustes del teléfono en la sección de información. Con ese número puedes verificar la compatibilidad en nuestro sitio web antes de cambiarte.
+
+¿Qué significa que un teléfono esté desbloqueado?
+-------------------------------------------------
+
+Un teléfono desbloqueado no está atado a otra compañía y puede usar una tarjeta SIM o eSIM de cualquier operador compatible. Si tu teléfono está bloqueado por otra compañía, primero debes pedirle a esa compañía que lo desbloquee.
+
+¿Mi teléfono actual va a funcionar con 5G?
+------------------------------------------
+
+Para usar 5G, el teléfono debe ser compatible con esa red. Muchos modelos de los últimos años lo son. Si tu equipo solo es compatible con 4G LTE, seguirá funcionando bien, solo que sin la velocidad adicional del 5G.
+
+¿Puedo quedarme con mi número?
+------------------------------
+
+Sí. Puedes conservar tu número actual al cambiarte. Para hacerlo, no canceles primero con tu compañía anterior, ya que el número debe estar activo durante la transferencia.
+
+La compatibilidad exacta depende del modelo. Verifica tu IMEI en el sitio web para confirmar.

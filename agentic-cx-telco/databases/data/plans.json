@@ -1,0 +1,34 @@
+{
+  "Items": [
+    {
+      "planId": {"S": "plan-basic"},
+      "name": {"S": "Telco Basic"},
+      "dataGb": {"N": "5"},
+      "monthlyPrice": {"N": "25.00"},
+      "currency": {"S": "USD"},
+      "unlimitedCalls": {"BOOL": true},
+      "hotspot": {"BOOL": false},
+      "description": {"S": "5 GB high-speed data, unlimited talk and text. Best for light users."}
+    },
+    {
+      "planId": {"S": "plan-plus"},
+      "name": {"S": "Telco Plus"},
+      "dataGb": {"N": "25"},
+      "monthlyPrice": {"N": "45.00"},
+      "currency": {"S": "USD"},
+      "unlimitedCalls": {"BOOL": true},
+      "hotspot": {"BOOL": true},
+      "description": {"S": "25 GB high-speed data with mobile hotspot, unlimited talk and text."}
+    },
+    {
+      "planId": {"S": "plan-unlimited"},
+      "name": {"S": "Telco Unlimited 5G"},
+      "dataGb": {"N": "100"},
+      "monthlyPrice": {"N": "70.00"},
+      "currency": {"S": "USD"},
+      "unlimitedCalls": {"BOOL": true},
+      "hotspot": {"BOOL": true},
+      "description": {"S": "100 GB premium 5G data with hotspot and priority network access."}
+    }
+  ]
+}

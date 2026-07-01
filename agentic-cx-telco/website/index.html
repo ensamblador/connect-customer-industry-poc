@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Latam Telco | Telefonía móvil y más</title>
+    <meta
+      name="description"
+      content="Latam Telco: planes de telefonía móvil y cobertura 4G/5G en toda Latinoamérica."
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+
+  <body>
+    <!-- ============ Header ============ -->
+    <header class="site-header" id="inicio">
+      <div class="container header-inner">
+        <a class="brand" href="#inicio" aria-label="Latam Telco - Inicio">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">Latam Telco</span>
+        </a>
+
+        <button
+          type="button"
+          class="nav-toggle"
+          data-nav-toggle
+          aria-label="Abrir menú"
+          aria-controls="site-nav"
+        >
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+
+        <nav class="main-nav" id="site-nav" aria-label="Navegación principal">
+          <a href="#planes" data-nav-link>Planes</a>
+          <a href="#cobertura" data-nav-link>Cobertura</a>
+          <a href="#ayuda" data-nav-link>Ayuda</a>
+          <a href="/datos" target="_blank" rel="noopener">Datos demo</a>
+        </nav>
+
+        <div class="header-actions" id="session-area">
+          <!-- Estado sin sesión -->
+          <div class="session-block" data-session-logged-out>
+            <button type="button" class="btn btn-primary" data-login-open>
+              Iniciar sesión
+            </button>
+          </div>
+
+          <!-- Estado con sesión -->
+          <div class="session-block" data-session-logged-in hidden>
+            <span class="session-email" data-session-email></span>
+            <button type="button" class="btn btn-ghost" data-logout>
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============ Hero ============ -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="container hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">Conectividad sin fronteras</p>
+            <h1 id="hero-title">Conecta con todo Latinoamérica</h1>
+            <p class="hero-sub">
+              Planes móviles y la red 4G/5G más amplia de la región. Una sola
+              compañía para mantenerte conectado.
+            </p>
+            <div class="hero-cta">
+              <a class="btn btn-primary btn-lg" href="#planes" data-nav-link
+                >Ver planes móviles</a
+              >
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="hero-card">
+              <span class="hero-card-net">5G</span>
+              <span class="hero-card-label">Red Latam Telco</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Planes Móviles ============ -->
+      <section class="section" id="planes" aria-labelledby="planes-title">
+        <div class="container">
+          <header class="section-head">
+            <h2 id="planes-title">Planes móviles</h2>
+            <p>
+              Elige el plan que se adapta a tu ritmo. Sin contratos forzosos.
+            </p>
+          </header>
+
+          <div class="card-grid">
+            <article class="plan-card">
+              <h3 class="plan-name">Telco Basic</h3>
+              <p class="plan-price">
+                <span class="amount">$25.00</span> USD/mes
+              </p>
+              <ul class="plan-features">
+                <li>5 GB de datos de alta velocidad</li>
+                <li>Llamadas y SMS ilimitados</li>
+                <li>Ideal para uso ligero</li>
+              </ul>
+              <a class="btn btn-primary" href="#ayuda" data-nav-link
+                >Contratar</a
+              >
+            </article>
+
+            <article class="plan-card plan-card-featured">
+              <span class="plan-badge">Más popular</span>
+              <h3 class="plan-name">Telco Plus</h3>
+              <p class="plan-price">
+                <span class="amount">$45.00</span> USD/mes
+              </p>
+              <ul class="plan-features">
+                <li>25 GB de datos de alta velocidad</li>
+                <li>Hotspot móvil incluido</li>
+                <li>Llamadas y SMS ilimitados</li>
+              </ul>
+              <a class="btn btn-accent" href="#ayuda" data-nav-link
+                >Contratar</a
+              >
+            </article>
+
+            <article class="plan-card">
+              <h3 class="plan-name">Telco Unlimited 5G</h3>
+              <p class="plan-price">
+                <span class="amount">$70.00</span> USD/mes
+              </p>
+              <ul class="plan-features">
+                <li>100 GB de datos premium 5G</li>
+                <li>Hotspot móvil y red prioritaria</li>
+                <li>Llamadas y SMS ilimitados</li>
+              </ul>
+              <a class="btn btn-primary" href="#ayuda" data-nav-link
+                >Contratar</a
+              >
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Cobertura ============ -->
+      <section class="section" id="cobertura" aria-labelledby="cobertura-title">
+        <div class="container cobertura-inner">
+          <div class="cobertura-copy">
+            <h2 id="cobertura-title">Cobertura 4G y 5G</h2>
+            <p>
+              Nuestra red llega a más del 95% de la población con tecnología 4G
+              y despliegue 5G en las principales ciudades de Latinoamérica.
+              Navega, transmite y trabaja desde donde estés.
+            </p>
+            <ul class="coverage-stats">
+              <li><strong>95%</strong> de cobertura poblacional 4G</li>
+              <li><strong>+120</strong> ciudades con 5G</li>
+              <li><strong>24/7</strong> monitoreo de la red</li>
+            </ul>
+          </div>
+          <div class="cobertura-map" aria-hidden="true">
+            <span class="map-pin map-pin-1"></span>
+            <span class="map-pin map-pin-2"></span>
+            <span class="map-pin map-pin-3"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Ayuda / Soporte ============ -->
+      <section
+        class="section section-alt"
+        id="ayuda"
+        aria-labelledby="ayuda-title"
+      >
+        <div class="container ayuda-inner">
+          <h2 id="ayuda-title">¿Necesitas ayuda?</h2>
+          <p>
+            Nuestro equipo de soporte está disponible para resolver tus dudas
+            sobre planes, facturación y cobertura. Inicia un chat con un agente
+            y obtén respuesta al instante.
+          </p>
+          <p class="ayuda-hint">
+            Usa la burbuja de chat en la esquina de la pantalla para comenzar
+            una conversación. Si inicias sesión, compartiremos tu correo con el
+            agente para atenderte más rápido.
+          </p>
+          <button type="button" class="btn btn-accent btn-lg" data-chat-open>
+            Iniciar sesión para un mejor soporte
+          </button>
+          <p class="ayuda-hint">
+            ¿Eres del equipo? Consulta los
+            <a href="/datos" target="_blank" rel="noopener">datos demo</a>
+            (cuentas, planes y líneas) del backend.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ Footer ============ -->
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">Latam Telco</span>
+          <p class="footer-tagline">Conectando Latinoamérica.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Enlaces del pie de página">
+          <a href="#planes" data-nav-link>Planes móviles</a>
+          <a href="#cobertura" data-nav-link>Cobertura</a>
+          <a href="#ayuda" data-nav-link>Ayuda</a>
+        </nav>
+        <div class="footer-legal">
+          <a href="#">Términos y condiciones</a>
+          <a href="#">Política de privacidad</a>
+          <p class="footer-copy">
+            © 2024 Latam Telco. Todos los derechos reservados.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ============ Modal de Login ============ -->
+    <div
+      class="login-modal"
+      id="login-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="login-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="login-backdrop" data-login-close></div>
+      <div class="login-dialog" role="document">
+        <button
+          type="button"
+          class="login-close"
+          data-login-close
+          aria-label="Cerrar"
+        >
+          &times;
+        </button>
+        <h2 id="login-title">Iniciar sesión</h2>
+        <p class="login-sub">
+          Ingresa tu correo electrónico para una atención más personalizada.
+        </p>
+        <form class="login-form" id="login-form" novalidate>
+          <label for="login-email">Correo electrónico</label>
+          <input
+            type="email"
+            id="login-email"
+            name="email"
+            placeholder="tucorreo@ejemplo.com"
+            autocomplete="email"
+          />
+          <p class="login-error" id="login-error" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary btn-block">
+            Entrar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- App bootstrap: wires the login modal, nav toggle, session controls. -->
+    <script type="module" src="/src/main.js"></script>
+
+
+    
+    <!--REPLACE WITH CONNECT WIDGET AS IS (BELOW THIS LINE)-->
+<script type="text/javascript">
+  (function(w, d, x, id){
+    s=d.createElement('script');
+    s.src='https://cx-ia-latam.my.connect.aws/connectwidget/static/amazon-connect-chat-interface-client.js';
+    s.async=1;
+    s.id=id;
+    d.getElementsByTagName('head')[0].appendChild(s);
+    w[x] =  w[x] || function() { (w[x].ac = w[x].ac || []).push(arguments) };
+  })(window, document, 'amazon_connect', 'a9129e84-893d-42c8-afb6-1fc55e72ae8f');
+  amazon_connect('styles', { iconType: 'CHAT_VOICE', openChat: { color: '#ffffff', backgroundColor: '#123456' }, closeChat: { color: '#ffffff', backgroundColor: '#123456'} });
+  amazon_connect('snippetId', 'QVFJREFIaDRobWZ4TDRrQys5SXJsU0RsT2NjaHpDOEQvN3ZqSEZkQWdhY1I3SUhoUXdFZjhPOXpzcFRoWmc1Nzlvei91VS81QUFBQWJqQnNCZ2txaGtpRzl3MEJCd2FnWHpCZEFnRUFNRmdHQ1NxR1NJYjNEUUVIQVRBZUJnbGdoa2dCWlFNRUFTNHdFUVFNdE1YSE5FRjd5R1VZejNGMUFnRVFnQ3RNdmdqSTJqVDJCalFKU2FaS2I1UEN5NExlWWkyU2IzZlJxbHAyNk13cW1JdU85dW5PdmZVK3ZhbFQ6OjhJMWZLZjRGWHUwNzBlN3ZSZnNXalBvSGFFaXZHbWs2NDRDbE9jekRGYWNrYTNrcVJQTGFOemhxZDFyYlFHY1JyalplbzRuSVdnSkJlTnJxTWJVVlAzNlY2RmxqSXJQRjNjdWF5djVXb29jWnMwZHEwMS90MUxacEhhQnkrTDlCdDZNdmxzTysvbCsrVE1QQWdQeTlzcWdKYitnblU2OD0=');
+  amazon_connect('supportedMessagingContentTypes', [ 'text/plain', 'text/markdown', 'application/vnd.amazonaws.connect.message.interactive', 'application/vnd.amazonaws.connect.message.interactive.response' ]);
+</script>
+<!--END OF CONNECT WIDGET (ABOVE THIS LINE)-->
+    <script>
+      amazon_connect("customStyles", {
+        global: {
+          frameWidth: "390px",
+          frameHeight: "700px",
+          fontSize: "16px",
+          typeface: "Arial, sans-serif",
+        },
+      });
+      window._connectContactAttrs = { email: 'example@example.com' };
+          (function () {
+      var DEFAULT_EMAIL = 'example@example.com';
+      var attrs = window._connectContactAttrs || (window._connectContactAttrs = { email: DEFAULT_EMAIL });
+      if (!attrs.email || attrs.email === DEFAULT_EMAIL) {
+        try {
+          var stored = sessionStorage.getItem('telco_email');
+          if (stored) attrs.email = stored;
+        } catch (e) { /* sessionStorage no disponible: usa el default */ }
+      }
+      amazon_connect('contactAttributes', attrs);
+    })();
+    </script>
+  </body>
+</html>

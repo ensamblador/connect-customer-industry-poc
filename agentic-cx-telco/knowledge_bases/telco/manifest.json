@@ -1,0 +1,68 @@
+{
+  "knowledgeBaseName": "telco-kb",
+  "knowledgeBaseId": "e2636692-0ac3-4b7c-b77c-0f93e13ae9a5",
+  "knowledgeBaseType": "EXTERNAL",
+  "region": "us-east-1",
+  "assistantId": "fe93a128-6f2e-4cfb-8d38-0629207a909a",
+  "s3Prefix": "telco",
+  "managedBy": "cdk (CX-TELCO-KB / agentic_cx_telco.KnowledgeBaseStack)",
+  "resourceTags": { "industry": "telco" },
+  "entries": [
+    {
+      "name": "planes-moviles",
+      "title": "Planes móviles y qué incluyen",
+      "file": "entries/es/planes-moviles.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "plans", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "cobertura-4g-5g",
+      "title": "Cobertura 4G y 5G por zona",
+      "file": "entries/es/cobertura-4g-5g.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "coverage", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "compatibilidad-equipos",
+      "title": "Compatibilidad de equipos y traer tu propio teléfono",
+      "file": "entries/es/compatibilidad-equipos.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "devices", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "esim-activacion",
+      "title": "eSIM: qué es y cómo activarla",
+      "file": "entries/es/esim-activacion.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "devices", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "horarios-tiendas",
+      "title": "Horarios y ubicaciones de tiendas",
+      "file": "entries/es/horarios-tiendas.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "stores", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "faq-general",
+      "title": "Preguntas frecuentes",
+      "file": "entries/es/faq-general.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "faq", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "roaming-basico",
+      "title": "Roaming internacional: información general",
+      "file": "entries/es/roaming-basico.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "faq", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    }
+  ]
+}
