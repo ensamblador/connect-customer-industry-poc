@@ -26,6 +26,7 @@ from config_validation import (
     require,
     require_hold_message,
 )
+from connect.ai_agent_logging import AiAgentLogging
 from connect.flows import ContactFlow, ContactFlowModule
 from connect.prompt_lookup_cr import PromptByName
 from connect import ai_agents
@@ -93,6 +94,7 @@ class GeneralLocalizationStack(Stack):
         self._create_queue_flow()
         self._create_init_flow_module()
         self._create_ai_prompts_and_agents()
+        self._create_agent_logging()
         self._create_outputs()
         self._create_parameters()
 
@@ -358,6 +360,32 @@ class GeneralLocalizationStack(Stack):
                 ai_agents.AGENT_TYPE_NOTE_TAKING: note_taking,
             }
 
+    def _create_agent_logging(self) -> None:
+        """Provision the shared AI-agent CloudWatch logging (EVENT_LOGS).
+
+        Gated on ``config.ENABLE_AGENT_LOGS``. Targets the shared assistant/
+        domain ARN (independent of any Connect instance), so this is the
+        single place across every industry project (telco, bank, ...) that
+        creates the vended-log delivery source for that assistant — see
+        ``connect/ai_agent_logging.py`` for why it must not be duplicated per
+        industry stack.
+        """
+        self._agent_logging = None
+        if not getattr(config, "ENABLE_AGENT_LOGS", False):
+            return
+
+        assistant_arn = (
+            f"arn:aws:wisdom:{self.region}:{self.account}:assistant/"
+            f"{self._cfg['ASSISTANT_ID']}"
+        )
+        self._agent_logging = AiAgentLogging(
+            self,
+            "AiAgentLogging",
+            assistant_arn=assistant_arn,
+            log_group_name=config.AGENT_LOGS_GROUP_NAME,
+            retention_days=getattr(config, "AGENT_LOGS_RETENTION_DAYS", 30),
+        )
+
     def _create_outputs(self) -> None:
         """Emit one ``CfnOutput`` per CREATED resource (Requirement 11).
 
@@ -392,6 +420,18 @@ class GeneralLocalizationStack(Stack):
             value=self._init_flow_module.module_arn,
             description="ARN of the init-flow-es-v2 contact flow module.",
         )
+
+        # Shared AI-agent CloudWatch log group (only when logging is enabled).
+        if self._agent_logging is not None:
+            CfnOutput(
+                self,
+                "AiAgentLogGroupName",
+                value=self._agent_logging.log_group.log_group_name,
+                description=(
+                    "Name of the shared CloudWatch log group receiving "
+                    "EVENT_LOGS for every industry project's AI agents."
+                ),
+            )
 
         # AI prompts — four per enabled AI-agent locale (Req 11.2).
         for locale, prompts in self._ai_prompts.items():

@@ -1,0 +1,180 @@
+{
+  "knowledgeBaseName": "banco-kb",
+  "knowledgeBaseId": "",
+  "knowledgeBaseType": "EXTERNAL",
+  "region": "us-east-1",
+  "assistantId": "f319a787-91f1-4afa-b34c-11059e5f38bd",
+  "s3Prefix": "bank",
+  "managedBy": "cdk (CX-BANCO-KB / agentic_cx_bank.KnowledgeBaseStack)",
+  "resourceTags": { "industry": "bank" },
+  "entries": [
+    {
+      "name": "cuentas-es",
+      "title": "Cuentas: tipos y características",
+      "file": "entries/es/cuentas.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "accounts", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "tarjetas-es",
+      "title": "Tarjetas de crédito y débito",
+      "file": "entries/es/tarjetas.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "cards", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "transferencias-es",
+      "title": "Transferencias y pagos",
+      "file": "entries/es/transferencias.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "transfers", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "comisiones-es",
+      "title": "Comisiones y tarifas",
+      "file": "entries/es/comisiones.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "fees", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "faq-general-es",
+      "title": "Preguntas frecuentes",
+      "file": "entries/es/faq-general.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "faq", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "sucursales-es",
+      "title": "Horarios y ubicaciones de sucursales",
+      "file": "entries/es/sucursales.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "branches", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "activar-tarjeta-es",
+      "title": "Cómo activar tu tarjeta",
+      "file": "entries/es/activar-tarjeta.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "cards", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "cuentas-pt",
+      "title": "Contas: tipos e características",
+      "file": "entries/pt/cuentas.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "accounts", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "tarjetas-pt",
+      "title": "Cartões de crédito e débito",
+      "file": "entries/pt/tarjetas.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "cards", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "transferencias-pt",
+      "title": "Transferências e pagamentos",
+      "file": "entries/pt/transferencias.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "transfers", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "comisiones-pt",
+      "title": "Tarifas e comissões",
+      "file": "entries/pt/comisiones.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "fees", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "faq-general-pt",
+      "title": "Perguntas frequentes",
+      "file": "entries/pt/faq-general.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "faq", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "sucursales-pt",
+      "title": "Horários e localização das agências",
+      "file": "entries/pt/sucursales.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "branches", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "activar-tarjeta-pt",
+      "title": "Como ativar seu cartão",
+      "file": "entries/pt/activar-tarjeta.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "cards", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "cuentas-en",
+      "title": "Accounts: types and features",
+      "file": "entries/en/cuentas.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "accounts", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "tarjetas-en",
+      "title": "Credit and debit cards",
+      "file": "entries/en/tarjetas.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "cards", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "transferencias-en",
+      "title": "Transfers and payments",
+      "file": "entries/en/transferencias.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "transfers", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "comisiones-en",
+      "title": "Fees and charges",
+      "file": "entries/en/comisiones.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "fees", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "faq-general-en",
+      "title": "Frequently asked questions",
+      "file": "entries/en/faq-general.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "faq", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "sucursales-en",
+      "title": "Branch hours and locations",
+      "file": "entries/en/sucursales.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "branches", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "activar-tarjeta-en",
+      "title": "How to activate your card",
+      "file": "entries/en/activar-tarjeta.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "cards", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    }
+  ]
+}

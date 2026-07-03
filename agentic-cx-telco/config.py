@@ -187,12 +187,13 @@ AI_AGENT_ASSIST_MODEL = "global.anthropic.claude-sonnet-4-6"
 KB_LANGUAGE_TAG_KEY = "language"
 AI_AGENT_CONTENT_LANGUAGE = "es"
 
-# CloudWatch logging for the assistant's AI-agent events (EVENT_LOGS vended-log
-# delivery → a /aws/vendedlogs/ log group; the deploying principal needs
-# wisdom:AllowVendedLogDeliveryForResource). Set ENABLE to False to skip.
-ENABLE_AI_AGENT_LOGGING = True
-AI_AGENT_LOG_GROUP_NAME = "/aws/vendedlogs/connect/ai-agents/telco"
-AI_AGENT_LOG_RETENTION_DAYS = 30
+# NOTE: AI-agent CloudWatch logging (EVENT_LOGS vended-log delivery) is NOT
+# configured here. ASSISTANT_ID is shared across every industry project on
+# this account, and CloudWatch Logs allows only one EVENT_LOGS delivery source
+# per resource, so that logging is provisioned ONCE in the shared
+# `general-localization` (CX-LANG-UTILS) app instead (see
+# general-localization/connect/ai_agent_logging.py and its config.py
+# ENABLE_AGENT_LOGS / AGENT_LOGS_GROUP_NAME constants).
 
 # ========================================================================== #
 # PHASE 5 — CX-TELCO-FLOWS (ContactFlowsStack)

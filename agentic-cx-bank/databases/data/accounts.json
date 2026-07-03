@@ -1,0 +1,52 @@
+{
+  "Items": [
+    {
+      "accountId": {"S": "acct-1001"},
+      "customerId": {"S": "cust-5001"},
+      "name": {"S": "María González"},
+      "phoneNumber": {"S": "+12065550101"},
+      "email": {"S": "maria.gonzalez@example.com"},
+      "productId": {"S": "prod-cuenta-nomina"},
+      "status": {"S": "active"},
+      "balance": {"N": "1540.75"},
+      "currency": {"S": "USD"},
+      "dueDate": {"S": "2026-06-20"}
+    },
+    {
+      "accountId": {"S": "acct-1002"},
+      "customerId": {"S": "cust-5002"},
+      "name": {"S": "James Carter"},
+      "phoneNumber": {"S": "+12065550102"},
+      "email": {"S": "james.carter@example.com"},
+      "productId": {"S": "prod-tarjeta-clasica"},
+      "status": {"S": "active"},
+      "balance": {"N": "320.00"},
+      "currency": {"S": "USD"},
+      "dueDate": {"S": "2026-06-28"}
+    },
+    {
+      "accountId": {"S": "acct-1003"},
+      "customerId": {"S": "cust-5003"},
+      "name": {"S": "Aisha Khan"},
+      "phoneNumber": {"S": "+12065550103"},
+      "email": {"S": "aisha.khan@example.com"},
+      "productId": {"S": "prod-tarjeta-oro"},
+      "status": {"S": "suspended"},
+      "balance": {"N": "5820.40"},
+      "currency": {"S": "USD"},
+      "dueDate": {"S": "2026-06-10"}
+    },
+    {
+      "accountId": {"S": "acct-1004"},
+      "customerId": {"S": "cust-5004"},
+      "name": {"S": "Diego Fernández"},
+      "phoneNumber": {"S": "+12065550104"},
+      "email": {"S": "diego.fernandez@example.com"},
+      "productId": {"S": "prod-cuenta-nomina"},
+      "status": {"S": "active"},
+      "balance": {"N": "980.15"},
+      "currency": {"S": "USD"},
+      "dueDate": {"S": "2026-07-01"}
+    }
+  ]
+}

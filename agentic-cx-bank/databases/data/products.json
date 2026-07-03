@@ -1,0 +1,34 @@
+{
+  "Items": [
+    {
+      "productId": {"S": "prod-cuenta-nomina"},
+      "name": {"S": "Cuenta Nómina"},
+      "annualFee": {"N": "0"},
+      "monthlyFee": {"N": "0.00"},
+      "currency": {"S": "USD"},
+      "cashback": {"BOOL": false},
+      "contactless": {"BOOL": true},
+      "description": {"S": "Cuenta de nómina sin comisión de mantenimiento, con tarjeta de débito gratuita y transferencias nacionales sin coste."}
+    },
+    {
+      "productId": {"S": "prod-tarjeta-clasica"},
+      "name": {"S": "Tarjeta Clásica"},
+      "annualFee": {"N": "30"},
+      "monthlyFee": {"N": "0.00"},
+      "currency": {"S": "USD"},
+      "cashback": {"BOOL": false},
+      "contactless": {"BOOL": true},
+      "description": {"S": "Tarjeta de crédito clásica con pagos sin contacto y protección de compras. Cuota anual reducida."}
+    },
+    {
+      "productId": {"S": "prod-tarjeta-oro"},
+      "name": {"S": "Tarjeta Oro"},
+      "annualFee": {"N": "120"},
+      "monthlyFee": {"N": "0.00"},
+      "currency": {"S": "USD"},
+      "cashback": {"BOOL": true},
+      "contactless": {"BOOL": true},
+      "description": {"S": "Tarjeta de crédito premium con 2% de cashback, seguro de viaje y acceso a salas VIP de aeropuerto."}
+    }
+  ]
+}

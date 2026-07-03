@@ -1,0 +1,879 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "init-flow-es",
+  "Metadata": {
+    "entryPointPosition": {
+      "x": -462.4,
+      "y": 29.6
+    },
+    "ActionMetadata": {
+      "init-flow-es": {
+        "position": {
+          "x": -304,
+          "y": 1.6
+        }
+      },
+      "connect-assistant": {
+        "position": {
+          "x": -68,
+          "y": -16
+        },
+        "parameters": {
+          "OrchestrationAIAgentConfiguration": {
+            "AgentAssistanceAgentVersionArn": {
+              "useAIAgentDropdown": true,
+              "aiAgentName": "banco-agent-assist-es"
+            }
+          }
+        },
+        "useAIAgentDropdown": true,
+        "aiAgentName": "banco-agent-assist-es"
+      },
+      "set-customer-session-banco": {
+        "position": {
+          "x": 62.4,
+          "y": -16
+        }
+      },
+      "set-voice": {
+        "position": {
+          "x": 193.6,
+          "y": -20.8
+        },
+        "children": [
+          "bb554164-4b23-43c4-ba21-8cdb932a667d"
+        ],
+        "parameters": {
+          "TextToSpeechVoice": {
+            "languageCode": "es-US"
+          }
+        },
+        "overrideConsoleVoice": true,
+        "fragments": {
+          "SetContactData": "bb554164-4b23-43c4-ba21-8cdb932a667d"
+        },
+        "overrideLanguageAttribute": true
+      },
+      "bb554164-4b23-43c4-ba21-8cdb932a667d": {
+        "position": {
+          "x": 193.6,
+          "y": -20.8
+        },
+        "dynamicParams": []
+      },
+      "check-channel": {
+        "position": {
+          "x": 438.4,
+          "y": -18.4
+        },
+        "conditions": [],
+        "conditionMetadata": [
+          {
+            "id": "df302417-d786-4a58-abfd-10477fec9de9",
+            "operator": {
+              "name": "Equals",
+              "value": "Equals",
+              "shortDisplay": "="
+            },
+            "value": "CHAT"
+          }
+        ]
+      },
+      "VOICE Self Service": {
+        "position": {
+          "x": 734.4,
+          "y": 140
+        },
+        "isFriendlyName": true,
+        "children": [
+          "VOICE Self Service-QVGzihxHjN",
+          "VOICE Self Service-6zQnHy129I"
+        ],
+        "parameters": {
+          "WisdomAssistantArn": {
+            "useAIAgentDropdown": true,
+            "aiAgentName": "banco-selfservice-voice-es",
+            "aiAgentVersionArn": "VOICE_AGENT_LATEST_ARN_PLACEHOLDER"
+          }
+        },
+        "fragments": {
+          "SetContactData": "VOICE Self Service-QVGzihxHjN"
+        },
+        "useAIAgentDropdown": true,
+        "aiAgentName": "banco-selfservice-voice-es",
+        "aiAgentVersionArn": "VOICE_AGENT_LATEST_ARN_PLACEHOLDER"
+      },
+      "VOICE Self Service-QVGzihxHjN": {
+        "position": {
+          "x": 734.4,
+          "y": 140
+        },
+        "isFriendlyName": true,
+        "dynamicParams": []
+      },
+      "VOICE Self Service-6zQnHy129I": {
+        "position": {
+          "x": 734.4,
+          "y": 140
+        },
+        "isFriendlyName": true,
+        "parameters": {
+          "LexV2Bot": {
+            "AliasArn": {
+              "displayName": "TestBotAlias",
+              "useLexBotDropdown": true,
+              "lexV2BotName": "banco-qconnect-bot-v2"
+            }
+          }
+        },
+        "dynamicMetadata": {
+          "x-amz-lex:q-in-connect:ai-agent-arn": false
+        },
+        "useLexBotDropdown": true,
+        "lexV2BotName": "banco-qconnect-bot-v2",
+        "lexV2BotAliasName": "TestBotAlias",
+        "conditionMetadata": []
+      },
+      "CHAT Self Service": {
+        "position": {
+          "x": 724,
+          "y": -57.6
+        },
+        "isFriendlyName": true,
+        "children": [
+          "CHAT Self Service-h0fm1uW9jf",
+          "CHAT Self Service-HbFMbGfqmI"
+        ],
+        "parameters": {
+          "WisdomAssistantArn": {
+            "useAIAgentDropdown": true,
+            "aiAgentName": "banco-selfservice-chat-es",
+            "aiAgentVersionArn": "CHAT_AGENT_LATEST_ARN_PLACEHOLDER"
+          }
+        },
+        "fragments": {
+          "SetContactData": "CHAT Self Service-h0fm1uW9jf"
+        },
+        "useAIAgentDropdown": true,
+        "aiAgentName": "banco-selfservice-chat-es",
+        "aiAgentVersionArn": "CHAT_AGENT_LATEST_ARN_PLACEHOLDER"
+      },
+      "CHAT Self Service-h0fm1uW9jf": {
+        "position": {
+          "x": 724,
+          "y": -57.6
+        },
+        "isFriendlyName": true,
+        "dynamicParams": []
+      },
+      "CHAT Self Service-HbFMbGfqmI": {
+        "position": {
+          "x": 724,
+          "y": -57.6
+        },
+        "isFriendlyName": true,
+        "parameters": {
+          "LexV2Bot": {
+            "AliasArn": {
+              "displayName": "TestBotAlias",
+              "useLexBotDropdown": true,
+              "lexV2BotName": "banco-qconnect-bot-v2"
+            }
+          }
+        },
+        "dynamicMetadata": {
+          "x-amz-lex:q-in-connect:ai-agent-arn": false
+        },
+        "useLexBotDropdown": true,
+        "lexV2BotName": "banco-qconnect-bot-v2",
+        "lexV2BotAliasName": "TestBotAlias",
+        "conditionMetadata": []
+      },
+      "copy-context": {
+        "position": {
+          "x": -11.2,
+          "y": 270.4
+        },
+        "dynamicParams": []
+      },
+      "escalate-to-agent": {
+        "position": {
+          "x": 457.6,
+          "y": 540
+        }
+      },
+      "check-tool": {
+        "position": {
+          "x": -280,
+          "y": 262.4
+        },
+        "conditions": [],
+        "conditionMetadata": [
+          {
+            "id": "56a79803-b333-433a-8114-383249b8fa91",
+            "operator": {
+              "name": "Equals",
+              "value": "Equals",
+              "shortDisplay": "="
+            },
+            "value": "Escalate"
+          },
+          {
+            "id": "8278301f-25fe-4dce-a618-6f6e0fcb5cf2",
+            "operator": {
+              "name": "Equals",
+              "value": "Equals",
+              "shortDisplay": "="
+            },
+            "value": "Complete"
+          },
+          {
+            "id": "aadbe7d4-a6da-4408-8da2-ef2aa704ce4c",
+            "operator": {
+              "name": "Equals",
+              "value": "Equals",
+              "shortDisplay": "="
+            },
+            "value": "ShowCardRequestGuide"
+          }
+        ]
+      },
+      "copy-complete-context": {
+        "position": {
+          "x": 107.2,
+          "y": 569.6
+        },
+        "dynamicParams": []
+      },
+      "goodbye": {
+        "position": {
+          "x": 385.6,
+          "y": 771.2
+        }
+      },
+      "set-queue": {
+        "position": {
+          "x": 1451.2,
+          "y": 303.2
+        }
+      },
+      "disconnect": {
+        "position": {
+          "x": 779.2,
+          "y": 786.4
+        }
+      },
+      "transfer-queue": {
+        "position": {
+          "x": 1743.2,
+          "y": 377.6
+        }
+      },
+      "queue-full": {
+        "position": {
+          "x": 2000.8,
+          "y": 750.4
+        }
+      },
+      "nl-get-plans": {
+        "position": {
+          "x": -280,
+          "y": 560
+        }
+      },
+      "nl-show-form": {
+        "position": {
+          "x": -280,
+          "y": 820
+        }
+      },
+      "nl-set-attrs": {
+        "position": {
+          "x": 40,
+          "y": 1060
+        },
+        "dynamicParams": []
+      },
+      "nl-form-loop": {
+        "position": {
+          "x": -540,
+          "y": 1060
+        }
+      },
+      "nl-resume": {
+        "position": {
+          "x": -280,
+          "y": 1300
+        },
+        "parameters": {
+          "LexV2Bot": {
+            "AliasArn": {
+              "displayName": "TestBotAlias",
+              "useLexBotDropdown": true,
+              "lexV2BotName": "banco-qconnect-bot-v2"
+            }
+          }
+        },
+        "dynamicMetadata": {
+          "x-amz-lex:q-in-connect:ai-agent-arn": false
+        },
+        "useLexBotDropdown": true,
+        "lexV2BotName": "banco-qconnect-bot-v2",
+        "lexV2BotAliasName": "TestBotAlias",
+        "conditionMetadata": []
+      }
+    },
+    "Annotations": []
+  },
+  "Actions": [
+    {
+      "Parameters": {
+        "FlowModuleId": "INIT_MODULE_ID_PLACEHOLDER"
+      },
+      "Identifier": "init-flow-es",
+      "Type": "InvokeFlowModule",
+      "Transitions": {
+        "NextAction": "connect-assistant",
+        "Errors": [
+          {
+            "NextAction": "connect-assistant",
+            "ErrorType": "NoMatchingCondition"
+          },
+          {
+            "NextAction": "connect-assistant",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "WisdomAssistantArn": "ASSISTANT_ARN_PLACEHOLDER",
+        "OrchestrationAIAgentConfiguration": {
+          "AgentAssistanceAgentVersionArn": "ASSIST_AGENT_LATEST_ARN_PLACEHOLDER"
+        }
+      },
+      "Identifier": "connect-assistant",
+      "Type": "CreateWisdomSession",
+      "Transitions": {
+        "NextAction": "set-customer-session-banco",
+        "Errors": [
+          {
+            "NextAction": "set-voice",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "FlowModuleId": "SET_CUSTOMER_SESSION_MODULE_ID_PLACEHOLDER"
+      },
+      "Identifier": "set-customer-session-banco",
+      "Type": "InvokeFlowModule",
+      "Transitions": {
+        "NextAction": "set-voice",
+        "Errors": [
+          {
+            "NextAction": "set-voice",
+            "ErrorType": "NoMatchingError"
+          },
+          {
+            "NextAction": "set-voice",
+            "ErrorType": "NoMatchingCondition"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "TextToSpeechVoice": "Lupe",
+        "TextToSpeechEngine": "Generative",
+        "TextToSpeechStyle": "None"
+      },
+      "Identifier": "set-voice",
+      "Type": "UpdateContactTextToSpeechVoice",
+      "Transitions": {
+        "NextAction": "bb554164-4b23-43c4-ba21-8cdb932a667d",
+        "Errors": [
+          {
+            "NextAction": "check-channel",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "LanguageCode": "es-US"
+      },
+      "Identifier": "bb554164-4b23-43c4-ba21-8cdb932a667d",
+      "Type": "UpdateContactData",
+      "Transitions": {
+        "NextAction": "check-channel",
+        "Errors": [
+          {
+            "NextAction": "check-channel",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "ComparisonValue": "$.Channel"
+      },
+      "Identifier": "check-channel",
+      "Type": "Compare",
+      "Transitions": {
+        "NextAction": "VOICE Self Service",
+        "Conditions": [
+          {
+            "NextAction": "CHAT Self Service",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "CHAT"
+              ]
+            }
+          }
+        ],
+        "Errors": [
+          {
+            "NextAction": "VOICE Self Service",
+            "ErrorType": "NoMatchingCondition"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "WisdomAssistantArn": "ASSISTANT_ARN_PLACEHOLDER"
+      },
+      "Identifier": "VOICE Self Service",
+      "Type": "CreateWisdomSession",
+      "Transitions": {
+        "NextAction": "VOICE Self Service-QVGzihxHjN",
+        "Errors": [
+          {
+            "NextAction": "set-queue",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "WisdomSessionArn": "$.Wisdom.SessionArn"
+      },
+      "Identifier": "VOICE Self Service-QVGzihxHjN",
+      "Type": "UpdateContactData",
+      "Transitions": {
+        "NextAction": "VOICE Self Service-6zQnHy129I",
+        "Errors": [
+          {
+            "NextAction": "set-queue",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Text": "Hola $.Attributes.name! ¿En qué puedo ayudarle hoy?",
+        "LexV2Bot": {
+          "AliasArn": "LEX_BOT_ALIAS_ARN_PLACEHOLDER"
+        },
+        "LexSessionAttributes": {
+          "x-amz-lex:q-in-connect:ai-agent-arn": "VOICE_AGENT_LATEST_ARN_PLACEHOLDER"
+        }
+      },
+      "Identifier": "VOICE Self Service-6zQnHy129I",
+      "Type": "ConnectParticipantWithLexBot",
+      "Transitions": {
+        "NextAction": "set-queue",
+        "Errors": [
+          {
+            "NextAction": "check-tool",
+            "ErrorType": "NoMatchingCondition"
+          },
+          {
+            "NextAction": "set-queue",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "WisdomAssistantArn": "ASSISTANT_ARN_PLACEHOLDER"
+      },
+      "Identifier": "CHAT Self Service",
+      "Type": "CreateWisdomSession",
+      "Transitions": {
+        "NextAction": "CHAT Self Service-h0fm1uW9jf",
+        "Errors": [
+          {
+            "NextAction": "set-queue",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "WisdomSessionArn": "$.Wisdom.SessionArn"
+      },
+      "Identifier": "CHAT Self Service-h0fm1uW9jf",
+      "Type": "UpdateContactData",
+      "Transitions": {
+        "NextAction": "CHAT Self Service-HbFMbGfqmI",
+        "Errors": [
+          {
+            "NextAction": "set-queue",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Text": "Hola $.Attributes.name! ¿En qué puedo ayudarle hoy?",
+        "LexV2Bot": {
+          "AliasArn": "LEX_BOT_ALIAS_ARN_PLACEHOLDER"
+        },
+        "LexSessionAttributes": {
+          "x-amz-lex:q-in-connect:ai-agent-arn": "CHAT_AGENT_LATEST_ARN_PLACEHOLDER"
+        }
+      },
+      "Identifier": "CHAT Self Service-HbFMbGfqmI",
+      "Type": "ConnectParticipantWithLexBot",
+      "Transitions": {
+        "NextAction": "set-queue",
+        "Errors": [
+          {
+            "NextAction": "check-tool",
+            "ErrorType": "NoMatchingCondition"
+          },
+          {
+            "NextAction": "set-queue",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Attributes": {
+          "escalationReason": "$.Lex.SessionAttributes.escalationReason",
+          "escalationSummary": "$.Lex.SessionAttributes.escalationSummary",
+          "customerIntent": "$.Lex.SessionAttributes.customerIntent",
+          "sentiment": "$.Lex.SessionAttributes.sentiment",
+          "escalationPriority": "$.Lex.SessionAttributes.escalationPriority",
+          "resolutionAttempted": "$.Lex.SessionAttributes.resolutionAttempted",
+          "recommendedAction": "$.Lex.SessionAttributes.recommendedAction",
+          "topicsDiscussed": "$.Lex.SessionAttributes.topicsDiscussed"
+        },
+        "TargetContact": "Current"
+      },
+      "Identifier": "copy-context",
+      "Type": "UpdateContactAttributes",
+      "Transitions": {
+        "NextAction": "escalate-to-agent",
+        "Errors": [
+          {
+            "NextAction": "escalate-to-agent",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "FlowModuleId": "ESCALATE_MODULE_ID_PLACEHOLDER"
+      },
+      "Identifier": "escalate-to-agent",
+      "Type": "InvokeFlowModule",
+      "Transitions": {
+        "NextAction": "disconnect",
+        "Errors": [
+          {
+            "NextAction": "disconnect",
+            "ErrorType": "NoMatchingCondition"
+          },
+          {
+            "NextAction": "disconnect",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "ComparisonValue": "$.Lex.SessionAttributes.Tool"
+      },
+      "Identifier": "check-tool",
+      "Type": "Compare",
+      "Transitions": {
+        "NextAction": "set-queue",
+        "Conditions": [
+          {
+            "NextAction": "copy-context",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "Escalate"
+              ]
+            }
+          },
+          {
+            "NextAction": "copy-complete-context",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "Complete"
+              ]
+            }
+          },
+          {
+            "NextAction": "nl-show-form",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "ShowCardRequestGuide"
+              ]
+            }
+          }
+        ],
+        "Errors": [
+          {
+            "NextAction": "set-queue",
+            "ErrorType": "NoMatchingCondition"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Attributes": {
+          "completionReason": "$.Lex.SessionAttributes.reason",
+          "resolutionSummary": "$.Lex.SessionAttributes.resolutionSummary",
+          "topicsDiscussed": "$.Lex.SessionAttributes.topicsDiscussed"
+        },
+        "TargetContact": "Current"
+      },
+      "Identifier": "copy-complete-context",
+      "Type": "UpdateContactAttributes",
+      "Transitions": {
+        "NextAction": "goodbye",
+        "Errors": [
+          {
+            "NextAction": "goodbye",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Text": "Gracias por llamar. Que tenga un buen día."
+      },
+      "Identifier": "goodbye",
+      "Type": "MessageParticipant",
+      "Transitions": {
+        "NextAction": "disconnect",
+        "Errors": [
+          {
+            "NextAction": "disconnect",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "QueueId": "BASIC_QUEUE_ARN_PLACEHOLDER"
+      },
+      "Identifier": "set-queue",
+      "Type": "UpdateContactTargetQueue",
+      "Transitions": {
+        "NextAction": "transfer-queue",
+        "Errors": [
+          {
+            "NextAction": "disconnect",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {},
+      "Identifier": "disconnect",
+      "Type": "DisconnectParticipant",
+      "Transitions": {}
+    },
+    {
+      "Parameters": {},
+      "Identifier": "transfer-queue",
+      "Type": "TransferContactToQueue",
+      "Transitions": {
+        "NextAction": "disconnect",
+        "Errors": [
+          {
+            "NextAction": "queue-full",
+            "ErrorType": "QueueAtCapacity"
+          },
+          {
+            "NextAction": "disconnect",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Text": "En este momento todos nuestros representantes están ocupados. Por favor intente llamar más tarde."
+      },
+      "Identifier": "queue-full",
+      "Type": "MessageParticipant",
+      "Transitions": {
+        "NextAction": "disconnect",
+        "Errors": [
+          {
+            "NextAction": "disconnect",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "ViewResource": {
+          "Id": "NEWLINE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "300",
+        "ViewData": {}
+      },
+      "Identifier": "nl-show-form",
+      "Type": "ShowView",
+      "Transitions": {
+        "NextAction": "nl-form-loop",
+        "Conditions": [
+          {
+            "NextAction": "nl-write-plan",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "Submit"
+              ]
+            }
+          },
+          {
+            "NextAction": "nl-resume",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "Cancel"
+              ]
+            }
+          }
+        ],
+        "Errors": [
+          {
+            "NextAction": "nl-form-loop",
+            "ErrorType": "NoMatchingCondition"
+          },
+          {
+            "NextAction": "nl-form-loop",
+            "ErrorType": "NoMatchingError"
+          },
+          {
+            "NextAction": "nl-form-loop",
+            "ErrorType": "TimeLimitExceeded"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "LambdaFunctionARN": "AI_SESSION_LAMBDA_ARN_PLACEHOLDER",
+        "InvocationTimeLimitSeconds": "8",
+        "LambdaInvocationAttributes": {
+          "selectedProduct": "$.Views.Action"
+        },
+        "ResponseValidation": {
+          "ResponseType": "STRING_MAP"
+        }
+      },
+      "Identifier": "nl-write-plan",
+      "Type": "InvokeLambdaFunction",
+      "Transitions": {
+        "NextAction": "nl-resume",
+        "Errors": [
+          {
+            "NextAction": "nl-resume",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "LoopCount": "2"
+      },
+      "Identifier": "nl-form-loop",
+      "Type": "Loop",
+      "Transitions": {
+        "NextAction": "nl-resume",
+        "Conditions": [
+          {
+            "NextAction": "nl-show-form",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "ContinueLooping"
+              ]
+            }
+          },
+          {
+            "NextAction": "nl-resume",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "DoneLooping"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "LexV2Bot": {
+          "AliasArn": "LEX_BOT_ALIAS_ARN_PLACEHOLDER"
+        },
+        "LexSessionAttributes": {
+          "x-amz-lex:q-in-connect:ai-agent-arn": "CHAT_AGENT_LATEST_ARN_PLACEHOLDER"
+        },
+        "LexInitializationData": {
+          "InitialMessage": "[FORMULARIO_SOLICITUD_TARJETA] El cliente seleccionó una tarjeta para la solicitud (ver selectedProduct en la sesión). Continúa con la solicitud."
+        }
+      },
+      "Identifier": "nl-resume",
+      "Type": "ConnectParticipantWithLexBot",
+      "Transitions": {
+        "NextAction": "set-queue",
+        "Errors": [
+          {
+            "NextAction": "check-tool",
+            "ErrorType": "NoMatchingCondition"
+          },
+          {
+            "NextAction": "set-queue",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    }
+  ]
+}

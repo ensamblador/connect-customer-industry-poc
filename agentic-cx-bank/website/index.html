@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Latam Banco | Cuentas, tarjetas y banca digital</title>
+    <meta
+      name="description"
+      content="Latam Banco: cuentas, tarjetas de crédito y banca digital en toda Latinoamérica."
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+
+  <body>
+    <!-- ============ Header ============ -->
+    <header class="site-header" id="inicio">
+      <div class="container header-inner">
+        <a class="brand" href="#inicio" aria-label="Latam Banco - Inicio">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">Latam Banco</span>
+        </a>
+
+        <button
+          type="button"
+          class="nav-toggle"
+          data-nav-toggle
+          aria-label="Abrir menú"
+          aria-controls="site-nav"
+        >
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+
+        <nav class="main-nav" id="site-nav" aria-label="Navegación principal">
+          <a href="#productos" data-nav-link>Productos</a>
+          <a href="#sucursales" data-nav-link>Sucursales</a>
+          <a href="#ayuda" data-nav-link>Ayuda</a>
+          <a href="/datos" target="_blank" rel="noopener">Datos demo</a>
+        </nav>
+
+        <div class="header-actions" id="session-area">
+          <!-- Estado sin sesión -->
+          <div class="session-block" data-session-logged-out>
+            <button type="button" class="btn btn-primary" data-login-open>
+              Iniciar sesión
+            </button>
+          </div>
+
+          <!-- Estado con sesión -->
+          <div class="session-block" data-session-logged-in hidden>
+            <span class="session-email" data-session-email></span>
+            <button type="button" class="btn btn-ghost" data-logout>
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============ Hero ============ -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="container hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">Banca sin fronteras</p>
+            <h1 id="hero-title">Tu dinero, en toda Latinoamérica</h1>
+            <p class="hero-sub">
+              Cuentas, tarjetas y banca digital con la red de sucursales y
+              cajeros más amplia de la región. Un solo banco para tu vida
+              financiera.
+            </p>
+            <div class="hero-cta">
+              <a class="btn btn-primary btn-lg" href="#productos" data-nav-link
+                >Ver productos</a
+              >
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="hero-card">
+              <span class="hero-card-net">24/7</span>
+              <span class="hero-card-label">Banca Latam Banco</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Productos ============ -->
+      <section class="section" id="productos" aria-labelledby="productos-title">
+        <div class="container">
+          <header class="section-head">
+            <h2 id="productos-title">Nuestros productos</h2>
+            <p>
+              Elige el producto que se adapta a tu vida. Sin letra pequeña.
+            </p>
+          </header>
+
+          <div class="card-grid">
+            <article class="plan-card">
+              <h3 class="plan-name">Cuenta Nómina</h3>
+              <p class="plan-price">
+                <span class="amount">$0.00</span> USD/mes
+              </p>
+              <ul class="plan-features">
+                <li>Sin comisión de mantenimiento</li>
+                <li>Transferencias nacionales ilimitadas</li>
+                <li>Ideal para recibir tu salario</li>
+              </ul>
+              <a class="btn btn-primary" href="#ayuda" data-nav-link
+                >Solicitar</a
+              >
+            </article>
+
+            <article class="plan-card plan-card-featured">
+              <span class="plan-badge">Más popular</span>
+              <h3 class="plan-name">Tarjeta Clásica</h3>
+              <p class="plan-price">
+                <span class="amount">$45.00</span> USD/año
+              </p>
+              <ul class="plan-features">
+                <li>Cashback del 1% en todas tus compras</li>
+                <li>Compras protegidas y sin contacto</li>
+                <li>Cuotas sin intereses en comercios afiliados</li>
+              </ul>
+              <a class="btn btn-accent" href="#ayuda" data-nav-link
+                >Solicitar</a
+              >
+            </article>
+
+            <article class="plan-card">
+              <h3 class="plan-name">Tarjeta Gold</h3>
+              <p class="plan-price">
+                <span class="amount">$120.00</span> USD/año
+              </p>
+              <ul class="plan-features">
+                <li>Cashback del 2% y acceso a salas VIP</li>
+                <li>Seguro de viaje y asistencia global</li>
+                <li>Línea de crédito ampliada</li>
+              </ul>
+              <a class="btn btn-primary" href="#ayuda" data-nav-link
+                >Solicitar</a
+              >
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Sucursales y cajeros ============ -->
+      <section class="section" id="sucursales" aria-labelledby="sucursales-title">
+        <div class="container cobertura-inner">
+          <div class="cobertura-copy">
+            <h2 id="sucursales-title">Sucursales y cajeros</h2>
+            <p>
+              Nuestra red llega a más del 95% de la población con sucursales y
+              cajeros automáticos en las principales ciudades de Latinoamérica.
+              Retira, deposita y gestiona tu dinero desde donde estés, o desde
+              la banca digital.
+            </p>
+            <ul class="coverage-stats">
+              <li><strong>95%</strong> de cobertura poblacional</li>
+              <li><strong>+2.500</strong> cajeros automáticos</li>
+              <li><strong>24/7</strong> banca digital y soporte</li>
+            </ul>
+          </div>
+          <div class="cobertura-map" aria-hidden="true">
+            <span class="map-pin map-pin-1"></span>
+            <span class="map-pin map-pin-2"></span>
+            <span class="map-pin map-pin-3"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Ayuda / Soporte ============ -->
+      <section
+        class="section section-alt"
+        id="ayuda"
+        aria-labelledby="ayuda-title"
+      >
+        <div class="container ayuda-inner">
+          <h2 id="ayuda-title">¿Necesitas ayuda?</h2>
+          <p>
+            Nuestro equipo de soporte está disponible para resolver tus dudas
+            sobre cuentas, tarjetas y transferencias. Inicia un chat con un
+            agente y obtén respuesta al instante.
+          </p>
+          <p class="ayuda-hint">
+            Usa la burbuja de chat en la esquina de la pantalla para comenzar
+            una conversación. Si inicias sesión, compartiremos tu correo con el
+            agente para atenderte más rápido.
+          </p>
+          <button type="button" class="btn btn-accent btn-lg" data-chat-open>
+            Iniciar sesión para un mejor soporte
+          </button>
+          <p class="ayuda-hint">
+            ¿Eres del equipo? Consulta los
+            <a href="/datos" target="_blank" rel="noopener">datos demo</a>
+            (cuentas, productos y tarjetas) del backend.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ Footer ============ -->
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">Latam Banco</span>
+          <p class="footer-tagline">Banca para Latinoamérica.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Enlaces del pie de página">
+          <a href="#productos" data-nav-link>Productos</a>
+          <a href="#sucursales" data-nav-link>Sucursales</a>
+          <a href="#ayuda" data-nav-link>Ayuda</a>
+        </nav>
+        <div class="footer-legal">
+          <a href="#">Términos y condiciones</a>
+          <a href="#">Política de privacidad</a>
+          <p class="footer-copy">
+            © 2024 Latam Banco. Todos los derechos reservados.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ============ Modal de Login ============ -->
+    <div
+      class="login-modal"
+      id="login-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="login-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="login-backdrop" data-login-close></div>
+      <div class="login-dialog" role="document">
+        <button
+          type="button"
+          class="login-close"
+          data-login-close
+          aria-label="Cerrar"
+        >
+          &times;
+        </button>
+        <h2 id="login-title">Iniciar sesión</h2>
+        <p class="login-sub">
+          Ingresa tu correo electrónico para una atención más personalizada.
+        </p>
+        <form class="login-form" id="login-form" novalidate>
+          <label for="login-email">Correo electrónico</label>
+          <input
+            type="email"
+            id="login-email"
+            name="email"
+            placeholder="tucorreo@ejemplo.com"
+            autocomplete="email"
+          />
+          <p class="login-error" id="login-error" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary btn-block">
+            Entrar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- App bootstrap: wires the login modal, nav toggle, session controls. -->
+    <script type="module" src="/src/main.js"></script>
+
+
+    
+    <!--REPLACE WITH CONNECT WIDGET AS IS (BELOW THIS LINE)-->
+<script type="text/javascript">
+  (function(w, d, x, id){
+    s=d.createElement('script');
+    s.src='https://cx-ia-latam.my.connect.aws/connectwidget/static/amazon-connect-chat-interface-client.js';
+    s.async=1;
+    s.id=id;
+    d.getElementsByTagName('head')[0].appendChild(s);
+    w[x] =  w[x] || function() { (w[x].ac = w[x].ac || []).push(arguments) };
+  })(window, document, 'amazon_connect', 'f29d5686-2594-41c9-9aa2-f93dba730d5f');
+  amazon_connect('styles', { iconType: 'CHAT_VOICE', openChat: { color: '#ffffff', backgroundColor: '#123456' }, closeChat: { color: '#ffffff', backgroundColor: '#123456'} });
+  amazon_connect('snippetId', 'QVFJREFIaDRobWZ4TDRrQys5SXJsU0RsT2NjaHpDOEQvN3ZqSEZkQWdhY1I3SUhoUXdGU0ovVWJCTUFkZXdwcHg4Y2ViaTBXQUFBQWJqQnNCZ2txaGtpRzl3MEJCd2FnWHpCZEFnRUFNRmdHQ1NxR1NJYjNEUUVIQVRBZUJnbGdoa2dCWlFNRUFTNHdFUVFNV1ZtNzVHZ05lSjJnNzhRQ0FnRVFnQ3YwVER0YXJ1Y1RYTDRESHRvTmcva0RoR3J3R3NSZm1VaHBmbXF5THBLc2Rrb002ZDBybUZsZU9QZzU6Ondkcmx5U29SS3pXR1M1NTJYdEkvVSt5NE8rL0oxNTRkb3M4Ym5OODNOdDNFdFB5cjFHdnVuRkVJV0pFVGZCRlYvdlpDSGZDUHNLYktCblRvZGtQTzdPUFdCZmxmblFxRmpkRjdBOTBuem5ZR3RHNHVUcVI2T0h6QW16NER3b2JOYmhpOWRqV1RTZ0NvTE1CWmpTTmVqajlUTTJtenZ1VT0=');
+  amazon_connect('supportedMessagingContentTypes', [ 'text/plain', 'text/markdown', 'application/vnd.amazonaws.connect.message.interactive', 'application/vnd.amazonaws.connect.message.interactive.response' ]);
+</script>
+<!--END OF CONNECT WIDGET (ABOVE THIS LINE)-->
+    <script>
+      amazon_connect("customStyles", {
+        global: {
+          frameWidth: "390px",
+          frameHeight: "700px",
+          fontSize: "16px",
+          typeface: "Arial, sans-serif",
+        },
+      });
+      window._connectContactAttrs = {};
+          (function () {
+      var attrs = window._connectContactAttrs || (window._connectContactAttrs = {});
+      if (!attrs.email) {
+        try {
+          var stored = sessionStorage.getItem('banco_email');
+          if (stored) attrs.email = stored;
+        } catch (e) { /* sessionStorage no disponible: se omite el email */ }
+      }
+      // Si hay un cliente con sesión, se pasa su email como atributo de
+      // contacto; si no hay email disponible, el chat se inicia SIN el atributo.
+      amazon_connect('contactAttributes', attrs.email ? { email: attrs.email } : {});
+    })();
+    </script>
+  </body>
+</html>

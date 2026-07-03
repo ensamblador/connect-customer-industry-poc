@@ -75,6 +75,8 @@ def _expected_output_names(stack: GeneralLocalizationStack) -> set[str]:
     ``AiAgent<Type><Locale>Arn`` per created agent.
     """
     expected = {"QueueFlowArn", "InitFlowModuleArn"}
+    if stack._agent_logging is not None:
+        expected.add("AiAgentLogGroupName")
     for locale, prompts in stack._ai_prompts.items():
         locale_token = _locale_token(locale)
         for source in prompts:
@@ -112,9 +114,11 @@ def test_outputs_correspond_one_to_one_with_created_resources(locales):
     ]
     n = len(enabled_non_english)
 
-    # 1) Total output count: 1 queue flow + 1 init flow module + 4 prompts +
-    #    3 agents per enabled non-English locale.
-    expected_count = 2 + 4 * n + 3 * n
+    # 1) Total output count: 1 queue flow + 1 init flow module + (1 log group
+    #    output when agent logging is enabled) + 4 prompts + 3 agents per
+    #    enabled non-English locale.
+    logging_output_count = 1 if getattr(config, "ENABLE_AGENT_LOGS", False) else 0
+    expected_count = 2 + logging_output_count + 4 * n + 3 * n
     assert len(actual_names) == expected_count, (
         f"expected {expected_count} outputs for {n} enabled non-English "
         f"locale(s) {enabled_non_english}, got {len(actual_names)}: "
@@ -144,7 +148,11 @@ def test_outputs_correspond_one_to_one_with_created_resources(locales):
     assert created_prompt_count == 4 * n
     assert created_agent_count == 3 * n
     assert sum(1 for name in actual_names if name.startswith("AiPrompt")) == created_prompt_count
-    assert sum(1 for name in actual_names if name.startswith("AiAgent")) == created_agent_count
+    assert sum(
+        1
+        for name in actual_names
+        if name.startswith("AiAgent") and name != "AiAgentLogGroupName"
+    ) == created_agent_count
 
     # 5) No output references an uncreated resource: a disabled/absent locale
     #    contributes no outputs carrying its token (e.g. no PtBr outputs when
@@ -178,13 +186,14 @@ def test_pt_br_disabled_produces_no_portuguese_outputs():
         config.LOCALES = original_locales
 
     names = set(outputs.keys())
-    # 1 queue flow + 1 init flow module + 4 prompts + 3 agents for es_US only.
-    assert len(names) == 2 + 4 + 3
+    # 1 queue flow + 1 init flow module + (1 log group output when agent
+    # logging is enabled) + 4 prompts + 3 agents for es_US only.
+    logging_output_count = 1 if getattr(config, "ENABLE_AGENT_LOGS", False) else 0
+    always_on_names = {"QueueFlowArn", "InitFlowModuleArn"}
+    if logging_output_count:
+        always_on_names.add("AiAgentLogGroupName")
+    assert len(names) == 2 + logging_output_count + 4 + 3
     assert "QueueFlowArn" in names
     assert "InitFlowModuleArn" in names
     assert not [n for n in names if "PtBr" in n]
-    assert all(
-        "EsUs" in n
-        for n in names
-        if n not in ("QueueFlowArn", "InitFlowModuleArn")
-    )
+    assert all("EsUs" in n for n in names if n not in always_on_names)

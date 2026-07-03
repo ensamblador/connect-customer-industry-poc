@@ -18,6 +18,16 @@ The destination log group name uses the ``/aws/vendedlogs/`` prefix so CloudWatc
 Logs auto-manages the resource policy that lets ``delivery.logs.amazonaws.com``
 write to it (no manual CfnResourcePolicy needed).
 
+Why this construct lives HERE (``general-localization``, not the industry
+projects): the ``ASSISTANT_ID`` (the Q in Connect AI Agents domain) is SHARED
+across every industry project (telco, bank, ...) on the account, and CloudWatch
+Logs allows only ONE ``EVENT_LOGS`` delivery source per resource. Provisioning
+this logging once, in the shared localization app, avoids the
+``ConflictException`` a second industry stack hits when it tries to create its
+own delivery source against the same assistant. Each industry project's
+``AiAgentsStack`` therefore does NOT create any logging resource or custom
+resource for this — see their READMEs for the manual cross-check.
+
 Deployer note: the principal running the deploy needs
 ``wisdom:AllowVendedLogDeliveryForResource`` (plus the standard
 ``logs:Put*Delivery*`` / ``logs:CreateDelivery`` permissions) to create the
@@ -56,7 +66,7 @@ class AiAgentLogging(Construct):
         assistant_arn: str,
         log_group_name: str,
         retention_days: int = 30,
-        source_name: str = "telco-ai-agents-event-logs",
+        source_name: str = "connect-ai-agents-event-logs",
         removal_policy: RemovalPolicy = RemovalPolicy.DESTROY,
         **kwargs,
     ) -> None:

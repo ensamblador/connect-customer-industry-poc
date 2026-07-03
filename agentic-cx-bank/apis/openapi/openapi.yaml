@@ -1,0 +1,513 @@
+openapi: 3.0.1
+info:
+  title: Bank Self-Service API
+  description: >
+    REST API for retail-banking self-service: banking product catalog, customer
+    account lookup (by id, phone number, or email), balance inquiry, and card
+    requests. Exposed to the Connect AI agent as MCP tools through a Bedrock
+    AgentCore gateway.
+  version: 3.0.0
+  contact:
+    name: banco-cx
+
+# The server URL is rendered at deploy time. ${ApiId} and ${Stage} are
+# substituted (CloudFormation Fn::Sub) with the real deployed REST API id and
+# stage; ${AWS::Region} is the deploy region pseudo-parameter. Do not hardcode
+# a real host here — the rendered spec is what the gateway uses.
+servers:
+  - url: https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
+    description: Deployed Bank self-service API Gateway endpoint
+
+tags:
+  - name: Accounts
+    description: Customer account profile, balance, and phone/email lookup
+  - name: Products
+    description: Banking product catalog operations
+  - name: Cards
+    description: Card request operations
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /accounts:
+    get:
+      operationId: getAccountByPhone
+      summary: Look up a customer account by phone number
+      description: >
+        Find a customer's bank account by their phone number (E.164 format, e.g.
+        +12065550101). Use this when the customer is identified by phone rather
+        than account id. Returns the full account profile.
+      tags:
+        - Accounts
+      parameters:
+        - name: phoneNumber
+          in: query
+          required: true
+          description: The customer's phone number in E.164 format.
+          schema:
+            type: string
+          example: '+12065550101'
+      responses:
+        '200':
+          description: The matching account profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Missing phoneNumber query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No account found for the supplied phone number.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /accounts/by-email:
+    get:
+      operationId: getAccountByEmail
+      summary: Look up a customer account by email address
+      description: >
+        Find a customer's bank account by their email address. Use this when the
+        customer is identified by email rather than account id or phone. Returns
+        the full account profile.
+      tags:
+        - Accounts
+      parameters:
+        - name: email
+          in: query
+          required: true
+          description: The customer's email address.
+          schema:
+            type: string
+            format: email
+          example: maria.gonzalez@example.com
+      responses:
+        '200':
+          description: The matching account profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Missing email query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No account found for the supplied email.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /accounts/{accountId}:
+    get:
+      operationId: getAccount
+      summary: Get a customer account profile
+      description: >
+        Retrieve a customer's bank account profile by account id, including
+        product id, account status, balance, currency, and contact details.
+      tags:
+        - Accounts
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: The unique bank account identifier.
+          schema:
+            type: string
+          example: acct-1001
+      responses:
+        '200':
+          description: The account profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Missing or invalid accountId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No account found for the supplied accountId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /accounts/{accountId}/balance:
+    get:
+      operationId: getAccountBalance
+      summary: Get a customer's current balance
+      description: >
+        Get the current account balance, currency, and payment due date for a
+        bank account by account id. Use this for "what is my balance" or "when
+        is my payment due" questions.
+      tags:
+        - Accounts
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: The unique bank account identifier.
+          schema:
+            type: string
+          example: acct-1001
+      responses:
+        '200':
+          description: The account's current balance.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - accountId
+                  - balance
+                  - currency
+                properties:
+                  accountId:
+                    type: string
+                    example: acct-1001
+                  balance:
+                    type: number
+                    description: Current account balance.
+                    example: 1540.75
+                  currency:
+                    type: string
+                    example: USD
+                  dueDate:
+                    type: string
+                    format: date
+                    example: '2026-06-20'
+        '404':
+          description: No account found for the supplied accountId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /products:
+    get:
+      operationId: listProducts
+      summary: List banking products
+      description: >
+        List the available banking products, optionally filtered by a maximum
+        annual fee (maxAnnualFee). Use this to recommend products, e.g.
+        "products with no more than 50 in annual fee". Results are ordered by
+        annual fee ascending.
+      tags:
+        - Products
+      parameters:
+        - name: maxAnnualFee
+          in: query
+          required: false
+          description: Only return products whose annual fee is at most this amount.
+          schema:
+            type: number
+          example: 50
+      responses:
+        '200':
+          description: The matching products.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - products
+                  - count
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  count:
+                    type: integer
+                    example: 2
+        '400':
+          description: maxAnnualFee was not a valid number.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /products/{productId}:
+    get:
+      operationId: getProduct
+      summary: Get a banking product's details
+      description: >
+        Get the full details of a single banking product by product id,
+        including annual fee, price, and description.
+      tags:
+        - Products
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: The unique product identifier.
+          schema:
+            type: string
+          example: prod-tarjeta-oro
+      responses:
+        '200':
+          description: The product details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: No product found for the supplied productId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /cards:
+    post:
+      operationId: requestCard
+      summary: Request a new card
+      description: >
+        Request a new card for an existing customer. This is a state-changing
+        action — confirm with the customer before calling. Provide the
+        customerId and the productId for the requested card; optionally free-text
+        notes. Returns the created card request with its generated cardId and
+        status "requested".
+      tags:
+        - Cards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customerId
+                - productId
+              properties:
+                customerId:
+                  type: string
+                  description: The customer the new card is requested for.
+                  example: cust-5001
+                productId:
+                  type: string
+                  description: The banking product the new card will use.
+                  example: prod-tarjeta-oro
+                notes:
+                  type: string
+                  description: Optional free-text notes about the request.
+                  example: Additional card for a family member.
+      responses:
+        '201':
+          description: The created card request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '400':
+          description: Missing required fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      operationId: listCustomerCards
+      summary: List a customer's card requests
+      description: >
+        List all cards and card requests for a customer by customerId. Use this
+        to check a customer's existing cards before requesting a new one or to
+        report status.
+      tags:
+        - Cards
+      parameters:
+        - name: customerId
+          in: query
+          required: true
+          description: The customer whose cards to list.
+          schema:
+            type: string
+          example: cust-5003
+      responses:
+        '200':
+          description: The customer's cards.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - customerId
+                  - cards
+                  - count
+                properties:
+                  customerId:
+                    type: string
+                    example: cust-5003
+                  cards:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Card'
+                  count:
+                    type: integer
+                    example: 1
+        '400':
+          description: Missing customerId query parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /cards/{cardId}:
+    get:
+      operationId: getCard
+      summary: Get a card request
+      description: Get the status and details of a single card request by card id.
+      tags:
+        - Cards
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          description: The unique card identifier.
+          schema:
+            type: string
+          example: card-9001
+      responses:
+        '200':
+          description: The card details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '404':
+          description: No card found for the supplied cardId.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    Account:
+      type: object
+      required:
+        - accountId
+        - customerId
+        - name
+        - phoneNumber
+        - productId
+        - status
+      properties:
+        accountId:
+          type: string
+          example: acct-1001
+        customerId:
+          type: string
+          description: Customer identifier (used for card requests).
+          example: cust-5001
+        name:
+          type: string
+          example: María González
+        phoneNumber:
+          type: string
+          description: Phone number in E.164 format.
+          example: '+12065550101'
+        productId:
+          type: string
+          description: The banking product the account is subscribed to.
+          example: prod-cuenta-nomina
+        status:
+          type: string
+          enum: [active, suspended, closed]
+          example: active
+        balance:
+          type: number
+          example: 1540.75
+        currency:
+          type: string
+          example: USD
+        dueDate:
+          type: string
+          format: date
+          example: '2026-06-20'
+        email:
+          type: string
+          format: email
+          example: maria.gonzalez@example.com
+    Product:
+      type: object
+      required:
+        - productId
+        - name
+        - annualFee
+        - price
+      properties:
+        productId:
+          type: string
+          example: prod-tarjeta-oro
+        name:
+          type: string
+          example: Tarjeta Oro
+        annualFee:
+          type: number
+          description: Annual fee for the product.
+          example: 45.0
+        price:
+          type: number
+          description: Price or monthly cost associated with the product.
+          example: 12.0
+        currency:
+          type: string
+          example: USD
+        description:
+          type: string
+          example: Tarjeta de crédito Oro con recompensas y cero comisión el primer año.
+    Card:
+      type: object
+      required:
+        - cardId
+        - customerId
+        - productId
+        - status
+      properties:
+        cardId:
+          type: string
+          example: card-9001
+        customerId:
+          type: string
+          example: cust-5003
+        productId:
+          type: string
+          description: The banking product the card uses.
+          example: prod-tarjeta-oro
+        notes:
+          type: string
+          description: Free-text notes about the card request.
+          example: Additional card for a family member.
+        status:
+          type: string
+          enum: [requested, provisioning, active, cancelled]
+          example: requested
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-06-01T14:30:00Z'
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: account acct-1001 not found

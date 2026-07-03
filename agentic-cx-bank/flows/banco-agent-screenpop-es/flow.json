@@ -1,0 +1,66 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "set-logging",
+  "Metadata": {
+    "entryPointPosition": { "x": -240, "y": 0 },
+    "ActionMetadata": {
+      "set-logging": { "position": { "x": -40, "y": 0 } },
+      "show-view": { "position": { "x": 200, "y": 0 } },
+      "disconnect": { "position": { "x": 520, "y": 0 } }
+    },
+    "Annotations": []
+  },
+  "Actions": [
+    {
+      "Identifier": "set-logging",
+      "Type": "UpdateFlowLoggingBehavior",
+      "Parameters": { "FlowLoggingBehavior": "Enabled" },
+      "Transitions": {
+        "NextAction": "show-view"
+      }
+    },
+    {
+      "Identifier": "show-view",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "HANDOFF_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "escalationReason": "$.Attributes.escalationReason",
+          "escalationSummary": "$.Attributes.escalationSummary",
+          "customerIntent": "$.Attributes.customerIntent",
+          "sentiment": "$.Attributes.sentiment",
+          "escalationPriority": "$.Attributes.escalationPriority",
+          "resolutionAttempted": "$.Attributes.resolutionAttempted",
+          "recommendedAction": "$.Attributes.recommendedAction",
+          "topicsDiscussed": "$.Attributes.topicsDiscussed"
+        }
+      },
+      "Transitions": {
+        "NextAction": "disconnect",
+        "Conditions": [
+          {
+            "NextAction": "disconnect",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": ["ActionSelected"]
+            }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "disconnect", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "disconnect", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "disconnect", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "disconnect",
+      "Type": "DisconnectParticipant",
+      "Parameters": {},
+      "Transitions": {}
+    }
+  ]
+}

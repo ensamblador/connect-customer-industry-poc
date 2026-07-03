@@ -1,0 +1,55 @@
+{
+  "Template": {
+    "Head": {
+      "Title": "Nueva tarjeta",
+      "Configuration": {
+        "Layout": {
+          "Columns": ["12"]
+        }
+      }
+    },
+    "Body": [
+      {
+        "Type": "Container",
+        "_id": "c1",
+        "Props": {
+          "Visibility": "true",
+          "HideBorder": "false"
+        },
+        "Content": [
+          {
+            "Type": "TextBox",
+            "_id": "intro",
+            "Props": { "Variant": "h3" },
+            "Content": ["Elige la tarjeta para tu solicitud"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-basic",
+            "Props": { "Variant": "primary", "Action": "Submit" },
+            "Content": ["Tarjeta Clásica — sin anualidad — $0/año"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-plus",
+            "Props": { "Variant": "primary", "Action": "Submit" },
+            "Content": ["Tarjeta Oro — cashback 1.5% — $45/año"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-unlimited",
+            "Props": { "Variant": "primary", "Action": "Submit" },
+            "Content": ["Tarjeta Platino — cashback 3% — $120/año"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-cancel",
+            "Props": { "Variant": "normal", "Action": "Cancel" },
+            "Content": ["Cancelar"]
+          }
+        ]
+      }
+    ]
+  },
+  "Actions": ["Submit", "Cancel"]
+}

@@ -1,0 +1,22 @@
+{
+  "Items": [
+    {
+      "cardId": {"S": "card-9001"},
+      "customerId": {"S": "cust-5001"},
+      "productId": {"S": "prod-tarjeta-clasica"},
+      "status": {"S": "active"},
+      "last4": {"S": "4821"},
+      "createdAt": {"S": "2026-05-20T11:00:00Z"},
+      "notes": {"S": "Tarjeta adicional para un familiar."}
+    },
+    {
+      "cardId": {"S": "card-9002"},
+      "customerId": {"S": "cust-5003"},
+      "productId": {"S": "prod-tarjeta-oro"},
+      "status": {"S": "requested"},
+      "last4": {"S": "0000"},
+      "createdAt": {"S": "2026-06-03T16:45:00Z"},
+      "notes": {"S": "El cliente solicitó una tarjeta de crédito; pendiente de emisión."}
+    }
+  ]
+}

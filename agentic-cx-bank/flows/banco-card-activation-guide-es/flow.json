@@ -1,0 +1,260 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "set-logging",
+  "Metadata": {
+    "entryPointPosition": { "x": -240, "y": 0 },
+    "ActionMetadata": {
+      "set-logging": { "position": { "x": -40, "y": 0 } },
+      "step-1": { "position": { "x": 200, "y": 0 } },
+      "step-2": { "position": { "x": 480, "y": 0 } },
+      "step-3": { "position": { "x": 760, "y": 0 } },
+      "step-4": { "position": { "x": 1040, "y": 0 } },
+      "step-5": { "position": { "x": 1320, "y": 0 } },
+      "step-6": { "position": { "x": 1600, "y": 0 } },
+      "end-guide": { "position": { "x": 1880, "y": 0 } }
+    },
+    "Annotations": []
+  },
+  "Actions": [
+    {
+      "Identifier": "set-logging",
+      "Type": "UpdateFlowLoggingBehavior",
+      "Parameters": { "FlowLoggingBehavior": "Enabled" },
+      "Transitions": {
+        "NextAction": "step-1"
+      }
+    },
+    {
+      "Identifier": "step-1",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 1 de 6",
+          "showPrevious": "false",
+          "showNext": "true",
+          "stepHeading": "Confirma que recibiste la tarjeta y revisa que los datos sean correctos",
+          "stepBody": "Cuando te llegue la tarjeta nueva, verifica que tu nombre esté bien escrito y que sea la tarjeta más reciente que recibiste. La activación confirma que la tarjeta llegó a tus manos."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-1",
+        "Conditions": [
+          {
+            "NextAction": "step-2",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-1", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-1", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-1", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-2",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 2 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Ingresa a la aplicación móvil o a la banca en línea",
+          "stepBody": "Abre la aplicación móvil o entra a la banca en línea con tus datos de acceso. Desde ahí podrás activar la tarjeta de forma segura en unos minutos."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-2",
+        "Conditions": [
+          {
+            "NextAction": "step-1",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-3",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-2", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-2", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-2", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-3",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 3 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Ve a la sección de tarjetas y elige \"activar tarjeta\"",
+          "stepBody": "Dentro de la aplicación o la banca en línea, entra a la sección de tarjetas y elige la opción \"activar tarjeta\" para la tarjeta que acabas de recibir."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-3",
+        "Conditions": [
+          {
+            "NextAction": "step-2",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-4",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-3", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-3", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-3", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-4",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 4 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Confirma los datos de la tarjeta que aparecen en pantalla",
+          "stepBody": "Revisa que los últimos dígitos de la tarjeta coincidan con los de la tarjeta que tienes en la mano y confirma para continuar con la activación."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-4",
+        "Conditions": [
+          {
+            "NextAction": "step-3",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-5",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-4", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-4", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-4", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-5",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 5 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Define un PIN seguro para tu tarjeta",
+          "stepBody": "Elige un PIN que no sea fácil de adivinar y no lo compartas con nadie. Nunca escribas el PIN en la tarjeta. Podrás cambiarlo más adelante desde la aplicación o en un cajero."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-5",
+        "Conditions": [
+          {
+            "NextAction": "step-4",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-6",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-5", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-5", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-5", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-6",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 6 de 6",
+          "showPrevious": "true",
+          "showNext": "false",
+          "stepHeading": "Confirma que la tarjeta está activa",
+          "stepBody": "Verifica que la tarjeta aparezca como activa en la aplicación o la banca en línea. Ya puedes usarla para compras y retiros. Si no se activa, un representante te puede ayudar a revisar el estado."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-6",
+        "Conditions": [
+          {
+            "NextAction": "step-5",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-6", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-6", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-6", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "end-guide",
+      "Type": "DisconnectParticipant",
+      "Parameters": {},
+      "Transitions": {}
+    }
+  ]
+}

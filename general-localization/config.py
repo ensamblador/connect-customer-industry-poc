@@ -1,6 +1,17 @@
 INSTANCE_ID = "b626d1c5-a63e-4334-aac2-f3e8b4a2aefe"
 ASSISTANT_ID = "f319a787-91f1-4afa-b34c-11059e5f38bd"
 
+# --- AI-agent CloudWatch logging (shared across every industry project) ---
+# The ASSISTANT_ID above is the Q in Connect AI Agents domain SHARED by every
+# industry project (telco, bank, ...) on this account. CloudWatch Logs allows
+# only ONE EVENT_LOGS delivery source per resource, so the vended-log delivery
+# for AI-agent events is provisioned ONCE here rather than per industry stack
+# (a second stack creating its own delivery source against the same assistant
+# hits a ConflictException). Set ENABLE_AGENT_LOGS to False to skip it.
+ENABLE_AGENT_LOGS = True
+AGENT_LOGS_GROUP_NAME = "/aws/vendedlogs/connect/ai-agents"
+AGENT_LOGS_RETENTION_DAYS = 30
+
 # --- Answer Recommendation suggested messages ----------------------------
 # NOTE: not currently applied. The native AWS::Wisdom::AIAgent CloudFormation
 # resource does not expose a suggestedMessages property (the Q in Connect API

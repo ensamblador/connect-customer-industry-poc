@@ -34,7 +34,6 @@ from aws_cdk import CfnOutput, Stack
 from constructs import Construct
 
 import config
-from connect.ai_agent_logging import AiAgentLogging
 from connect.ai_agents import AgentSurface, OrchestrationAIAgent
 from connect.ai_prompts import OrchestrationPrompt
 from shared import ssm_names
@@ -85,20 +84,14 @@ class AiAgentsStack(Stack):
         if config.HAS_REAL_INSTANCE:
             self._create_agents(assistant_id)
 
-        # CloudWatch logging for the assistant's AI-agent events (EVENT_LOGS).
-        # Targets the assistant/domain ARN, so it's independent of the instance.
-        if config.ENABLE_AI_AGENT_LOGGING:
-            assistant_arn = (
-                f"arn:aws:wisdom:{self.region}:{self.account}:assistant/{assistant_id}"
-            )
-            self.logging = AiAgentLogging(
-                self,
-                "AiAgentLogging",
-                assistant_arn=assistant_arn,
-                log_group_name=config.AI_AGENT_LOG_GROUP_NAME,
-                retention_days=config.AI_AGENT_LOG_RETENTION_DAYS,
-            )
-            CfnOutput(self, "AiAgentLogGroupName", value=self.logging.log_group.log_group_name)
+        # CloudWatch logging for the assistant's AI-agent events (EVENT_LOGS) is
+        # NOT provisioned here. ASSISTANT_ID is the Q in Connect AI Agents
+        # domain SHARED across every industry project on this account, and
+        # CloudWatch Logs allows only one EVENT_LOGS delivery source per
+        # resource — a second stack creating its own delivery source against
+        # the same assistant hits a ConflictException. The vended-log delivery
+        # is provisioned ONCE in the shared `general-localization` (CX-LANG-UTILS)
+        # app instead; see that project's connect/ai_agent_logging.py.
 
         # Human/ops outputs — the published prompt version ids.
         CfnOutput(self, "VoicePromptVersionId", value=self.voice_prompt.ai_prompt_version_id)
