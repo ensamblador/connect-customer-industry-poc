@@ -27,7 +27,17 @@
           }
         },
         "useAIAgentDropdown": true,
-        "aiAgentName": "telco-agent-assist"
+        "aiAgentName": "telco-agent-assist",
+        "fragments": {
+          "SetContactData": "store-assistant-session"
+        }
+      },
+      "store-assistant-session": {
+        "position": {
+          "x": -68,
+          "y": 120
+        },
+        "dynamicParams": []
       },
       "set-customer-session-telco": {
         "position": {
@@ -355,6 +365,22 @@
       },
       "Identifier": "connect-assistant",
       "Type": "CreateWisdomSession",
+      "Transitions": {
+        "NextAction": "store-assistant-session",
+        "Errors": [
+          {
+            "NextAction": "set-voice",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "WisdomSessionArn": "$.Wisdom.SessionArn"
+      },
+      "Identifier": "store-assistant-session",
+      "Type": "UpdateContactData",
       "Transitions": {
         "NextAction": "set-customer-session-telco",
         "Errors": [

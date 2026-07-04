@@ -121,10 +121,12 @@ python knowledge_bases/associate_esim_guide.py        # add --dry-run to preview
 
 These have no native CloudFormation resource and must be done by hand:
 
-1. **Assign security profiles to the AI agents.** In the **Amazon Connect** admin website → **AI agents** (your Q in Connect domain), open each agent, assign its security profile, then **Save and Publish**:
+1. **Attach the security profile to each AI agent and publish a new version.** In the **Amazon Connect** admin website → **AI agents** (your Q in Connect domain), open each agent, **attach its security profile**, then **Save and Publish a new version**:
    - `telco-selfservice-voice-es` and `telco-selfservice-chat-es` → `telco-selfservice-ai-agent-iac`
    - `telco-agent-assist-es` → `telco-agent-assist-iac`
    - For **agent-assist**, the human agents using the assistant panel must also carry the same permissions (`Wisdom.View`, `CustomViews.Access`, MCP tool grant) — tool calls authorize against the intersection of the AI agent's and human agent's profiles. (Profile ids are also published to SSM for scripting.)
+
+   > **Required — this is what authorizes the MCP tool calls.** The AgentCore MCP tools are granted through the security profile, and the running agent uses the **published version**. If the profile is not attached (or you edited it but did not publish a new version), MCP tool calls fail at invocation with `Target entity not found` even though the gateway/target and backend REST API are healthy. After attaching the profile, always **publish a new version** and confirm the flow/binding points at that version.
 
 2. **Take control of the bot from Amazon Connect (toggle Lex Bot Management) — do this _before_ building the locales.** Because the bot is created on the **Amazon Lex** side (via CDK), the Connect instance doesn't refresh its Lex Bot Management link automatically, so the bot won't be selectable/editable inside Connect flows until you toggle the feature. In the **Amazon Connect** console → your instance → **Flows** → **Amazon Lex Bots** section:
 
@@ -169,7 +171,7 @@ cdk deploy CX-TELCO-WEBSITE
 | 3 | manual | `npm install && npm run build` the website before the telco deploy |
 | 5 | script | `tag_kb_content.py --wait` (KB id auto-resolved from SSM) |
 | 5 | script | `associate_esim_guide.py` (eSIM guide ↔ KB article) |
-| 6 | manual | Assign the Phase 3 security profiles to the three AI agents, then Save and Publish |
+| 6 | manual | Attach the Phase 3 security profiles to the three AI agents (authorizes the MCP tools), then **publish a new version** — without this, tool calls fail with `Target entity not found` |
 | 6 | manual | Take control of the bot in Connect: Flows → toggle Lex Bot Management off+save, on+save (creates the roles) — do this **before** building the locales |
 | 6 | manual | Build the Lex bot's `en_US` / `es_US` / `pt_BR` locales |
 | 7 | manual | Create chat widget, paste it between the widget markers in `website/index.html`, rebuild + redeploy website |

@@ -7,6 +7,13 @@
 // contacto del widget. Cuando no hay cliente con sesión, el email se omite por
 // completo del atributo de contacto (ver requisitos 9.3–9.4).
 //
+// Identidad del objeto: el Widget de Connect captura una REFERENCIA al objeto
+// pasado en la primera llamada `amazon_connect('contactAttributes', attrs)`
+// (index.html). Todo lo que sigue (setActiveEmail, clearActiveEmail,
+// getContactAttributes) MUTA esa misma referencia (`window._connectContactAttrs`)
+// en lugar de construir objetos nuevos — de lo contrario el widget nunca vería
+// los cambios posteriores al login.
+//
 // Las funciones son puras o de estado mínimo para poder probarlas de forma
 // aislada con estado inyectado vía `setActiveEmail`.
 
@@ -133,14 +140,31 @@ export function getActiveEmail() {
 }
 
 /**
- * Devuelve los Atributos_de_Contacto enviados al Widget de Connect. Con sesión
- * incluye `{ email }`; sin sesión devuelve `{}` para que el chat se inicie SIN
- * el atributo de contacto email (requisito 9.4).
+ * Devuelve el objeto Atributos_de_Contacto que YA está registrado con el
+ * Widget de Connect (`window._connectContactAttrs`), mutado in-place.
  *
- * @returns {{ email: string } | {}}
+ * IMPORTANTE — identidad del objeto: el widget captura una REFERENCIA al
+ * objeto que se le pasa en la llamada inicial `amazon_connect('contactAttributes',
+ * attrs)` (ver index.html). Si esta función devolviera un objeto NUEVO en cada
+ * llamada, el widget seguiría leyendo la copia original y nunca vería los
+ * cambios posteriores. Por eso mutamos `window._connectContactAttrs` in-place
+ * (set/delete de `.email`) y devolvemos esa MISMA referencia, igual que hace
+ * `setActiveEmail`/`clearActiveEmail`.
+ *
+ * Con sesión, el objeto incluye `email`; sin sesión, la propiedad `email` está
+ * ausente para que el chat se inicie SIN el atributo de contacto (requisito 9.4).
+ *
+ * @returns {{ email?: string }}
  */
 export function getContactAttributes() {
-  return activeEmail ? { email: activeEmail } : {};
+  const g = getGlobal();
+  const attrs = g._connectContactAttrs ?? (g._connectContactAttrs = {});
+  if (activeEmail) {
+    attrs.email = activeEmail;
+  } else {
+    delete attrs.email;
+  }
+  return attrs;
 }
 
 // Restaura el email activo desde sessionStorage al cargar el módulo, para

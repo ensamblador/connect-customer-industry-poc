@@ -120,7 +120,7 @@ class ConnectSupportStack(Stack):
             instance_arn=instance_arn,
             name=config.NEWLINE_VIEW_NAME,
             content_path=os.path.join(_ROOT, config.NEWLINE_VIEW_CONTENT),
-            actions=["Submit", "Cancel"],
+            actions=["prod-tarjeta-clasica", "prod-tarjeta-oro", "prod-tarjeta-platino", "Cancel"],
             description="Banking card-request guided form for chat self-service.",
         )
         self.view_card_guide = CustomerManagedView(

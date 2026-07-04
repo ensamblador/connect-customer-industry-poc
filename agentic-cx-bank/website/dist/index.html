@@ -8,7 +8,7 @@
       name="description"
       content="Latam Banco: cuentas, tarjetas de crédito y banca digital en toda Latinoamérica."
     />
-    <script type="module" crossorigin src="/assets/index-CUo0dgex.js"></script>
+    <script type="module" crossorigin src="/assets/index-C-_iqKeZ.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-CoZxoChG.css">
   </head>
 
@@ -300,9 +300,13 @@
           if (stored) attrs.email = stored;
         } catch (e) { /* sessionStorage no disponible: se omite el email */ }
       }
-      // Si hay un cliente con sesión, se pasa su email como atributo de
-      // contacto; si no hay email disponible, el chat se inicia SIN el atributo.
-      amazon_connect('contactAttributes', attrs.email ? { email: attrs.email } : {});
+      // Se registra la MISMA referencia de objeto (attrs === window._connectContactAttrs)
+      // con el widget. auth.js/main.js mutan ese objeto in-place tras el login
+      // (set/delete de .email), así que el widget siempre lee el estado actual
+      // sin necesidad de volver a llamar a contactAttributes con un objeto nuevo.
+      // Si no hay email disponible, la propiedad queda ausente y el chat se
+      // inicia sin el atributo.
+      amazon_connect('contactAttributes', attrs);
     })();
     </script>
   </body>

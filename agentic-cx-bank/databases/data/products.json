@@ -29,6 +29,16 @@
       "cashback": {"BOOL": true},
       "contactless": {"BOOL": true},
       "description": {"S": "Tarjeta de crédito premium con 2% de cashback, seguro de viaje y acceso a salas VIP de aeropuerto."}
+    },
+    {
+      "productId": {"S": "prod-tarjeta-platino"},
+      "name": {"S": "Tarjeta Platino"},
+      "annualFee": {"N": "180"},
+      "monthlyFee": {"N": "0.00"},
+      "currency": {"S": "USD"},
+      "cashback": {"BOOL": true},
+      "contactless": {"BOOL": true},
+      "description": {"S": "Tarjeta de crédito platino con 3% de cashback, seguro de viaje premium, acceso a salas VIP y concierge personal."}
     }
   ]
 }
