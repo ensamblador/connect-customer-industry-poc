@@ -33,6 +33,19 @@ marker. When a `connect_instance_arn` is given, the construct also creates the
 by) the Connect instance — the `AmazonConnectEnabled=True` tag alone does NOT do
 that.
 
+TestBotAlias locale settings — the OTHER manual step this construct now automates:
+`CreateBotAlias` (which Lex creates implicitly for `TestBotAlias`) does NOT enable
+any locale on the alias by default (`botAliasLocaleSettings` starts empty). A
+`ConnectParticipantWithLexBot` / `GetUserInput` call against a locale the ALIAS has
+not enabled fails at runtime with
+``ValidationException: The BotAliasId TSTALIASID does not have Language <locale>
+enabled`` — even though the locale itself is built and the bot works fine in the
+Lex test console. This is a separate flag from locale-build status, so a bot whose
+locales are all `Built` can still be unusable from Connect. A boto3 custom resource
+(`_LocaleSettingsFn` below) calls `UpdateBotAlias` after the bot exists to enable
+every configured locale on `TestBotAlias`, so a fresh deploy is chat/voice-usable
+as soon as the locales are built in the console — no extra manual alias step.
+
 Execution role — IMPORTANT: the bot runs under the Amazon Connect Lex
 service-linked role `AWSServiceRoleForLexV2Bots_AmazonConnect_<account>`. This is
 the role the Connect console assigns and the signal Connect uses to recognize a
@@ -45,9 +58,14 @@ via `aws iam create-service-linked-role --aws-service-name lexv2.amazonaws.com
 
 from __future__ import annotations
 
-from aws_cdk import CfnTag, Stack
+from aws_cdk import CustomResource, Duration, RemovalPolicy, Stack
+from aws_cdk import CfnTag
 from aws_cdk import aws_connect as connect
+from aws_cdk import aws_iam as iam
+from aws_cdk import aws_lambda as _lambda
 from aws_cdk import aws_lex as lex
+from aws_cdk import aws_logs as logs
+from aws_cdk import custom_resources as cr
 from constructs import Construct
 
 # The magic token Lex substitutes with the Q in Connect assistant's answer.
@@ -55,6 +73,40 @@ _QIC_RESPONSE_TOKEN = "((x-amz-lex:q-in-connect-response))"
 _DEFAULT_LOCALES = ["en_US", "es_US", "pt_BR"]
 # The fixed alias id of every Lex V2 bot's built-in test alias.
 _TEST_BOT_ALIAS_ID = "TSTALIASID"
+
+# Idempotently enable every configured locale on TestBotAlias. UpdateBotAlias
+# requires the FULL set of settings on every call (it is not a merge), so this
+# always re-sends bot_alias_name + bot_version + the complete locale-settings
+# map — safe to call repeatedly (create/update) and a no-op in effect once the
+# locales are already enabled.
+_LOCALE_SETTINGS_HANDLER_SRC = '''
+import boto3
+
+lex = boto3.client("lexv2-models")
+
+
+def on_event(event, context):
+    props = event["ResourceProperties"]
+    bot_id = props["BotId"]
+    bot_version = props.get("BotVersion", "DRAFT")
+    alias_id = props.get("BotAliasId", "TSTALIASID")
+    alias_name = props.get("BotAliasName", "TestBotAlias")
+    locales = props["Locales"]
+    pid = event.get("PhysicalResourceId") or f"lex-alias-locales-{bot_id}-{alias_id}"
+
+    if event.get("RequestType") == "Delete":
+        # Nothing to undo — deleting the bot removes the alias with it.
+        return {"PhysicalResourceId": pid}
+
+    lex.update_bot_alias(
+        botId=bot_id,
+        botAliasId=alias_id,
+        botAliasName=alias_name,
+        botVersion=bot_version,
+        botAliasLocaleSettings={loc: {"enabled": True} for loc in locales},
+    )
+    return {"PhysicalResourceId": pid}
+'''
 
 
 class QInConnectLexBot(Construct):
@@ -175,6 +227,57 @@ class QInConnectLexBot(Construct):
             # bot in the admin bot-management page.
             bot_tags=[CfnTag(key="AmazonConnectEnabled", value="True")],
         )
+
+        # Enable every configured locale on TestBotAlias. Without this, Connect
+        # calls against the alias fail at RUNTIME with "The BotAliasId
+        # TSTALIASID does not have Language <locale> enabled" even after the
+        # locale itself is Built — CreateBotAlias does not enable any locale by
+        # default. Idempotent: safe on every deploy, and effectively a no-op
+        # once the locales are already enabled.
+        locale_fn = _lambda.Function(
+            self,
+            "AliasLocaleSettingsFn",
+            runtime=_lambda.Runtime.PYTHON_3_12,
+            handler="index.on_event",
+            code=_lambda.Code.from_inline(_LOCALE_SETTINGS_HANDLER_SRC),
+            timeout=Duration.minutes(2),
+            description="Enables every configured locale on the Lex "
+            "TestBotAlias (UpdateBotAlias); CreateBotAlias enables none by "
+            "default, which otherwise breaks Connect calls at runtime.",
+        )
+        locale_fn.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["lex:UpdateBotAlias", "lex:DescribeBotAlias"],
+                resources=["*"],
+            )
+        )
+        locale_provider = cr.Provider(
+            self,
+            "AliasLocaleSettingsProvider",
+            on_event_handler=locale_fn,
+            log_group=logs.LogGroup(
+                self,
+                "AliasLocaleSettingsProviderLogs",
+                retention=logs.RetentionDays.ONE_WEEK,
+                removal_policy=RemovalPolicy.DESTROY,
+            ),
+        )
+        self.alias_locale_settings = CustomResource(
+            self,
+            "AliasLocaleSettings",
+            service_token=locale_provider.service_token,
+            resource_type="Custom::LexTestAliasLocaleSettings",
+            properties={
+                "BotId": self.bot.attr_id,
+                "BotAliasId": _TEST_BOT_ALIAS_ID,
+                "BotAliasName": "TestBotAlias",
+                "BotVersion": "DRAFT",
+                "Locales": locales,
+            },
+        )
+        # The alias must exist (it's created implicitly with the bot) before
+        # UpdateBotAlias can target it.
+        self.alias_locale_settings.node.add_dependency(self.bot)
 
         # The tag alone does NOT make the bot usable in a Connect instance — a
         # LEX_BOT integration association is what links the bot (alias) to the

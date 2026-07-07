@@ -1,46 +1,50 @@
+> 🌎 **English:** [if you want to see the English version, click here (`README-en.md`)](README-en.md)
+
 # agentic-cx-telco
 
-A phased AWS CDK (Python) sample that stands up a **telco self-service backend**
-and exposes it to **Amazon Connect AI agents** as an MCP server through a Bedrock
-AgentCore gateway, plus a **Q in Connect knowledge base** for retrieval, the
-**Connect supporting resources** (security profiles, views, guides, Lex bot,
-contact flows) the agents use, and a static **"Latam Telco" website** that hosts
-the Connect chat widget. The app is split into six small, decoupled stacks that
-deploy independently and pass values to each other only through **SSM Parameter
-Store** — no CloudFormation exports, no nested stacks.
+Un ejemplo por fases en AWS CDK (Python) que levanta un **backend de autoservicio
+de telco** y lo expone a los **agentes de IA de Amazon Connect** como un servidor MCP
+a través de un gateway de Bedrock AgentCore, más una **base de conocimiento de Q in
+Connect** para recuperación (retrieval), los **recursos de soporte de Connect**
+(perfiles de seguridad, vistas, guías, bot de Lex, flujos de contacto) que usan los
+agentes, y un **sitio web estático "Latam Telco"** que aloja el widget de chat de
+Connect. La app se divide en seis stacks pequeños y desacoplados que se despliegan de
+forma independiente y se pasan valores entre sí solo a través de **SSM Parameter
+Store** — sin exports de CloudFormation, sin nested stacks.
 
-| Deploy command | Stack | What it deploys |
+| Comando de despliegue | Stack | Qué despliega |
 |---|---|---|
-| `cdk deploy CX-TELCO-MCP` | `McpStack` (Phase 1) | DynamoDB tables + sample data, the Lambda backend, the Telco REST API, the AgentCore MCP gateway, and the Amazon Connect MCP/Lambda integrations |
-| `cdk deploy CX-TELCO-KB` | `KnowledgeBaseStack` (Phase 2) | The S3-backed EXTERNAL Q in Connect knowledge base (es/pt/en content) and its assistant association |
-| `cdk deploy CX-TELCO-CONNECT-SUPPORT` | `ConnectSupportStack` (Phase 3) | The AI-agent security profiles, the customer-managed views, the eSIM step-by-step guide flow, and the Lex V2 Q-in-Connect passthrough bot |
-| `cdk deploy CX-TELCO-AGENTS` | `AiAgentsStack` (Phase 4) | The Orchestration AI prompts and the three AI agents (self-service voice + chat, agent-assist) |
-| `cdk deploy CX-TELCO-FLOWS` | `ContactFlowsStack` (Phase 5) | The escalation handoff view, screen-pop flow, the escalate + set-customer-session flow modules, and the Spanish self-service inbound flow |
-| `cdk deploy CX-TELCO-WEBSITE` | `WebsiteStack` (Phase 6) | The static "Latam Telco" site (private S3 + CloudFront OAC), the Connect chat widget host, and the demo DynamoDB data-viewer Lambda |
+| `cdk deploy CX-TELCO-MCP` | `McpStack` (Fase 1) | Tablas DynamoDB + datos de ejemplo, el backend Lambda, la REST API de Telco, el gateway MCP de AgentCore, y las integraciones MCP/Lambda de Amazon Connect |
+| `cdk deploy CX-TELCO-KB` | `KnowledgeBaseStack` (Fase 2) | La base de conocimiento EXTERNAL de Q in Connect respaldada en S3 (contenido es/pt/en) y su asociación con el asistente |
+| `cdk deploy CX-TELCO-CONNECT-SUPPORT` | `ConnectSupportStack` (Fase 3) | Los perfiles de seguridad de los agentes de IA, las vistas administradas por el cliente, el flujo de la guía paso a paso de eSIM, y el bot Lex V2 de paso a Q-in-Connect |
+| `cdk deploy CX-TELCO-AGENTS` | `AiAgentsStack` (Fase 4) | Los prompts de IA de orquestación y los tres agentes de IA (self-service voz + chat, agent-assist) |
+| `cdk deploy CX-TELCO-FLOWS` | `ContactFlowsStack` (Fase 5) | La vista de traspaso de escalamiento, el flujo de screen-pop, los módulos de flujo escalate + set-customer-session, y el flujo inbound de self-service en español |
+| `cdk deploy CX-TELCO-WEBSITE` | `WebsiteStack` (Fase 6) | El sitio estático "Latam Telco" (S3 privado + CloudFront OAC), el host del widget de chat de Connect, y el Lambda visor de datos de demo de DynamoDB |
 
 ---
 
-## What Is Deployed
+## Qué se despliega
 
-**Compute (Lambda)** — `accounts`, `plans`, `lines`, `ai_session` (telco backend), a
-`ProfileDetacher` delete-time custom resource, a `BasicQueueLookup` deploy-time
-custom resource, and the website `data_viewer`.
+**Cómputo (Lambda)** — `accounts`, `plans`, `lines`, `ai_session` (backend de telco),
+un custom resource de borrado `ProfileDetacher`, un custom resource de despliegue
+`BasicQueueLookup`, y el `data_viewer` del sitio.
 
-**Data** — three on-demand DynamoDB tables (`accounts`, `plans`, `lines`) seeded at
-deploy time, an API key in Secrets Manager, a KMS-encrypted S3 bucket of knowledge
-articles, and a private S3 bucket for the website build.
+**Datos** — tres tablas DynamoDB on-demand (`accounts`, `plans`, `lines`) sembradas en
+tiempo de despliegue, una API key en Secrets Manager, un bucket S3 cifrado con KMS con
+los artículos de conocimiento, y un bucket S3 privado para el build del sitio.
 
-**APIs & gateways** — the `telco-api` REST API (API Gateway), a Bedrock **AgentCore
-gateway** re-exposing it as an MCP server, and a CloudFront distribution (OAC) in
-front of the website + data viewer.
+**APIs y gateways** — la REST API `telco-api` (API Gateway), un **gateway de Bedrock
+AgentCore** que la re-expone como servidor MCP, y una distribución de CloudFront (OAC)
+frente al sitio + visor de datos.
 
-**Amazon Connect / Q in Connect** — an EXTERNAL knowledge base + assistant
-association, two AI-agent security profiles, three customer-managed views, a Lex V2
-QInConnect passthrough bot, three AI agents (voice / chat / agent-assist) with their
-orchestration prompts, and five contact flows / flow modules.
+**Amazon Connect / Q in Connect** — una base de conocimiento EXTERNAL + asociación con
+el asistente, dos perfiles de seguridad de agentes de IA, tres vistas administradas por
+el cliente, un bot de paso QInConnect de Lex V2, tres agentes de IA (voz / chat /
+agent-assist) con sus prompts de orquestación, y cinco flujos de contacto / módulos de
+flujo.
 
-There are **no ECS tasks/services** and **no Step Functions state machines** in this
-project — all compute is Lambda.
+En este proyecto **no hay tareas/servicios de ECS** ni **máquinas de estado de Step
+Functions** — todo el cómputo es Lambda.
 
 ```mermaid
 graph TD
@@ -114,56 +118,56 @@ graph TD
     DV --> DDB_L
 ```
 
-### Phase detail
+### Detalle por fase
 
-**Phase 1 — `CX-TELCO-MCP`**
-- **DynamoDB tables** for `accounts`, `plans`, and `lines` (on-demand, seeded with sample data at deploy time).
-- **Lambda functions**: `accounts`, `plans`, `lines`, and `ai_session`.
-- **REST API** (API Gateway) for telco operations, protected by an API key stored in **Secrets Manager**.
-- **AgentCore Gateway** (Bedrock) that re-exposes the REST API as an **MCP server**, with an **API-key credential provider** and an inline OpenAPI target.
-- **Amazon Connect integrations**: registers the gateway as an **MCP server application** on the Connect instance (plus a delete-time `ProfileDetacher` custom resource), and associates the `plans` + `ai_session` Lambdas (`LAMBDA_FUNCTION`).
+**Fase 1 — `CX-TELCO-MCP`**
+- **Tablas DynamoDB** para `accounts`, `plans` y `lines` (on-demand, sembradas con datos de ejemplo en tiempo de despliegue).
+- **Funciones Lambda**: `accounts`, `plans`, `lines` y `ai_session`.
+- **REST API** (API Gateway) para las operaciones de telco, protegida por una API key almacenada en **Secrets Manager**.
+- **Gateway de AgentCore** (Bedrock) que re-expone la REST API como un **servidor MCP**, con un **proveedor de credenciales por API key** y un target OpenAPI inline.
+- **Integraciones de Amazon Connect**: registra el gateway como una **aplicación de servidor MCP** en la instancia de Connect (más un custom resource de borrado `ProfileDetacher`), y asocia los Lambdas `plans` + `ai_session` (`LAMBDA_FUNCTION`).
 
-**Phase 2 — `CX-TELCO-KB`**
-- **KMS key + S3 bucket** holding the knowledge articles (uploaded by CDK under `telco/<lang>/`).
-- **AppIntegrations DataIntegration** + **EXTERNAL Q in Connect knowledge base** that crawls the bucket.
-- **Assistant association** binding the KB to the Q in Connect AI Agents domain so an agent's Retrieve tool can query it.
+**Fase 2 — `CX-TELCO-KB`**
+- **Clave KMS + bucket S3** con los artículos de conocimiento (subidos por CDK bajo `telco/<lang>/`).
+- **DataIntegration de AppIntegrations** + **base de conocimiento EXTERNAL de Q in Connect** que rastrea el bucket.
+- **Asociación con el asistente** que vincula la KB al dominio de agentes de IA de Q in Connect para que la herramienta Retrieve de un agente pueda consultarla.
 
-**Phase 3 — `CX-TELCO-CONNECT-SUPPORT`**
-- **AI-agent security profiles** (self-service + agent-assist): least-privilege `Wisdom.View` + `CustomViews.Access`, plus the MCP tool grant built at deploy time from the gateway id.
-- **Customer-managed views** (`AWS::Connect::View`): the new-line guided form and the eSIM activation guide.
-- **eSIM guide contact flow**. The `AMAZON_CONNECT_GUIDE` content association that binds the flow to the `esim-activacion` KB content is created post-deploy by `knowledge_bases/associate_esim_guide.py` (the content ids are post-ingestion values), not by the stack.
-- **Lex V2 Q-in-Connect passthrough bot** (`AWS::Lex::Bot`): a single `AMAZON.QInConnectIntent` wired to the AI Agents assistant, 3 locales (en_US/es_US/pt_BR) on Nova Sonic v2 unified speech. The stack publishes the bot's built-in **TestBotAlias** ARN to SSM; build the three locales once in the console after deploy.
+**Fase 3 — `CX-TELCO-CONNECT-SUPPORT`**
+- **Perfiles de seguridad de los agentes de IA** (self-service + agent-assist): `Wisdom.View` + `CustomViews.Access` de mínimo privilegio, más la concesión de herramientas MCP construida en tiempo de despliegue a partir del id del gateway.
+- **Vistas administradas por el cliente** (`AWS::Connect::View`): el formulario guiado de nueva línea y la guía de activación eSIM.
+- **Flujo de contacto de la guía eSIM**. La asociación de contenido `AMAZON_CONNECT_GUIDE` que vincula el flujo con el contenido `esim-activacion` de la KB se crea post-despliegue con `knowledge_bases/associate_esim_guide.py` (los ids de contenido son valores posteriores a la ingesta), no por el stack.
+- **Bot Lex V2 de paso a Q-in-Connect** (`AWS::Lex::Bot`): un único `AMAZON.QInConnectIntent` cableado al asistente de agentes de IA, 3 locales (en_US/es_US/pt_BR) sobre Nova Sonic v2 unified speech. El stack publica el ARN del **TestBotAlias** integrado del bot en SSM; compila los tres locales una vez en la consola después del despliegue.
 
-**Phase 4 — `CX-TELCO-AGENTS`**
-- **Orchestration AI prompts** (`AWS::Wisdom::AIPrompt`), one per agent surface.
-- **Three AI agents** (`AWS::Wisdom::AIAgent`, orchestration): self-service **voice** and **chat** (KB Retrieve + the 9 AgentCore MCP tools + Escalate/Complete; chat adds the new-line guide), and **agent-assist** (Retrieve + MCP surface only). Security-profile assignment to the agents is a **manual** post-deploy step.
+**Fase 4 — `CX-TELCO-AGENTS`**
+- **Prompts de IA de orquestación** (`AWS::Wisdom::AIPrompt`), uno por superficie de agente.
+- **Tres agentes de IA** (`AWS::Wisdom::AIAgent`, orquestación): self-service **voz** y **chat** (KB Retrieve + las 9 herramientas MCP de AgentCore + Escalate/Complete; chat añade la guía de nueva línea), y **agent-assist** (Retrieve + solo superficie MCP). La asignación de perfiles de seguridad a los agentes es un paso **manual** post-despliegue.
 
-**Phase 5 — `CX-TELCO-FLOWS`**
-- **Escalation handoff view** (`AWS::Connect::View`) rendered on agent accept.
-- **Screen-pop contact flow** that registers the handoff view as the `DefaultAgentUI`.
-- **Flow modules**: `escalate-to-agent` (sets the screen-pop hook + target queue, transfers) and `set-customer-session-telco` (classifies the endpoint, looks the customer up via the `ai_session` Lambda, writes the Q in Connect session).
-- **Inbound self-service flow**: the Spanish voice/chat entry flow that creates the Wisdom session, binds the Lex bot + the voice/chat/assist agents, drives the new-line guided form, and escalates to a human.
-- **BasicQueueLookup** (`connect:ListQueues` custom resource) resolves the instance's queue ARN by name at deploy time.
+**Fase 5 — `CX-TELCO-FLOWS`**
+- **Vista de traspaso de escalamiento** (`AWS::Connect::View`) renderizada al aceptar el agente.
+- **Flujo de contacto de screen-pop** que registra la vista de traspaso como el `DefaultAgentUI`.
+- **Módulos de flujo**: `escalate-to-agent` (define el hook de screen-pop + la cola destino, transfiere) y `set-customer-session-telco` (clasifica el endpoint, busca al cliente vía el Lambda `ai_session`, escribe la sesión de Q in Connect).
+- **Flujo inbound de self-service**: el flujo de entrada de voz/chat en español que crea la sesión de Wisdom, vincula el bot Lex + los agentes de voz/chat/assist, conduce el formulario guiado de nueva línea, y escala a un humano.
+- **BasicQueueLookup** (custom resource `connect:ListQueues`) resuelve el ARN de la cola de la instancia por nombre en tiempo de despliegue.
 
-**Phase 6 — `CX-TELCO-WEBSITE`**
-- **Private S3 bucket + CloudFront (OAC)** serving the Vite build of the "Latam Telco" site, which hosts the Amazon Connect chat widget and passes the logged-in email as a contact attribute.
-- **`data_viewer` Lambda** behind a CloudFront `/datos` behavior that renders the three DynamoDB tables as a read-only HTML page.
+**Fase 6 — `CX-TELCO-WEBSITE`**
+- **Bucket S3 privado + CloudFront (OAC)** sirviendo el build de Vite del sitio "Latam Telco", que aloja el widget de chat de Amazon Connect y pasa el email logueado como atributo de contacto.
+- **Lambda `data_viewer`** detrás de un comportamiento `/datos` de CloudFront que renderiza las tres tablas DynamoDB como una página HTML de solo lectura.
 
 ---
 
-## Lambda Code Flows
+## Flujos de código de los Lambda
 
-Every deployed Lambda is Python 3.12 on ARM64. The four telco-backend functions
-(`accounts`, `plans`, `lines`, `ai_session`) share a `_response()` / `_json_default`
-helper that serializes DynamoDB `Decimal` values to native JSON numbers. **No handler
-writes to `/tmp` or S3** — persistence is DynamoDB, Q in Connect session data, or
-Connect security-profile state only.
+Cada Lambda desplegado es Python 3.12 en ARM64. Las cuatro funciones del backend de
+telco (`accounts`, `plans`, `lines`, `ai_session`) comparten un helper `_response()` /
+`_json_default` que serializa los valores `Decimal` de DynamoDB a números JSON nativos.
+**Ningún handler escribe en `/tmp` ni en S3** — la persistencia es solo DynamoDB, datos
+de sesión de Q in Connect, o el estado de perfiles de seguridad de Connect.
 
 ### accounts
 
-**Trigger:** API Gateway REST (proxy). Routes: `GET /accounts?phoneNumber=`,
+**Disparador:** API Gateway REST (proxy). Rutas: `GET /accounts?phoneNumber=`,
 `GET /accounts/by-email?email=`, `GET /accounts/{accountId}`,
-`GET /accounts/{accountId}/balance`. Reads the `accounts` table (+ phone/email GSIs).
+`GET /accounts/{accountId}/balance`. Lee la tabla `accounts` (+ GSIs de phone/email).
 
 ```mermaid
 graph TD
@@ -194,9 +198,9 @@ graph TD
 
 ### plans
 
-**Trigger:** DUAL. (a) API Gateway REST proxy: `GET /plans?minGb=`, `GET /plans/{planId}`.
-(b) Amazon Connect **Invoke AWS Lambda function** (detected when the event has a
-top-level `Details` key and no `httpMethod`). Reads the `plans` table.
+**Disparador:** DUAL. (a) Proxy REST de API Gateway: `GET /plans?minGb=`, `GET /plans/{planId}`.
+(b) **Invoke AWS Lambda function** de Amazon Connect (detectado cuando el evento tiene
+una clave `Details` de nivel superior y no tiene `httpMethod`). Lee la tabla `plans`.
 
 ```mermaid
 graph TD
@@ -224,9 +228,9 @@ graph TD
 
 ### lines
 
-**Trigger:** API Gateway REST proxy. Routes: `POST /lines`, `GET /lines?customerId=`,
-`GET /lines/{lineId}`. Reads/writes the `lines` table (+ customerId GSI); generates
-`lineId` server-side with `uuid4`.
+**Disparador:** Proxy REST de API Gateway. Rutas: `POST /lines`, `GET /lines?customerId=`,
+`GET /lines/{lineId}`. Lee/escribe la tabla `lines` (+ GSI de customerId); genera
+`lineId` del lado del servidor con `uuid4`.
 
 ```mermaid
 graph TD
@@ -255,12 +259,12 @@ graph TD
 
 ### ai_session
 
-**Trigger:** Amazon Connect `InvokeLambdaFunction` from the
-`set-customer-session-telco` flow module. Returns a flat **STRING_MAP**. Reads the
-`accounts` table (phone/email GSIs), calls `connect:DescribeContact` to find the
-contact's Wisdom session ARN, and `qconnect:UpdateSessionData` to write attributes
-into the Q in Connect session. All Connect/session failures are swallowed so a
-personalization write never blocks the contact.
+**Disparador:** `InvokeLambdaFunction` de Amazon Connect desde el módulo de flujo
+`set-customer-session-telco`. Devuelve un **STRING_MAP** plano. Lee la tabla `accounts`
+(GSIs de phone/email), llama a `connect:DescribeContact` para encontrar el ARN de la
+sesión de Wisdom del contacto, y a `qconnect:UpdateSessionData` para escribir atributos
+en la sesión de Q in Connect. Todas las fallas de Connect/sesión se silencian para que
+una escritura de personalización nunca bloquee el contacto.
 
 ```mermaid
 graph TD
@@ -288,13 +292,13 @@ graph TD
     LSKIP --> LRESP
 ```
 
-### ProfileDetacher (custom resource, delete-time)
+### ProfileDetacher (custom resource, en borrado)
 
-**Trigger:** CloudFormation custom resource (`cr.Provider`) in the MCP stack. On
-**Create/Update it is a no-op**; on **Delete** it strips this MCP application's
-namespace (the gateway id) from every Connect security profile that still grants it,
-so `DeleteIntegrationAssociation` can proceed automatically. Calls
-`connect:ListSecurityProfiles`, `ListSecurityProfileApplications`, and
+**Disparador:** custom resource de CloudFormation (`cr.Provider`) en el stack de MCP. En
+**Create/Update es un no-op**; en **Delete** quita el namespace de esta aplicación MCP
+(el id del gateway) de cada perfil de seguridad de Connect que aún lo conceda, para que
+`DeleteIntegrationAssociation` pueda proceder automáticamente. Llama a
+`connect:ListSecurityProfiles`, `ListSecurityProfileApplications`, y
 `UpdateSecurityProfile`.
 
 ```mermaid
@@ -312,11 +316,12 @@ graph TD
     LOOP --> DONE["Return PhysicalResourceId"]
 ```
 
-### BasicQueueLookup (custom resource, deploy-time)
+### BasicQueueLookup (custom resource, en despliegue)
 
-**Trigger:** CloudFormation custom resource in the FLOWS stack. Resolves the standard
-queue ARN by name (`connect:ListQueues`, paginated) so the flows transfer to a valid
-queue with no hard-coded id. Raises loudly if the named queue is not found.
+**Disparador:** custom resource de CloudFormation en el stack de FLOWS. Resuelve el ARN
+de la cola estándar por nombre (`connect:ListQueues`, paginado) para que los flujos
+transfieran a una cola válida sin id hardcodeado. Lanza un error ruidoso si la cola
+nombrada no se encuentra.
 
 ```mermaid
 graph TD
@@ -331,12 +336,12 @@ graph TD
     CHECK -->|yes| RET["Return QueueArn / QueueId"]
 ```
 
-### data_viewer (website)
+### data_viewer (sitio web)
 
-**Trigger:** Lambda behind a CloudFront `/datos` behavior (API Gateway proxy with
-OAC). Scans all three DynamoDB tables (`accounts`, `plans`, `lines`) with full
-pagination and renders a single read-only HTML page in memory (no `/tmp`, no S3).
-A single try/except returns a 500 HTML page on any error.
+**Disparador:** Lambda detrás de un comportamiento `/datos` de CloudFront (proxy de API
+Gateway con OAC). Escanea las tres tablas DynamoDB (`accounts`, `plans`, `lines`) con
+paginación completa y renderiza una única página HTML de solo lectura en memoria (sin
+`/tmp`, sin S3). Un único try/except devuelve una página HTML 500 ante cualquier error.
 
 ```mermaid
 graph TD
@@ -351,68 +356,68 @@ graph TD
     ERR --> E500["500 text/html"]
 ```
 
-## ECS Task and Service Code Flows
+## Flujos de código de tareas y servicios de ECS
 
-None. This project deploys no ECS tasks or services.
+Ninguno. Este proyecto no despliega tareas ni servicios de ECS.
 
-## Step Functions Workflows
+## Workflows de Step Functions
 
-None. This project deploys no Step Functions state machines.
+Ninguno. Este proyecto no despliega máquinas de estado de Step Functions.
 
 ---
 
-## Project Structure
+## Estructura del proyecto
 
 ```
 agentic-cx-telco/
-├── app.py                     # CDK app entry — wires the six phased stacks + dependencies
-├── config.py                  # Flat module-level config, grouped by deploy phase (no secrets)
-├── cdk.json                   # Runs `python3 app.py`
-├── requirements.txt           # Runtime deps (aws-cdk-lib, constructs, PyYAML, boto3)
-├── requirements-dev.txt       # Dev deps (pytest)
+├── app.py                     # Entrada de la app CDK — cablea los seis stacks por fases + dependencias
+├── config.py                  # Config plana a nivel de módulo, agrupada por fase de despliegue (sin secretos)
+├── cdk.json                   # Ejecuta `python3 app.py`
+├── requirements.txt           # Deps de runtime (aws-cdk-lib, constructs, PyYAML, boto3)
+├── requirements-dev.txt       # Deps de dev (pytest)
 │
-├── agentic_cx_telco/          # The six CDK stacks
-│   ├── mcp_stack.py               # Phase 1  CX-TELCO-MCP
-│   ├── knowledge_base_stack.py    # Phase 2  CX-TELCO-KB
-│   ├── connect_support_stack.py   # Phase 3  CX-TELCO-CONNECT-SUPPORT
-│   ├── ai_agents_stack.py         # Phase 4  CX-TELCO-AGENTS
-│   ├── contact_flows_stack.py     # Phase 5  CX-TELCO-FLOWS
-│   └── website_stack.py           # Phase 6  CX-TELCO-WEBSITE
+├── agentic_cx_telco/          # Los seis stacks CDK
+│   ├── mcp_stack.py               # Fase 1  CX-TELCO-MCP
+│   ├── knowledge_base_stack.py    # Fase 2  CX-TELCO-KB
+│   ├── connect_support_stack.py   # Fase 3  CX-TELCO-CONNECT-SUPPORT
+│   ├── ai_agents_stack.py         # Fase 4  CX-TELCO-AGENTS
+│   ├── contact_flows_stack.py     # Fase 5  CX-TELCO-FLOWS
+│   └── website_stack.py           # Fase 6  CX-TELCO-WEBSITE
 │
 ├── lambdas/
-│   ├── project_lambdas.py     # `Lambdas` construct (accounts / plans / lines / ai_session)
-│   └── code/                  # Handler source, one folder per function
+│   ├── project_lambdas.py     # Construct `Lambdas` (accounts / plans / lines / ai_session)
+│   └── code/                  # Código de los handlers, una carpeta por función
 │       ├── accounts/handler.py
 │       ├── plans/handler.py
 │       ├── lines/handler.py
 │       └── ai_session/handler.py
 │
-├── apis/                      # REST API construct + OpenAPI spec (telco_api.py, openapi/)
-├── agent_core/                # AgentCore gateway + API-key credential provider constructs
-├── databases/                # DynamoDB tables construct + seed data (data/)
-├── knowledge_bases/          # KB construct + telco articles + post-deploy scripts
+├── apis/                      # Construct de la REST API + spec OpenAPI (telco_api.py, openapi/)
+├── agent_core/                # Constructs del gateway AgentCore + proveedor de credenciales por API key
+├── databases/                # Construct de tablas DynamoDB + datos semilla (data/)
+├── knowledge_bases/          # Construct de KB + artículos de telco + scripts post-despliegue
 │   ├── knowledge_base.py
-│   ├── tag_kb_content.py          # post-deploy: tags KB content for Retrieve segmentation
-│   └── associate_esim_guide.py    # post-deploy: creates the AMAZON_CONNECT_GUIDE association
-├── connect/                  # Connect building blocks (constructs + inline/CR lambdas)
-│   ├── mcp_integration.py         # MCP application integration + ProfileDetacher (inline CR)
-│   ├── basic_queue_lookup_cr.py   # BasicQueueLookup construct
-│   ├── basic_queue_lookup_cr_lambda/index.py   # its CR handler
+│   ├── tag_kb_content.py          # post-despliegue: etiqueta el contenido de la KB para segmentación de Retrieve
+│   └── associate_esim_guide.py    # post-despliegue: crea la asociación AMAZON_CONNECT_GUIDE
+├── connect/                  # Bloques de construcción de Connect (constructs + lambdas inline/CR)
+│   ├── mcp_integration.py         # Integración de aplicación MCP + ProfileDetacher (CR inline)
+│   ├── basic_queue_lookup_cr.py   # Construct BasicQueueLookup
+│   ├── basic_queue_lookup_cr_lambda/index.py   # su handler de CR
 │   ├── ai_agents.py / ai_prompts.py / security_profile.py / lex_bot.py / views.py / flows.py
 │   └── lambda_integration.py
-├── connect_ai_agents/        # Authored orchestration prompt YAML per agent surface
-├── flows/                    # Contact flow + module JSON (one folder per flow)
-├── views/                    # Customer-managed view JSON (newline form / eSIM guide / handoff)
-├── webhosting/               # Website hosting construct + data_viewer_lambda/index.py
-├── website/                  # Vite "Latam Telco" front-end (build output → website/dist)
-├── shared/ssm_names.py       # The cross-stack SSM parameter-name contract
-└── tests/unit/               # pytest scaffold
+├── connect_ai_agents/        # YAML de prompts de orquestación por superficie de agente
+├── flows/                    # JSON de flujos de contacto + módulos (una carpeta por flujo)
+├── views/                    # JSON de vistas administradas por el cliente (formulario nueva línea / guía eSIM / traspaso)
+├── webhosting/               # Construct de hosting del sitio + data_viewer_lambda/index.py
+├── website/                  # Front-end Vite "Latam Telco" (salida del build → website/dist)
+├── shared/ssm_names.py       # El contrato de nombres de parámetros SSM entre stacks
+└── tests/unit/               # Andamiaje de pytest
 ```
 
-## Testing
+## Pruebas
 
-Dev dependency is `pytest` (`requirements-dev.txt`). Run the suite from the project
-root inside the virtualenv:
+La dependencia de dev es `pytest` (`requirements-dev.txt`). Ejecuta la suite desde la
+raíz del proyecto dentro del virtualenv:
 
 ```bash
 source .venv/bin/activate
@@ -420,94 +425,97 @@ pip install -r requirements-dev.txt
 pytest tests/unit/
 ```
 
-The current `tests/unit/test_agentic_cx_telco_stack.py` is the CDK-generated scaffold
-(a `Template.from_stack` assertion example) and is not yet wired to the real phased
-stacks. The intended approach is CDK **assertion tests** — synthesize a stack to a
-CloudFormation template and assert on resource properties — which pairs well with the
-"synth is the verification gate" workflow (`cdk synth` must pass before deploy).
+El `tests/unit/test_agentic_cx_telco_stack.py` actual es el andamiaje generado por CDK
+(un ejemplo de aserción `Template.from_stack`) y aún no está cableado a los stacks
+reales por fases. El enfoque previsto son **pruebas de aserción** de CDK — sintetizar
+un stack a una plantilla de CloudFormation y hacer aserciones sobre las propiedades de
+los recursos — que combina bien con el flujo de trabajo "synth es la puerta de
+verificación" (`cdk synth` debe pasar antes de desplegar).
 
-## Configuration
+## Configuración
 
-All configuration is flat module-level constants in `config.py` (no secrets; AWS
-credentials resolve from your local profile/SSO at deploy time), ordered by the deploy
-phase that first consumes each value. Key groups: Connect identity (`INSTANCE_ID`,
-`INSTANCE_ALIAS`, `ASSISTANT_ID`, `HAS_REAL_INSTANCE`), naming, KB settings, security
-profiles, views/guide, Lex bot, AI agents/prompts/models, contact flows, and website
-build settings. See `config.py` for the full annotated list.
+Toda la configuración son constantes planas a nivel de módulo en `config.py` (sin
+secretos; las credenciales de AWS se resuelven desde tu perfil/SSO local en tiempo de
+despliegue), ordenadas por la fase de despliegue que primero consume cada valor. Grupos
+clave: identidad de Connect (`INSTANCE_ID`, `INSTANCE_ALIAS`, `ASSISTANT_ID`,
+`HAS_REAL_INSTANCE`), nombres, ajustes de KB, perfiles de seguridad, vistas/guía, bot de
+Lex, agentes de IA/prompts/modelos, flujos de contacto, y ajustes de build del sitio.
+Ver `config.py` para la lista completa anotada.
 
-### SSM parameters (the cross-stack contract)
+### Parámetros SSM (el contrato entre stacks)
 
-Defined once in `shared/ssm_names.py`. Only values that genuinely cross a stack
-boundary are published; everything else stays a `CfnOutput`. Secrets never go on the
-bus (the API key stays in Secrets Manager).
+Definidos una sola vez en `shared/ssm_names.py`. Solo se publican los valores que
+genuinamente cruzan un límite de stack; todo lo demás queda como un `CfnOutput`. Los
+secretos nunca van en el bus (la API key se queda en Secrets Manager).
 
-| Parameter | Producer | Consumed by | Purpose |
+| Parámetro | Productor | Consumido por | Propósito |
 |---|---|---|---|
-| `/agentic-cx-telco/agentcore/gateway-id` | `CX-TELCO-MCP` | Phase 3 | bare gateway id (security-profile MCP namespace + Connect JWT audience) |
-| `/agentic-cx-telco/agentcore/mcp-tool-prefix` | `CX-TELCO-MCP` | Phase 4 | `gateway_<id>__<target>___` prefix for agent MCP tool ids |
-| `/agentic-cx-telco/agentcore/lambda/plans-arn` | `CX-TELCO-MCP` | Phase 5 | plans Lambda ARN (for contact flows) |
-| `/agentic-cx-telco/agentcore/lambda/ai-session-arn` | `CX-TELCO-MCP` | Phase 5 | ai_session Lambda ARN (for contact flows) |
-| `/agentic-cx-telco/kb/knowledge-base-id` | `CX-TELCO-KB` | script | KB id (read by `associate_esim_guide.py`) |
-| `/agentic-cx-telco/kb/assistant-association-id` | `CX-TELCO-KB` | Phase 4 | KB↔assistant association id (agent Retrieve binding) |
-| `/agentic-cx-telco/connect/security-profile-selfservice-id` | `CX-TELCO-CONNECT-SUPPORT` | manual | self-service AI-agent security profile id |
-| `/agentic-cx-telco/connect/security-profile-assist-id` | `CX-TELCO-CONNECT-SUPPORT` | manual | agent-assist security profile id |
-| `/agentic-cx-telco/connect/view-newline-qualified-arn` | `CX-TELCO-CONNECT-SUPPORT` | Phase 5 | new-line form view ARN (inbound flow ShowView) |
-| `/agentic-cx-telco/connect/lex-bot-alias-arn` | `CX-TELCO-CONNECT-SUPPORT` | Phase 5 | Lex bot TestBotAlias ARN for the inbound flow's Lex blocks |
-| `/agentic-cx-telco/agents/voice-arn` | `CX-TELCO-AGENTS` | Phase 5 | self-service voice AI-agent ARN |
-| `/agentic-cx-telco/agents/chat-arn` | `CX-TELCO-AGENTS` | Phase 5 | self-service chat AI-agent ARN |
-| `/agentic-cx-telco/agents/assist-arn` | `CX-TELCO-AGENTS` | Phase 5 | agent-assist AI-agent ARN |
+| `/agentic-cx-telco/agentcore/gateway-id` | `CX-TELCO-MCP` | Fase 3 | id del gateway sin adornos (namespace MCP del perfil de seguridad + audiencia JWT de Connect) |
+| `/agentic-cx-telco/agentcore/mcp-tool-prefix` | `CX-TELCO-MCP` | Fase 4 | prefijo `gateway_<id>__<target>___` para los ids de herramientas MCP del agente |
+| `/agentic-cx-telco/agentcore/lambda/plans-arn` | `CX-TELCO-MCP` | Fase 5 | ARN del Lambda plans (para los flujos de contacto) |
+| `/agentic-cx-telco/agentcore/lambda/ai-session-arn` | `CX-TELCO-MCP` | Fase 5 | ARN del Lambda ai_session (para los flujos de contacto) |
+| `/agentic-cx-telco/kb/knowledge-base-id` | `CX-TELCO-KB` | script | id de la KB (leído por `associate_esim_guide.py`) |
+| `/agentic-cx-telco/kb/assistant-association-id` | `CX-TELCO-KB` | Fase 4 | id de la asociación KB↔asistente (binding Retrieve del agente) |
+| `/agentic-cx-telco/connect/security-profile-selfservice-id` | `CX-TELCO-CONNECT-SUPPORT` | manual | id del perfil de seguridad del agente de IA self-service |
+| `/agentic-cx-telco/connect/security-profile-assist-id` | `CX-TELCO-CONNECT-SUPPORT` | manual | id del perfil de seguridad de agent-assist |
+| `/agentic-cx-telco/connect/view-newline-qualified-arn` | `CX-TELCO-CONNECT-SUPPORT` | Fase 5 | ARN de la vista del formulario de nueva línea (ShowView del flujo inbound) |
+| `/agentic-cx-telco/connect/lex-bot-alias-arn` | `CX-TELCO-CONNECT-SUPPORT` | Fase 5 | ARN del TestBotAlias del bot Lex para los bloques Lex del flujo inbound |
+| `/agentic-cx-telco/agents/voice-arn` | `CX-TELCO-AGENTS` | Fase 5 | ARN del agente de IA de voz self-service |
+| `/agentic-cx-telco/agents/chat-arn` | `CX-TELCO-AGENTS` | Fase 5 | ARN del agente de IA de chat self-service |
+| `/agentic-cx-telco/agents/assist-arn` | `CX-TELCO-AGENTS` | Fase 5 | ARN del agente de IA agent-assist |
 
 ---
 
-## Deploy
+## Despliegue
 
 ```bash
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# synth (verification gate) — cdk.json runs `python3 app.py`
+# synth (puerta de verificación) — cdk.json ejecuta `python3 app.py`
 cdk synth
 
-# Phase 1 + Phase 2 — independent, deploy in any order
+# Fase 1 + Fase 2 — independientes, se despliegan en cualquier orden
 cdk deploy CX-TELCO-MCP --profile connect-industry
 cdk deploy CX-TELCO-KB  --profile connect-industry
 
-# Phase 3 — depends on Phase 1 (gateway id) and Phase 2 (kb id)
+# Fase 3 — depende de la Fase 1 (gateway id) y de la Fase 2 (kb id)
 cdk deploy CX-TELCO-CONNECT-SUPPORT --profile connect-industry
 
-# Phase 4 — depends on Phase 1 (MCP tool prefix) and Phase 2 (KB association)
+# Fase 4 — depende de la Fase 1 (prefijo de herramientas MCP) y de la Fase 2 (asociación de KB)
 cdk deploy CX-TELCO-AGENTS --profile connect-industry
 
-# Phase 5 — depends on Phase 1 (ai_session Lambda), Phase 3 (view + Lex alias),
-# and Phase 4 (agent ARNs)
+# Fase 5 — depende de la Fase 1 (Lambda ai_session), la Fase 3 (vista + alias Lex),
+# y la Fase 4 (ARNs de agentes)
 cdk deploy CX-TELCO-FLOWS --profile connect-industry
 
-# Phase 6 — build the site first, then deploy (S3 + CloudFront)
+# Fase 6 — compila el sitio primero, luego despliega (S3 + CloudFront)
 cd website && npm install && npm run build && cd ..
 cdk deploy CX-TELCO-WEBSITE --profile connect-industry
 ```
 
-### Post-deploy steps
+### Pasos post-despliegue
 
-After **Phase 4**, assign the Phase 3 security profiles to the AI agents (manual — there
-is no native CFN resource for `connect:AssociateSecurityProfiles` with
+Después de la **Fase 4**, asigna los perfiles de seguridad de la Fase 3 a los agentes de
+IA (manual — no hay recurso nativo de CFN para `connect:AssociateSecurityProfiles` con
 `EntityType=AI_AGENT`):
 
-1. In the **Amazon Connect admin website**, open **AI agents** (Q in Connect).
-2. Assign profiles: voice + chat → `telco-selfservice-ai-agent`, agent-assist →
+1. En el **sitio de administración de Amazon Connect**, abre **AI agents** (Q in Connect).
+2. Asigna perfiles: voz + chat → `telco-selfservice-ai-agent`, agent-assist →
    `telco-agent-assist-iac`.
-3. For **agent-assist**, the human agents who use the assistant panel must also carry
-   the same permissions — tool calls authorize against the intersection of the AI
-   agent's and the human agent's profiles.
+3. Para **agent-assist**, los agentes humanos que usan el panel del asistente también
+   deben llevar los mismos permisos — las llamadas a herramientas se autorizan contra la
+   intersección de los perfiles del agente de IA y del agente humano.
 
-After **Phase 2** finishes its first sync, tag the KB content so the Retrieve tool can
-find it, then wire the eSIM guide to its article:
+Después de que la **Fase 2** termine su primer sync, etiqueta el contenido de la KB para
+que la herramienta Retrieve lo encuentre, luego cablea la guía eSIM a su artículo:
 
 ```bash
 python knowledge_bases/tag_kb_content.py --wait --expect 21 --kb-id <kb-id> --profile connect-industry
-python knowledge_bases/associate_esim_guide.py --profile connect-industry   # add --dry-run to preview
+python knowledge_bases/associate_esim_guide.py --profile connect-industry   # añade --dry-run para previsualizar
 ```
 
-After **Phase 3**, build the Lex bot's three locales (`en_US`, `es_US`, `pt_BR`) in the
-Amazon Lex V2 console so its **TestBotAlias** goes live for the inbound flow (locales
-are intentionally not auto-built to keep the deploy fast).
+Después de la **Fase 3**, compila los tres locales del bot Lex (`en_US`, `es_US`,
+`pt_BR`) en la consola de Amazon Lex V2 para que su **TestBotAlias** quede activo para el
+flujo inbound (los locales intencionalmente no se auto-compilan para mantener el
+despliegue rápido).

@@ -177,10 +177,25 @@ class Webhosting(Construct):
         # renders the three backend DynamoDB tables as a styled HTML page.
         data_viewer_origin = self._create_data_viewer_origin()
 
+        # Origin Access Control for the S3 origin. CloudFront OAC names are
+        # ACCOUNT-GLOBAL (CloudFront is not regional), and the name CDK derives
+        # by default comes from the construct path only — so deploying this same
+        # stack in a second region collides with "OriginAccessControl ... already
+        # exists". Give it an explicit name scoped by stack + region so each
+        # region gets its own OAC. (stack.region resolves to the real region,
+        # or to the AWS::Region intrinsic when the env is unbound.)
+        stack = Stack.of(self)
+        site_oac = cloudfront.S3OriginAccessControl(
+            self, "SiteOac",
+            origin_access_control_name=f"{stack.stack_name}-site-oac-{stack.region}",
+        )
+
         self.distribution = cloudfront.Distribution(
             self, "SiteDistribution",
             default_behavior=cloudfront.BehaviorOptions(
-                origin=origins.S3BucketOrigin.with_origin_access_control(self.site_bucket),
+                origin=origins.S3BucketOrigin.with_origin_access_control(
+                    self.site_bucket, origin_access_control=site_oac
+                ),
                 viewer_protocol_policy=_VIEWER_PROTOCOL_MAP[config.WEBSITE_VIEWER_PROTOCOL_POLICY],
                 compress=True,
             ),

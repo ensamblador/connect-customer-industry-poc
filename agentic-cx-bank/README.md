@@ -1,52 +1,56 @@
+> 🌎 **English:** [if you want to see the English version, click here (`README-en.md`)](README-en.md)
+
 # agentic-cx-bank
 
-A phased AWS CDK (Python) sample that stands up a **retail-banking self-service
-backend** and exposes it to **Amazon Connect AI agents** as an MCP server through
-a Bedrock AgentCore gateway, plus a **Q in Connect knowledge base** for retrieval,
-the **Connect supporting resources** (security profiles, views, guides, Lex bot,
-contact flows) the agents use, and a static **"Latam Banco" website** that hosts
-the Connect chat widget. The app is split into six small, decoupled stacks that
-deploy independently and pass values to each other only through **SSM Parameter
-Store** — no CloudFormation exports, no nested stacks.
+Un ejemplo por fases en AWS CDK (Python) que levanta un **backend de autoservicio de
+banca retail** y lo expone a los **agentes de IA de Amazon Connect** como un servidor
+MCP a través de un gateway de Bedrock AgentCore, más una **base de conocimiento de Q in
+Connect** para recuperación (retrieval), los **recursos de soporte de Connect**
+(perfiles de seguridad, vistas, guías, bot de Lex, flujos de contacto) que usan los
+agentes, y un **sitio web estático "Latam Banco"** que aloja el widget de chat de
+Connect. La app se divide en seis stacks pequeños y desacoplados que se despliegan de
+forma independiente y se pasan valores entre sí solo a través de **SSM Parameter
+Store** — sin exports de CloudFormation, sin nested stacks.
 
-| Deploy command | Stack | Phase | What it deploys |
+| Comando de despliegue | Stack | Fase | Qué despliega |
 |---|---|---|---|
-| `cdk deploy CX-BANCO-MCP` | `McpStack` | Phase 1 | DynamoDB tables + sample data, the Lambda backend, the `banco-api` REST API, the AgentCore MCP gateway, and the Amazon Connect MCP/Lambda integrations |
-| `cdk deploy CX-BANCO-KB` | `KnowledgeBaseStack` | Phase 2 | The S3-backed EXTERNAL Q in Connect knowledge base (es/pt/en content) and its assistant association |
-| `cdk deploy CX-BANCO-CONNECT-SUPPORT` | `ConnectSupportStack` | Phase 3 | The AI-agent security profiles, the customer-managed views, the activate-card step-by-step guide flow, and the Lex V2 Q-in-Connect passthrough bot |
-| `cdk deploy CX-BANCO-AGENTS` | `AiAgentsStack` | Phase 4 | The orchestration AI prompts and the three AI agents (self-service voice + chat, agent-assist) |
-| `cdk deploy CX-BANCO-FLOWS` | `ContactFlowsStack` | Phase 5 | The escalation handoff view, screen-pop flow, the escalate + set-customer-session flow modules, and the Spanish self-service inbound flow |
-| `cdk deploy CX-BANCO-WEBSITE` | `WebsiteStack` | Phase 6 | The static "Latam Banco" site (private S3 + CloudFront OAC), the Connect chat widget host, and the demo DynamoDB data-viewer Lambda |
+| `cdk deploy CX-BANCO-MCP` | `McpStack` | Fase 1 | Tablas DynamoDB + datos de ejemplo, el backend Lambda, la REST API `banco-api`, el gateway MCP de AgentCore, y las integraciones MCP/Lambda de Amazon Connect |
+| `cdk deploy CX-BANCO-KB` | `KnowledgeBaseStack` | Fase 2 | La base de conocimiento EXTERNAL de Q in Connect respaldada en S3 (contenido es/pt/en) y su asociación con el asistente |
+| `cdk deploy CX-BANCO-CONNECT-SUPPORT` | `ConnectSupportStack` | Fase 3 | Los perfiles de seguridad de los agentes de IA, las vistas administradas por el cliente, el flujo de la guía paso a paso de activar tarjeta, y el bot Lex V2 de paso a Q-in-Connect |
+| `cdk deploy CX-BANCO-AGENTS` | `AiAgentsStack` | Fase 4 | Los prompts de IA de orquestación y los tres agentes de IA (self-service voz + chat, agent-assist) |
+| `cdk deploy CX-BANCO-FLOWS` | `ContactFlowsStack` | Fase 5 | La vista de traspaso de escalamiento, el flujo de screen-pop, los módulos de flujo escalate + set-customer-session, y el flujo inbound de self-service en español |
+| `cdk deploy CX-BANCO-WEBSITE` | `WebsiteStack` | Fase 6 | El sitio estático "Latam Banco" (S3 privado + CloudFront OAC), el host del widget de chat de Connect, y el Lambda visor de datos de demo de DynamoDB |
 
-**Deploy order: `CX-BANCO-MCP` → `CX-BANCO-KB` → `CX-BANCO-CONNECT-SUPPORT` →
-`CX-BANCO-AGENTS` → `CX-BANCO-FLOWS` → `CX-BANCO-WEBSITE`.** Phases 1 and 2 are
-mutually independent and may deploy in any order; every later phase consumes SSM
-values published by the phases before it (see [Deploy](#deploy)).
+**Orden de despliegue: `CX-BANCO-MCP` → `CX-BANCO-KB` → `CX-BANCO-CONNECT-SUPPORT` →
+`CX-BANCO-AGENTS` → `CX-BANCO-FLOWS` → `CX-BANCO-WEBSITE`.** Las Fases 1 y 2 son
+mutuamente independientes y pueden desplegarse en cualquier orden; cada fase posterior
+consume valores de SSM publicados por las fases anteriores (ver [Despliegue](#despliegue)).
 
 ---
 
-## What Is Deployed
+## Qué se despliega
 
-**Compute (Lambda)** — `accounts`, `products`, `cards`, `ai_session` (banking
-backend), a `ProfileDetacher` delete-time custom resource, a `BasicQueueLookup`
-deploy-time custom resource, and the website `data_viewer`.
+**Cómputo (Lambda)** — `accounts`, `products`, `cards`, `ai_session` (backend de
+banca), un custom resource de borrado `ProfileDetacher`, un custom resource de
+despliegue `BasicQueueLookup`, y el `data_viewer` del sitio.
 
-**Data** — three on-demand DynamoDB tables (`banco-accounts`, `banco-products`,
-`banco-cards`) seeded at deploy time, an API key in Secrets Manager, a
-KMS-encrypted S3 bucket of knowledge articles, and a private S3 bucket for the
-website build.
+**Datos** — tres tablas DynamoDB on-demand (`banco-accounts`, `banco-products`,
+`banco-cards`) sembradas en tiempo de despliegue, una API key en Secrets Manager, un
+bucket S3 cifrado con KMS con los artículos de conocimiento, y un bucket S3 privado para
+el build del sitio.
 
-**APIs & gateways** — the `banco-api` REST API (API Gateway), a Bedrock
-**AgentCore gateway** (`banco-mcp-server`) re-exposing it as an MCP server, and a
-CloudFront distribution (OAC) in front of the website + data viewer.
+**APIs y gateways** — la REST API `banco-api` (API Gateway), un **gateway de Bedrock
+AgentCore** (`banco-mcp-server`) que la re-expone como servidor MCP, y una distribución
+de CloudFront (OAC) frente al sitio + visor de datos.
 
-**Amazon Connect / Q in Connect** — an EXTERNAL knowledge base + assistant
-association, two AI-agent security profiles, three customer-managed views, a Lex V2
-QInConnect passthrough bot, three AI agents (voice / chat / agent-assist) with their
-orchestration prompts, and five contact flows / flow modules.
+**Amazon Connect / Q in Connect** — una base de conocimiento EXTERNAL + asociación con
+el asistente, dos perfiles de seguridad de agentes de IA, tres vistas administradas por
+el cliente, un bot de paso QInConnect de Lex V2, tres agentes de IA (voz / chat /
+agent-assist) con sus prompts de orquestación, y cinco flujos de contacto / módulos de
+flujo.
 
-There are **no ECS tasks/services** and **no Step Functions state machines** in this
-project — all compute is Lambda.
+En este proyecto **no hay tareas/servicios de ECS** ni **máquinas de estado de Step
+Functions** — todo el cómputo es Lambda.
 
 ```mermaid
 graph TD
@@ -120,146 +124,147 @@ graph TD
     DV --> DDB_C
 ```
 
-### Phase detail
+### Detalle por fase
 
-**Phase 1 — `CX-BANCO-MCP`**
-- **DynamoDB tables** for `banco-accounts`, `banco-products`, and `banco-cards`
-  (on-demand, seeded with sample data at deploy time), with GSIs
-  `phoneNumber-index` + `email-index` on accounts and `customerId-index` on cards.
-- **Lambda functions**: `accounts`, `products`, `cards`, and `ai_session`.
-- **REST API** (`banco-api`, API Gateway) for banking operations, protected by an
-  API key stored in **Secrets Manager** and enforced with a usage plan.
-- **AgentCore Gateway** (`banco-mcp-server`, Bedrock) that re-exposes the REST API
-  as an **MCP server**, with an **API-key credential provider**
-  (`banco-mcp-server-apikey`) and an inline OpenAPI target
+**Fase 1 — `CX-BANCO-MCP`**
+- **Tablas DynamoDB** para `banco-accounts`, `banco-products` y `banco-cards`
+  (on-demand, sembradas con datos de ejemplo en tiempo de despliegue), con GSIs
+  `phoneNumber-index` + `email-index` en accounts y `customerId-index` en cards.
+- **Funciones Lambda**: `accounts`, `products`, `cards` y `ai_session`.
+- **REST API** (`banco-api`, API Gateway) para las operaciones de banca, protegida por
+  una API key almacenada en **Secrets Manager** y forzada con un usage plan.
+- **Gateway de AgentCore** (`banco-mcp-server`, Bedrock) que re-expone la REST API como
+  un **servidor MCP**, con un **proveedor de credenciales por API key**
+  (`banco-mcp-server-apikey`) y un target OpenAPI inline
   (`banco-rest-api-oas-target`).
-- **Amazon Connect integrations**: registers the gateway as an **MCP server
-  application** on the Connect instance (plus a delete-time `ProfileDetacher`
-  custom resource), and associates the `products` + `ai_session` Lambdas
+- **Integraciones de Amazon Connect**: registra el gateway como una **aplicación de
+  servidor MCP** en la instancia de Connect (más un custom resource de borrado
+  `ProfileDetacher`), y asocia los Lambdas `products` + `ai_session`
   (`LAMBDA_FUNCTION`).
-- **Publishes to SSM:** `GATEWAY_ID`, `MCP_TOOL_PREFIX`, `LAMBDA_PLANS_ARN` (the
-  products Lambda ARN — key suffix preserved), `LAMBDA_AI_SESSION_ARN`.
+- **Publica en SSM:** `GATEWAY_ID`, `MCP_TOOL_PREFIX`, `LAMBDA_PLANS_ARN` (el ARN del
+  Lambda products — se preserva el sufijo de la clave), `LAMBDA_AI_SESSION_ARN`.
 
-**Phase 2 — `CX-BANCO-KB`**
-- **KMS key + S3 bucket** holding the knowledge articles (uploaded by CDK under
+**Fase 2 — `CX-BANCO-KB`**
+- **Clave KMS + bucket S3** con los artículos de conocimiento (subidos por CDK bajo
   `bank/<lang>/`).
-- **AppIntegrations DataIntegration** + **EXTERNAL Q in Connect knowledge base**
-  (`banco-kb`) that crawls the bucket.
-- **Assistant association** binding the KB to the Q in Connect AI Agents domain so
-  an agent's Retrieve tool can query it.
-- **Publishes to SSM:** `KB_ID`, `KB_ASSOC_ID`.
+- **DataIntegration de AppIntegrations** + **base de conocimiento EXTERNAL de Q in
+  Connect** (`banco-kb`) que rastrea el bucket.
+- **Asociación con el asistente** que vincula la KB al dominio de agentes de IA de Q in
+  Connect para que la herramienta Retrieve de un agente pueda consultarla.
+- **Publica en SSM:** `KB_ID`, `KB_ASSOC_ID`.
 
-**Phase 3 — `CX-BANCO-CONNECT-SUPPORT`**
-- **AI-agent security profiles** (`banco-selfservice-ai-agent`,
-  `banco-agent-assist-iac`): least-privilege `Wisdom.View` + `CustomViews.Access`,
-  plus the MCP tool grant built at deploy time from the gateway id (consumed from
-  SSM `GATEWAY_ID`).
-- **Customer-managed views** (`AWS::Connect::View`): the card-request guided form
-  (`BancoCardRequestForm`) and the activate-card guide (`BancoCardActivationGuide`).
-- **Activate-card guide contact flow** (display name **`Activar tarjeta`**). The
-  `AMAZON_CONNECT_GUIDE` content association that binds the flow to the
-  `activar-tarjeta` KB content is created post-deploy by
-  `knowledge_bases/associate_activate_card_guide.py` (the content ids are
-  post-ingestion values), not by the stack.
-- **Lex V2 Q-in-Connect passthrough bot** (`banco-qconnect-bot-v2`): a single
-  `AMAZON.QInConnectIntent` wired to the AI Agents assistant, 3 locales
-  (en_US/es_US/pt_BR) on Nova Sonic v2 unified speech. The stack publishes the
-  bot's built-in **TestBotAlias** ARN to SSM; build the three locales once in the
-  console after deploy.
-- **Publishes to SSM:** `SP_SELFSERVICE_ID`, `SP_ASSIST_ID`, `VIEW_NEWLINE_ARN`
-  (the card-request form's qualified ARN — key suffix preserved),
-  `LEX_BOT_ALIAS_ARN`.
+**Fase 3 — `CX-BANCO-CONNECT-SUPPORT`**
+- **Perfiles de seguridad de los agentes de IA** (`banco-selfservice-ai-agent`,
+  `banco-agent-assist-iac`): `Wisdom.View` + `CustomViews.Access` de mínimo privilegio,
+  más la concesión de herramientas MCP construida en tiempo de despliegue a partir del
+  id del gateway (consumido de SSM `GATEWAY_ID`).
+- **Vistas administradas por el cliente** (`AWS::Connect::View`): el formulario guiado de
+  solicitud de tarjeta (`BancoCardRequestForm`) y la guía de activar tarjeta
+  (`BancoCardActivationGuide`).
+- **Flujo de contacto de la guía de activar tarjeta** (nombre visible **`Activar
+  tarjeta`**). La asociación de contenido `AMAZON_CONNECT_GUIDE` que vincula el flujo con
+  el contenido `activar-tarjeta` de la KB se crea post-despliegue con
+  `knowledge_bases/associate_activate_card_guide.py` (los ids de contenido son valores
+  posteriores a la ingesta), no por el stack.
+- **Bot Lex V2 de paso a Q-in-Connect** (`banco-qconnect-bot-v2`): un único
+  `AMAZON.QInConnectIntent` cableado al asistente de agentes de IA, 3 locales
+  (en_US/es_US/pt_BR) sobre Nova Sonic v2 unified speech. El stack publica el ARN del
+  **TestBotAlias** integrado del bot en SSM; compila los tres locales una vez en la
+  consola después del despliegue.
+- **Publica en SSM:** `SP_SELFSERVICE_ID`, `SP_ASSIST_ID`, `VIEW_NEWLINE_ARN` (el ARN
+  calificado del formulario de solicitud de tarjeta — se preserva el sufijo de la
+  clave), `LEX_BOT_ALIAS_ARN`.
 
-**Phase 4 — `CX-BANCO-AGENTS`**
-- **Orchestration AI prompts** (`AWS::Wisdom::AIPrompt`), one per agent surface
-  (`banco-selfservice-voice-orchestration`, `banco-selfservice-chat-orchestration`,
-  `banco-agent-assist-orchestration`).
-- **Three AI agents** (`AWS::Wisdom::AIAgent`, orchestration):
-  `banco-selfservice-voice-es` and `banco-selfservice-chat-es` (KB Retrieve + the 9
-  AgentCore MCP tools + Escalate/Complete; chat adds the card-request guide tool),
-  and `banco-agent-assist-es` (Retrieve + MCP surface only). The Retrieve tool
-  filters `industry=bank` AND `language=es`. Security-profile assignment to the
-  agents is a **manual** post-deploy step.
-- **Publishes to SSM:** `AGENT_VOICE_ARN`, `AGENT_CHAT_ARN`, `AGENT_ASSIST_ARN`.
+**Fase 4 — `CX-BANCO-AGENTS`**
+- **Prompts de IA de orquestación** (`AWS::Wisdom::AIPrompt`), uno por superficie de
+  agente (`banco-selfservice-voice-orchestration`,
+  `banco-selfservice-chat-orchestration`, `banco-agent-assist-orchestration`).
+- **Tres agentes de IA** (`AWS::Wisdom::AIAgent`, orquestación):
+  `banco-selfservice-voice-es` y `banco-selfservice-chat-es` (KB Retrieve + las 9
+  herramientas MCP de AgentCore + Escalate/Complete; chat añade la herramienta de la guía
+  de solicitud de tarjeta), y `banco-agent-assist-es` (Retrieve + solo superficie MCP).
+  La herramienta Retrieve filtra `industry=bank` Y `language=es`. La asignación de
+  perfiles de seguridad a los agentes es un paso **manual** post-despliegue.
+- **Publica en SSM:** `AGENT_VOICE_ARN`, `AGENT_CHAT_ARN`, `AGENT_ASSIST_ARN`.
 
-**Phase 5 — `CX-BANCO-FLOWS`**
-- **Escalation handoff view** (`BancoEscalationHandoff`, `AWS::Connect::View`)
-  rendered on agent accept.
-- **Screen-pop contact flow** (`banco-agent-screenpop-es`) that registers the
-  handoff view as the `DefaultAgentUI`.
-- **Flow modules**: `banco-escalate-to-agent` (sets the screen-pop hook + target
-  queue, transfers) and `set-customer-session-banco` (classifies the endpoint,
-  looks the customer up via the `ai_session` Lambda, writes the Q in Connect
-  session).
-- **Inbound self-service flow** (`banco-selfservice-es-inbound`): the Spanish
-  voice/chat entry flow that creates the Wisdom session, binds the Lex bot + the
-  voice/chat/assist agents, drives the card-request guided form, and escalates to a
-  human. It also consumes the external `INIT_FLOW_MODULE_ARN` (`/flows/init/es`) as
-  its start module.
-- **BasicQueueLookup** (`connect:ListQueues` custom resource) resolves the
-  instance's `BasicQueue` ARN by name at deploy time.
+**Fase 5 — `CX-BANCO-FLOWS`**
+- **Vista de traspaso de escalamiento** (`BancoEscalationHandoff`, `AWS::Connect::View`)
+  renderizada al aceptar el agente.
+- **Flujo de contacto de screen-pop** (`banco-agent-screenpop-es`) que registra la vista
+  de traspaso como el `DefaultAgentUI`.
+- **Módulos de flujo**: `banco-escalate-to-agent` (define el hook de screen-pop + la cola
+  destino, transfiere) y `set-customer-session-banco` (clasifica el endpoint, busca al
+  cliente vía el Lambda `ai_session`, escribe la sesión de Q in Connect).
+- **Flujo inbound de self-service** (`banco-selfservice-es-inbound`): el flujo de entrada
+  de voz/chat en español que crea la sesión de Wisdom, vincula el bot Lex + los agentes
+  de voz/chat/assist, conduce el formulario guiado de solicitud de tarjeta, y escala a un
+  humano. También consume el `INIT_FLOW_MODULE_ARN` externo (`/flows/init/es`) como su
+  módulo de inicio.
+- **BasicQueueLookup** (custom resource `connect:ListQueues`) resuelve el ARN de la
+  `BasicQueue` de la instancia por nombre en tiempo de despliegue.
 
-**Phase 6 — `CX-BANCO-WEBSITE`**
-- **Private S3 bucket + CloudFront (OAC)** serving the Vite build of the "Latam
-  Banco" site, which hosts the Amazon Connect chat widget and passes the logged-in
-  email as a contact attribute.
-- **`data_viewer` Lambda** behind a CloudFront `/datos` behavior that renders the
-  three DynamoDB tables (`banco-accounts`, `banco-products`, `banco-cards`) as a
-  read-only HTML page.
-
----
-
-## Banking subsystems
-
-**Accounts & customer lookup** — `banco-accounts` holds customer accounts (with
-`phoneNumber` and `email` GSIs). The `accounts` Lambda serves account lookup by
-phone, by email, by id, and a balance summary; the `ai_session` Lambda reuses the
-same lookups to personalize a live contact by writing the customer record into the
-Q in Connect session.
-
-**Product catalog** — `banco-products` holds the banking product catalog (payroll
-accounts, classic/gold cards, …). The `products` Lambda lists products (with an
-optional `maxAnnualFee` filter) and returns a single product's details; it also
-answers Amazon Connect "Invoke Lambda" calls with a view-ready `productOptions`
-list for the guided form.
-
-**Card requests** — `banco-cards` holds card / product requests keyed by `cardId`
-(with a `customerId-index` GSI). The `cards` Lambda creates a new request
-(`status = requested`, server-generated `cardId`), lists a customer's requests, and
-returns a single request by id. `requestCard` is the one state-changing operation
-and is confirmation-gated in the agents.
-
-**Knowledge base** — `banco-kb` serves self-service articles (accounts, cards,
-transfers, fees, FAQ, branch info, activate-card) in three languages (es/pt/en).
-The agents' Retrieve tool queries it, segmented by `industry` + `language` tags.
-
-**AI agents** — three orchestration agents (self-service voice, self-service chat,
-agent-assist) answer contacts using the KB Retrieve tool plus the 9 banking MCP
-tools, escalating to a human when needed.
-
-**Contact flows** — the inbound flow personalizes and routes contacts, binds the
-Lex bot and the agents, drives the card-request form, and escalates via the
-screen-pop + escalate modules.
-
-**Website** — the "Latam Banco" site hosts the Connect chat widget and a demo
-data-viewer for the three DynamoDB tables.
+**Fase 6 — `CX-BANCO-WEBSITE`**
+- **Bucket S3 privado + CloudFront (OAC)** sirviendo el build de Vite del sitio "Latam
+  Banco", que aloja el widget de chat de Amazon Connect y pasa el email logueado como
+  atributo de contacto.
+- **Lambda `data_viewer`** detrás de un comportamiento `/datos` de CloudFront que
+  renderiza las tres tablas DynamoDB (`banco-accounts`, `banco-products`, `banco-cards`)
+  como una página HTML de solo lectura.
 
 ---
 
-## Lambda Code Flows
+## Subsistemas de banca
 
-Every deployed Lambda is Python 3.12 on ARM64. The four banking-backend functions
-(`accounts`, `products`, `cards`, `ai_session`) share a `_response()` /
-`_json_default` helper that serializes DynamoDB `Decimal` values to native JSON
-numbers. **No handler writes to `/tmp` or S3** — persistence is DynamoDB, Q in
-Connect session data, or Connect security-profile state only.
+**Cuentas y búsqueda de cliente** — `banco-accounts` guarda las cuentas de cliente (con
+GSIs `phoneNumber` y `email`). El Lambda `accounts` sirve la búsqueda de cuenta por
+teléfono, por email, por id, y un resumen de saldo; el Lambda `ai_session` reutiliza las
+mismas búsquedas para personalizar un contacto en vivo escribiendo el registro del
+cliente en la sesión de Q in Connect.
+
+**Catálogo de productos** — `banco-products` guarda el catálogo de productos bancarios
+(cuentas de nómina, tarjetas clásica/oro, …). El Lambda `products` lista productos (con
+un filtro opcional `maxAnnualFee`) y devuelve los detalles de un producto individual;
+también responde llamadas de "Invoke Lambda" de Amazon Connect con una lista
+`productOptions` lista para vista para el formulario guiado.
+
+**Solicitudes de tarjeta** — `banco-cards` guarda las solicitudes de tarjeta / producto
+indexadas por `cardId` (con un GSI `customerId-index`). El Lambda `cards` crea una nueva
+solicitud (`status = requested`, `cardId` generado por el servidor), lista las
+solicitudes de un cliente, y devuelve una solicitud individual por id. `requestCard` es
+la única operación que cambia estado y está protegida por confirmación en los agentes.
+
+**Base de conocimiento** — `banco-kb` sirve artículos de autoservicio (cuentas,
+tarjetas, transferencias, comisiones, FAQ, info de sucursales, activar tarjeta) en tres
+idiomas (es/pt/en). La herramienta Retrieve de los agentes la consulta, segmentada por
+etiquetas `industry` + `language`.
+
+**Agentes de IA** — tres agentes de orquestación (self-service voz, self-service chat,
+agent-assist) atienden contactos usando la herramienta KB Retrieve más las 9
+herramientas MCP de banca, escalando a un humano cuando es necesario.
+
+**Flujos de contacto** — el flujo inbound personaliza y enruta contactos, vincula el bot
+Lex y los agentes, conduce el formulario de solicitud de tarjeta, y escala vía los
+módulos de screen-pop + escalate.
+
+**Sitio web** — el sitio "Latam Banco" aloja el widget de chat de Connect y un visor de
+datos de demo para las tres tablas DynamoDB.
+
+---
+
+## Flujos de código de los Lambda
+
+Cada Lambda desplegado es Python 3.12 en ARM64. Las cuatro funciones del backend de
+banca (`accounts`, `products`, `cards`, `ai_session`) comparten un helper `_response()` /
+`_json_default` que serializa los valores `Decimal` de DynamoDB a números JSON nativos.
+**Ningún handler escribe en `/tmp` ni en S3** — la persistencia es solo DynamoDB, datos
+de sesión de Q in Connect, o el estado de perfiles de seguridad de Connect.
 
 ### accounts
 
-**Trigger:** API Gateway REST (proxy). Routes: `GET /accounts?phoneNumber=`,
+**Disparador:** API Gateway REST (proxy). Rutas: `GET /accounts?phoneNumber=`,
 `GET /accounts/by-email?email=`, `GET /accounts/{accountId}`,
-`GET /accounts/{accountId}/balance`. Reads the `banco-accounts` table
-(+ phone/email GSIs).
+`GET /accounts/{accountId}/balance`. Lee la tabla `banco-accounts`
+(+ GSIs de phone/email).
 
 ```mermaid
 graph TD
@@ -290,10 +295,10 @@ graph TD
 
 ### products
 
-**Trigger:** DUAL. (a) API Gateway REST proxy: `GET /products?maxAnnualFee=`,
-`GET /products/{productId}`. (b) Amazon Connect **Invoke AWS Lambda function**
-(detected when the event has a top-level `Details` key and no `httpMethod`). Reads
-the `banco-products` table.
+**Disparador:** DUAL. (a) Proxy REST de API Gateway: `GET /products?maxAnnualFee=`,
+`GET /products/{productId}`. (b) **Invoke AWS Lambda function** de Amazon Connect
+(detectado cuando el evento tiene una clave `Details` de nivel superior y no tiene
+`httpMethod`). Lee la tabla `banco-products`.
 
 ```mermaid
 graph TD
@@ -321,9 +326,9 @@ graph TD
 
 ### cards
 
-**Trigger:** API Gateway REST proxy. Routes: `POST /cards`, `GET /cards?customerId=`,
-`GET /cards/{cardId}`. Reads/writes the `banco-cards` table (+ customerId GSI);
-generates `cardId` server-side with `uuid4`.
+**Disparador:** Proxy REST de API Gateway. Rutas: `POST /cards`, `GET /cards?customerId=`,
+`GET /cards/{cardId}`. Lee/escribe la tabla `banco-cards` (+ GSI de customerId); genera
+`cardId` del lado del servidor con `uuid4`.
 
 ```mermaid
 graph TD
@@ -352,12 +357,12 @@ graph TD
 
 ### ai_session
 
-**Trigger:** Amazon Connect `InvokeLambdaFunction` from the
-`set-customer-session-banco` flow module. Returns a flat **STRING_MAP**. Reads the
-`banco-accounts` table (phone/email GSIs), calls `connect:DescribeContact` to find
-the contact's Wisdom session ARN, and `qconnect:UpdateSessionData` to write
-attributes into the Q in Connect session. All Connect/session failures are swallowed
-so a personalization write never blocks the contact.
+**Disparador:** `InvokeLambdaFunction` de Amazon Connect desde el módulo de flujo
+`set-customer-session-banco`. Devuelve un **STRING_MAP** plano. Lee la tabla
+`banco-accounts` (GSIs de phone/email), llama a `connect:DescribeContact` para encontrar
+el ARN de la sesión de Wisdom del contacto, y a `qconnect:UpdateSessionData` para
+escribir atributos en la sesión de Q in Connect. Todas las fallas de Connect/sesión se
+silencian para que una escritura de personalización nunca bloquee el contacto.
 
 ```mermaid
 graph TD
@@ -385,13 +390,13 @@ graph TD
     LSKIP --> LRESP
 ```
 
-### ProfileDetacher (custom resource, delete-time)
+### ProfileDetacher (custom resource, en borrado)
 
-**Trigger:** CloudFormation custom resource (`cr.Provider`) in the MCP stack. On
-**Create/Update it is a no-op**; on **Delete** it strips this MCP application's
-namespace (the gateway id) from every Connect security profile that still grants it,
-so `DeleteIntegrationAssociation` can proceed automatically. Calls
-`connect:ListSecurityProfiles`, `ListSecurityProfileApplications`, and
+**Disparador:** custom resource de CloudFormation (`cr.Provider`) en el stack de MCP. En
+**Create/Update es un no-op**; en **Delete** quita el namespace de esta aplicación MCP
+(el id del gateway) de cada perfil de seguridad de Connect que aún lo conceda, para que
+`DeleteIntegrationAssociation` pueda proceder automáticamente. Llama a
+`connect:ListSecurityProfiles`, `ListSecurityProfileApplications`, y
 `UpdateSecurityProfile`.
 
 ```mermaid
@@ -409,11 +414,12 @@ graph TD
     LOOP --> DONE["Return PhysicalResourceId"]
 ```
 
-### BasicQueueLookup (custom resource, deploy-time)
+### BasicQueueLookup (custom resource, en despliegue)
 
-**Trigger:** CloudFormation custom resource in the FLOWS stack. Resolves the standard
-queue ARN by name (`connect:ListQueues`, paginated) so the flows transfer to a valid
-queue with no hard-coded id. Raises loudly if the named queue is not found.
+**Disparador:** custom resource de CloudFormation en el stack de FLOWS. Resuelve el ARN
+de la cola estándar por nombre (`connect:ListQueues`, paginado) para que los flujos
+transfieran a una cola válida sin id hardcodeado. Lanza un error ruidoso si la cola
+nombrada no se encuentra.
 
 ```mermaid
 graph TD
@@ -428,12 +434,13 @@ graph TD
     CHECK -->|yes| RET["Return QueueArn / QueueId"]
 ```
 
-### data_viewer (website)
+### data_viewer (sitio web)
 
-**Trigger:** Lambda behind a CloudFront `/datos` behavior (API Gateway proxy with
-OAC). Scans all three DynamoDB tables (`banco-accounts`, `banco-products`,
-`banco-cards`) with full pagination and renders a single read-only HTML page in
-memory (no `/tmp`, no S3). A single try/except returns a 500 HTML page on any error.
+**Disparador:** Lambda detrás de un comportamiento `/datos` de CloudFront (proxy de API
+Gateway con OAC). Escanea las tres tablas DynamoDB (`banco-accounts`, `banco-products`,
+`banco-cards`) con paginación completa y renderiza una única página HTML de solo lectura
+en memoria (sin `/tmp`, sin S3). Un único try/except devuelve una página HTML 500 ante
+cualquier error.
 
 ```mermaid
 graph TD
@@ -448,70 +455,70 @@ graph TD
     ERR --> E500["500 text/html"]
 ```
 
-## ECS Task and Service Code Flows
+## Flujos de código de tareas y servicios de ECS
 
-None. This project deploys no ECS tasks or services.
+Ninguno. Este proyecto no despliega tareas ni servicios de ECS.
 
-## Step Functions Workflows
+## Workflows de Step Functions
 
-None. This project deploys no Step Functions state machines.
+Ninguno. Este proyecto no despliega máquinas de estado de Step Functions.
 
 ---
 
-## Project Structure
+## Estructura del proyecto
 
 ```
 agentic-cx-bank/
-├── app.py                     # CDK app entry — wires the six phased stacks + dependencies
-├── config.py                  # Flat module-level config, grouped by deploy phase (no secrets)
-├── cdk.json                   # Runs `python3 app.py`
-├── requirements.txt           # Runtime deps (aws-cdk-lib, constructs, PyYAML, boto3)
-├── requirements-dev.txt       # Dev deps (pytest)
+├── app.py                     # Entrada de la app CDK — cablea los seis stacks por fases + dependencias
+├── config.py                  # Config plana a nivel de módulo, agrupada por fase de despliegue (sin secretos)
+├── cdk.json                   # Ejecuta `python3 app.py`
+├── requirements.txt           # Deps de runtime (aws-cdk-lib, constructs, PyYAML, boto3)
+├── requirements-dev.txt       # Deps de dev (pytest)
 │
-├── agentic_cx_bank/           # The six CDK stacks
-│   ├── mcp_stack.py               # Phase 1  CX-BANCO-MCP
-│   ├── knowledge_base_stack.py    # Phase 2  CX-BANCO-KB
-│   ├── connect_support_stack.py   # Phase 3  CX-BANCO-CONNECT-SUPPORT
-│   ├── ai_agents_stack.py         # Phase 4  CX-BANCO-AGENTS
-│   ├── contact_flows_stack.py     # Phase 5  CX-BANCO-FLOWS
-│   └── website_stack.py           # Phase 6  CX-BANCO-WEBSITE
+├── agentic_cx_bank/           # Los seis stacks CDK
+│   ├── mcp_stack.py               # Fase 1  CX-BANCO-MCP
+│   ├── knowledge_base_stack.py    # Fase 2  CX-BANCO-KB
+│   ├── connect_support_stack.py   # Fase 3  CX-BANCO-CONNECT-SUPPORT
+│   ├── ai_agents_stack.py         # Fase 4  CX-BANCO-AGENTS
+│   ├── contact_flows_stack.py     # Fase 5  CX-BANCO-FLOWS
+│   └── website_stack.py           # Fase 6  CX-BANCO-WEBSITE
 │
 ├── lambdas/
-│   ├── project_lambdas.py     # `Lambdas` construct (accounts / products / cards / ai_session)
-│   └── code/                  # Handler source, one folder per function
+│   ├── project_lambdas.py     # Construct `Lambdas` (accounts / products / cards / ai_session)
+│   └── code/                  # Código de los handlers, una carpeta por función
 │       ├── accounts/handler.py
 │       ├── products/handler.py
 │       ├── cards/handler.py
 │       └── ai_session/handler.py
 │
-├── apis/                      # REST API construct + OpenAPI spec (banco_api.py, openapi/)
-├── agent_core/                # AgentCore gateway + API-key credential provider constructs
-├── databases/                # DynamoDB tables construct + seed data (data/)
-├── knowledge_bases/          # KB construct + banking articles + post-deploy scripts
+├── apis/                      # Construct de la REST API + spec OpenAPI (banco_api.py, openapi/)
+├── agent_core/                # Constructs del gateway AgentCore + proveedor de credenciales por API key
+├── databases/                # Construct de tablas DynamoDB + datos semilla (data/)
+├── knowledge_bases/          # Construct de KB + artículos de banca + scripts post-despliegue
 │   ├── knowledge_base.py
-│   ├── tag_kb_content.py                  # post-deploy: tags KB content for Retrieve segmentation
-│   └── associate_activate_card_guide.py   # post-deploy: creates the AMAZON_CONNECT_GUIDE association
-├── connect/                  # Connect building blocks (constructs + inline/CR lambdas)
-│   ├── mcp_integration.py         # MCP application integration + ProfileDetacher (inline CR)
-│   ├── basic_queue_lookup_cr.py   # BasicQueueLookup construct
+│   ├── tag_kb_content.py                  # post-despliegue: etiqueta el contenido de la KB para segmentación de Retrieve
+│   └── associate_activate_card_guide.py   # post-despliegue: crea la asociación AMAZON_CONNECT_GUIDE
+├── connect/                  # Bloques de construcción de Connect (constructs + lambdas inline/CR)
+│   ├── mcp_integration.py         # Integración de aplicación MCP + ProfileDetacher (CR inline)
+│   ├── basic_queue_lookup_cr.py   # Construct BasicQueueLookup
 │   ├── ai_agents.py / ai_prompts.py / security_profile.py / lex_bot.py / views.py / flows.py
 │   └── lambda_integration.py
-├── connect_ai_agents/        # Authored orchestration prompt YAML per agent surface
+├── connect_ai_agents/        # YAML de prompts de orquestación por superficie de agente
 │   ├── bank-selfservice-voice/prompts/*.yaml
 │   ├── bank-selfservice-chat/prompts/*.yaml
 │   └── bank-agent-assist-es/prompts/*.yaml
-├── flows/                    # Contact flow + module JSON (one folder per flow)
-├── views/                    # Customer-managed view JSON (card-request form / activate-card guide / handoff)
-├── webhosting/               # Website hosting construct + data_viewer_lambda/index.py
-├── website/                  # Vite "Latam Banco" front-end (build output → website/dist)
-├── shared/ssm_names.py       # The cross-stack SSM parameter-name contract
-└── tests/unit/               # pytest scaffold
+├── flows/                    # JSON de flujos de contacto + módulos (una carpeta por flujo)
+├── views/                    # JSON de vistas administradas por el cliente (formulario solicitud tarjeta / guía activar tarjeta / traspaso)
+├── webhosting/               # Construct de hosting del sitio + data_viewer_lambda/index.py
+├── website/                  # Front-end Vite "Latam Banco" (salida del build → website/dist)
+├── shared/ssm_names.py       # El contrato de nombres de parámetros SSM entre stacks
+└── tests/unit/               # Andamiaje de pytest
 ```
 
-## Testing
+## Pruebas
 
-Dev dependency is `pytest` (`requirements-dev.txt`). Run the suite from the project
-root inside the virtualenv:
+La dependencia de dev es `pytest` (`requirements-dev.txt`). Ejecuta la suite desde la
+raíz del proyecto dentro del virtualenv:
 
 ```bash
 source .venv/bin/activate
@@ -519,113 +526,123 @@ pip install -r requirements-dev.txt
 pytest tests/unit/
 ```
 
-The intended approach is CDK **assertion tests** — synthesize a stack to a
-CloudFormation template and assert on resource properties — which pairs well with the
-"synth is the verification gate" workflow (`cdk synth` must pass before deploy).
+El enfoque previsto son **pruebas de aserción** de CDK — sintetizar un stack a una
+plantilla de CloudFormation y hacer aserciones sobre las propiedades de los recursos —
+que combina bien con el flujo de trabajo "synth es la puerta de verificación"
+(`cdk synth` debe pasar antes de desplegar).
 
-## Configuration
+## Configuración
 
-All configuration is flat module-level constants in `config.py` (no secrets; AWS
-credentials resolve from your local profile/SSO at deploy time), ordered by the deploy
-phase that first consumes each value. Key groups: Connect identity (`INSTANCE_ID`,
-`INSTANCE_ALIAS`, `ASSISTANT_ID`, `HAS_REAL_INSTANCE`), naming, KB settings, security
-profiles, views/guide, Lex bot, AI agents/prompts/models, contact flows, and website
-build settings. A trailing **collision guard** keeps the configuration invalid
-(`CONFIG_VALID == False`) if any banking name still resolves to a live name on the
-shared Connect instance, surfacing the offending name without overwriting it. See
-`config.py` for the full annotated list.
+Toda la configuración son constantes planas a nivel de módulo en `config.py` (sin
+secretos; las credenciales de AWS se resuelven desde tu perfil/SSO local en tiempo de
+despliegue), ordenadas por la fase de despliegue que primero consume cada valor. Grupos
+clave: identidad de Connect (`INSTANCE_ID`, `INSTANCE_ALIAS`, `ASSISTANT_ID`,
+`HAS_REAL_INSTANCE`), nombres, ajustes de KB, perfiles de seguridad, vistas/guía, bot de
+Lex, agentes de IA/prompts/modelos, flujos de contacto, y ajustes de build del sitio. Un
+**guard de colisión** al final mantiene la configuración inválida (`CONFIG_VALID ==
+False`) si algún nombre de banca aún resuelve a un nombre en vivo en la instancia de
+Connect compartida, exponiendo el nombre conflictivo sin sobrescribirlo. Ver `config.py`
+para la lista completa anotada.
 
-### SSM parameters (the cross-stack contract)
+### Parámetros SSM (el contrato entre stacks)
 
-Defined once in `shared/ssm_names.py` under the `/agentic-cx-bank` namespace. Only
-values that genuinely cross a stack boundary are published; everything else stays a
-`CfnOutput`. Secrets never go on the bus (the API key stays in Secrets Manager).
+Definidos una sola vez en `shared/ssm_names.py` bajo el namespace `/agentic-cx-bank`.
+Solo se publican los valores que genuinamente cruzan un límite de stack; todo lo demás
+queda como un `CfnOutput`. Los secretos nunca van en el bus (la API key se queda en
+Secrets Manager).
 
-| Parameter | Producer | Consumed by | Value it carries |
+| Parámetro | Productor | Consumido por | Valor que lleva |
 |---|---|---|---|
-| `/agentic-cx-bank/agentcore/gateway-id` | `CX-BANCO-MCP` | Phase 3 | bare gateway id (security-profile MCP namespace + Connect JWT audience) |
-| `/agentic-cx-bank/agentcore/mcp-tool-prefix` | `CX-BANCO-MCP` | Phase 4 | `gateway_<id>__banco-rest-api-oas-target___` prefix for agent MCP tool ids |
-| `/agentic-cx-bank/agentcore/lambda/plans-arn` | `CX-BANCO-MCP` | Phase 5 | products Lambda ARN (for contact flows) |
-| `/agentic-cx-bank/agentcore/lambda/ai-session-arn` | `CX-BANCO-MCP` | Phase 5 | ai_session Lambda ARN (for contact flows) |
-| `/agentic-cx-bank/kb/knowledge-base-id` | `CX-BANCO-KB` | scripts | KB id (read by both post-deploy scripts) |
-| `/agentic-cx-bank/kb/assistant-association-id` | `CX-BANCO-KB` | Phase 4 | KB↔assistant association id (agent Retrieve binding) |
-| `/agentic-cx-bank/connect/security-profile-selfservice-id` | `CX-BANCO-CONNECT-SUPPORT` | manual | self-service AI-agent security profile id |
-| `/agentic-cx-bank/connect/security-profile-assist-id` | `CX-BANCO-CONNECT-SUPPORT` | manual | agent-assist security profile id |
-| `/agentic-cx-bank/connect/view-newline-qualified-arn` | `CX-BANCO-CONNECT-SUPPORT` | Phase 5 | card-request form view ARN (inbound flow ShowView) |
-| `/agentic-cx-bank/connect/lex-bot-alias-arn` | `CX-BANCO-CONNECT-SUPPORT` | Phase 5 | Lex bot TestBotAlias ARN for the inbound flow's Lex blocks |
-| `/agentic-cx-bank/agents/voice-arn` | `CX-BANCO-AGENTS` | Phase 5 | self-service voice AI-agent ARN |
-| `/agentic-cx-bank/agents/chat-arn` | `CX-BANCO-AGENTS` | Phase 5 | self-service chat AI-agent ARN |
-| `/agentic-cx-bank/agents/assist-arn` | `CX-BANCO-AGENTS` | Phase 5 | agent-assist AI-agent ARN |
+| `/agentic-cx-bank/agentcore/gateway-id` | `CX-BANCO-MCP` | Fase 3 | id del gateway sin adornos (namespace MCP del perfil de seguridad + audiencia JWT de Connect) |
+| `/agentic-cx-bank/agentcore/mcp-tool-prefix` | `CX-BANCO-MCP` | Fase 4 | prefijo `gateway_<id>__banco-rest-api-oas-target___` para los ids de herramientas MCP del agente |
+| `/agentic-cx-bank/agentcore/lambda/plans-arn` | `CX-BANCO-MCP` | Fase 5 | ARN del Lambda products (para los flujos de contacto) |
+| `/agentic-cx-bank/agentcore/lambda/ai-session-arn` | `CX-BANCO-MCP` | Fase 5 | ARN del Lambda ai_session (para los flujos de contacto) |
+| `/agentic-cx-bank/kb/knowledge-base-id` | `CX-BANCO-KB` | scripts | id de la KB (leído por ambos scripts post-despliegue) |
+| `/agentic-cx-bank/kb/assistant-association-id` | `CX-BANCO-KB` | Fase 4 | id de la asociación KB↔asistente (binding Retrieve del agente) |
+| `/agentic-cx-bank/connect/security-profile-selfservice-id` | `CX-BANCO-CONNECT-SUPPORT` | manual | id del perfil de seguridad del agente de IA self-service |
+| `/agentic-cx-bank/connect/security-profile-assist-id` | `CX-BANCO-CONNECT-SUPPORT` | manual | id del perfil de seguridad de agent-assist |
+| `/agentic-cx-bank/connect/view-newline-qualified-arn` | `CX-BANCO-CONNECT-SUPPORT` | Fase 5 | ARN de la vista del formulario de solicitud de tarjeta (ShowView del flujo inbound) |
+| `/agentic-cx-bank/connect/lex-bot-alias-arn` | `CX-BANCO-CONNECT-SUPPORT` | Fase 5 | ARN del TestBotAlias del bot Lex para los bloques Lex del flujo inbound |
+| `/agentic-cx-bank/agents/voice-arn` | `CX-BANCO-AGENTS` | Fase 5 | ARN del agente de IA de voz self-service |
+| `/agentic-cx-bank/agents/chat-arn` | `CX-BANCO-AGENTS` | Fase 5 | ARN del agente de IA de chat self-service |
+| `/agentic-cx-bank/agents/assist-arn` | `CX-BANCO-AGENTS` | Fase 5 | ARN del agente de IA agent-assist |
 
-> **External dependency (not a Bank_Project key):** `INIT_FLOW_MODULE_ARN`
-> resolves to `/flows/init/es`, which lives **outside** the `/agentic-cx-bank`
-> namespace. It is published by the separate `CX-LANG-UTILS` localization app on
-> the same Connect instance and consumed by the Phase 5 inbound flow as its start
-> module. `CX-LANG-UTILS` must be deployed first so the parameter exists at deploy
-> time.
+> **Dependencia externa (no es una clave del Bank_Project):** `INIT_FLOW_MODULE_ARN`
+> resuelve a `/flows/init/es`, que vive **fuera** del namespace `/agentic-cx-bank`. Lo
+> publica la app de localización separada `CX-LANG-UTILS` en la misma instancia de
+> Connect y lo consume el flujo inbound de la Fase 5 como su módulo de inicio.
+> `CX-LANG-UTILS` debe desplegarse primero para que el parámetro exista en tiempo de
+> despliegue.
 
 ---
 
-## Deploy
+## Despliegue
 
 ```bash
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# synth (verification gate) — cdk.json runs `python3 app.py`
+# synth (puerta de verificación) — cdk.json ejecuta `python3 app.py`
 cdk synth
 
-# Phase 1 + Phase 2 — independent, deploy in any order
+# Fase 1 + Fase 2 — independientes, se despliegan en cualquier orden
 cdk deploy CX-BANCO-MCP --profile connect-industry
 cdk deploy CX-BANCO-KB  --profile connect-industry
 
-# Phase 3 — depends on Phase 1 (gateway id) and Phase 2 (kb id)
+# Fase 3 — depende de la Fase 1 (gateway id) y de la Fase 2 (kb id)
 cdk deploy CX-BANCO-CONNECT-SUPPORT --profile connect-industry
 
-# Phase 4 — depends on Phase 1 (MCP tool prefix) and Phase 2 (KB association)
+# Fase 4 — depende de la Fase 1 (prefijo de herramientas MCP) y de la Fase 2 (asociación de KB)
 cdk deploy CX-BANCO-AGENTS --profile connect-industry
 
-# Phase 5 — depends on Phase 1 (ai_session Lambda), Phase 3 (view + Lex alias),
-# and Phase 4 (agent ARNs)
+# Fase 5 — depende de la Fase 1 (Lambda ai_session), la Fase 3 (vista + alias Lex),
+# y la Fase 4 (ARNs de agentes)
 cdk deploy CX-BANCO-FLOWS --profile connect-industry
 
-# Phase 6 — build the site first, then deploy (S3 + CloudFront)
+# Fase 6 — compila el sitio primero, luego despliega (S3 + CloudFront)
 cd website && npm install && npm run build && cd ..
 cdk deploy CX-BANCO-WEBSITE --profile connect-industry
 ```
 
-Deploy order: **`CX-BANCO-MCP` → `CX-BANCO-KB` → `CX-BANCO-CONNECT-SUPPORT` →
+Orden de despliegue: **`CX-BANCO-MCP` → `CX-BANCO-KB` → `CX-BANCO-CONNECT-SUPPORT` →
 `CX-BANCO-AGENTS` → `CX-BANCO-FLOWS` → `CX-BANCO-WEBSITE`.**
 
-### Post-deploy steps
+### Pasos post-despliegue
 
-After **Phase 2** finishes its first sync, tag the KB content so the Retrieve tool
-can find it, then wire the activate-card guide to its article. Both scripts resolve
-the KB id from SSM `KB_ID` (or `--kb-id`), so no id needs hand-copying:
+Después de que la **Fase 2** termine su primer sync, etiqueta el contenido de la KB para
+que la herramienta Retrieve lo encuentre, luego cablea la guía de activar tarjeta a su
+artículo. Ambos scripts resuelven el KB id desde SSM `KB_ID` (o `--kb-id`), así que no
+hace falta copiar ningún id a mano:
 
 ```bash
-# 1. Tag every KB content item (industry: bank + a per-item es/pt/en language tag).
-#    --wait polls until 21 items are ACTIVE, then tags them.
+# 1. Etiqueta cada ítem de contenido de la KB (industry: bank + una etiqueta de idioma es/pt/en por ítem).
+#    --wait sondea hasta que 21 ítems estén ACTIVE, luego los etiqueta.
 python knowledge_bases/tag_kb_content.py --wait --expect 21 --profile connect-industry
 
-# 2. Bind the "Activar tarjeta" guide flow to the activar-tarjeta KB content
-#    (idempotent AMAZON_CONNECT_GUIDE association). Add --dry-run to preview.
+# 2. Vincula el flujo de la guía "Activar tarjeta" con el contenido activar-tarjeta de la KB
+#    (asociación AMAZON_CONNECT_GUIDE idempotente). Añade --dry-run para previsualizar.
 python knowledge_bases/associate_activate_card_guide.py --profile connect-industry
 python knowledge_bases/associate_activate_card_guide.py --dry-run --profile connect-industry
 ```
 
-After **Phase 4**, assign the Phase 3 security profiles to the AI agents (manual —
-there is no native CFN resource for `connect:AssociateSecurityProfiles` with
+Después de la **Fase 4**, asigna los perfiles de seguridad de la Fase 3 a los agentes de
+IA (manual — no hay recurso nativo de CFN para `connect:AssociateSecurityProfiles` con
 `EntityType=AI_AGENT`):
 
-1. In the **Amazon Connect admin website**, open **AI agents** (Q in Connect).
-2. Assign profiles: voice + chat → `banco-selfservice-ai-agent`, agent-assist →
-   `banco-agent-assist-iac` (use the `SP_SELFSERVICE_ID` / `SP_ASSIST_ID` values
-   published to SSM to identify them).
-3. For **agent-assist**, the human agents who use the assistant panel must also
-   carry the same permissions — tool calls authorize against the intersection of the
-   AI agent's and the human agent's profiles.
+1. En el **sitio de administración de Amazon Connect**, abre **AI agents** (Q in Connect).
+2. Asigna perfiles: voz + chat → `banco-selfservice-ai-agent`, agent-assist →
+   `banco-agent-assist-iac` (usa los valores `SP_SELFSERVICE_ID` / `SP_ASSIST_ID`
+   publicados en SSM para identificarlos).
+3. Para **agent-assist**, los agentes humanos que usan el panel del asistente también
+   deben llevar los mismos permisos — las llamadas a herramientas se autorizan contra la
+   intersección de los perfiles del agente de IA y del agente humano.
 
-After **Phase 3**, build the Lex bot's three locales (`en_US`, `es_US`, `pt_BR`) in
-the Amazon Lex V2 console so its **TestBotAlias** goes live for the inbound flow
-(locales are intentionally not auto-built to keep the deploy fast).
+Después de la **Fase 3**, compila los tres locales del bot Lex (`en_US`, `es_US`,
+`pt_BR`) en la consola de Amazon Lex V2 para que su **TestBotAlias** quede activo para el
+flujo inbound (los locales intencionalmente no se auto-compilan para mantener el
+despliegue rápido).
+
+> La habilitación de los locales en el TestBotAlias la maneja automáticamente un custom
+> resource en `CX-BANCO-CONNECT-SUPPORT`, así que el chat funciona sin la alternancia
+> manual de locales del alias. Aun así necesitas **compilar** los tres locales en la
+> consola de Lex.

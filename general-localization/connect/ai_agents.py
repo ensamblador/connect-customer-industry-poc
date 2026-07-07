@@ -106,7 +106,10 @@ PROMPT_SPECS: dict[str, _PromptSpec] = {
         prompt_type="QUERY_REFORMULATION",
         name_suffix="query-reformulation",
         api_format="MESSAGES",
-        model_id="us.amazon.nova-lite-v1:0",
+        # Was us.amazon.nova-lite-v1:0 (Nova is not available in every region,
+        # e.g. Canada). Use the same Haiku 4.5 orchestrator model the bank/telco
+        # stacks use — a global inference profile with broad region coverage.
+        model_id="global.anthropic.claude-haiku-4-5-20251001-v1:0",
         body_file="query_reformulation.yaml",
     ),
     SOURCE_ANSWER_GENERATION: _PromptSpec(
@@ -121,7 +124,10 @@ PROMPT_SPECS: dict[str, _PromptSpec] = {
         prompt_type="INTENT_LABELING_GENERATION",
         name_suffix="intent-labeling",
         api_format="MESSAGES",
-        model_id="us.amazon.nova-pro-v1:0",
+        # Was us.amazon.nova-pro-v1:0 (Nova is not available in every region,
+        # e.g. Canada). Use the same Haiku 4.5 orchestrator model the bank/telco
+        # stacks use — a global inference profile with broad region coverage.
+        model_id="global.anthropic.claude-haiku-4-5-20251001-v1:0",
         body_file="intent_labeling.yaml",
     ),
     SOURCE_NOTE_TAKING: _PromptSpec(
