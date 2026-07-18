@@ -1,0 +1,29 @@
+Reservas: reservar, alterar e cancelar voos
+===========================================
+
+Na AeroLatam você gerencia suas reservas pelo site, pelo aplicativo ou com um atendente. Cada reserva gera um código de seis caracteres usado para consultá-la e modificá-la.
+
+Como reservo um voo?
+--------------------
+
+Informe origem, destino e datas no buscador da AeroLatam, escolha o voo e a classe tarifária e preencha os dados de cada passageiro. Ao pagar, você recebe o código da reserva e o itinerário por e-mail.
+
+Quais classes tarifárias existem?
+---------------------------------
+
+Oferecemos três tarifas: Light, que inclui apenas bagagem de mão; Plus, que acrescenta bagagem despachada e alterações com taxa reduzida; e Top, que inclui bagagem, alterações flexíveis e escolha de assento sem custo.
+
+Como altero ou cancelo minha reserva?
+-------------------------------------
+
+Acesse "Minhas viagens" com seu código de reserva e sobrenome para mudar data, horário ou rota. A tarifa Light não permite alterações; Plus e Top permitem, com a diferença tarifária correspondente. Para cancelar, use a mesma seção ou fale com um atendente.
+
+Como funcionam os reembolsos?
+-----------------------------
+
+As tarifas reembolsáveis (Top) devolvem o valor pago conforme as condições do bilhete. As tarifas Light e Plus geralmente não são reembolsáveis, embora seja possível recuperar impostos e taxas não utilizados. Os reembolsos são processados no meio de pagamento original em cerca de 20 dias úteis.
+
+Política de no-show
+-------------------
+
+Se você não comparecer ao voo sem cancelar antes, a reserva é marcada como no-show e os trechos seguintes podem ser cancelados. Nesse caso a tarifa costuma ser perdida; consulte um atendente sobre eventual crédito.

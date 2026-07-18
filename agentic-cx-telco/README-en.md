@@ -133,7 +133,7 @@ graph TD
 **Phase 3 — `CX-TELCO-CONNECT-SUPPORT`**
 - **AI-agent security profiles** (self-service + agent-assist): least-privilege `Wisdom.View` + `CustomViews.Access`, plus the MCP tool grant built at deploy time from the gateway id.
 - **Customer-managed views** (`AWS::Connect::View`): the new-line guided form and the eSIM activation guide.
-- **eSIM guide contact flow**. The `AMAZON_CONNECT_GUIDE` content association that binds the flow to the `esim-activacion` KB content is created post-deploy by `knowledge_bases/associate_esim_guide.py` (the content ids are post-ingestion values), not by the stack.
+- **eSIM guide contact flow**. The `AMAZON_CONNECT_GUIDE` content association that binds the flow to the `esim-activacion` KB content is created post-deploy by `knowledge_bases/associate_guide.py` (the content ids are post-ingestion values), not by the stack.
 - **Lex V2 Q-in-Connect passthrough bot** (`AWS::Lex::Bot`): a single `AMAZON.QInConnectIntent` wired to the AI Agents assistant, 3 locales (en_US/es_US/pt_BR) on Nova Sonic v2 unified speech. The stack publishes the bot's built-in **TestBotAlias** ARN to SSM; build the three locales once in the console after deploy.
 
 **Phase 4 — `CX-TELCO-AGENTS`**
@@ -395,7 +395,7 @@ agentic-cx-telco/
 ├── knowledge_bases/          # KB construct + telco articles + post-deploy scripts
 │   ├── knowledge_base.py
 │   ├── tag_kb_content.py          # post-deploy: tags KB content for Retrieve segmentation
-│   └── associate_esim_guide.py    # post-deploy: creates the AMAZON_CONNECT_GUIDE association
+│   └── associate_guide.py    # post-deploy: creates the AMAZON_CONNECT_GUIDE association
 ├── connect/                  # Connect building blocks (constructs + inline/CR lambdas)
 │   ├── mcp_integration.py         # MCP application integration + ProfileDetacher (inline CR)
 │   ├── basic_queue_lookup_cr.py   # BasicQueueLookup construct
@@ -449,7 +449,7 @@ bus (the API key stays in Secrets Manager).
 | `/agentic-cx-telco/agentcore/mcp-tool-prefix` | `CX-TELCO-MCP` | Phase 4 | `gateway_<id>__<target>___` prefix for agent MCP tool ids |
 | `/agentic-cx-telco/agentcore/lambda/plans-arn` | `CX-TELCO-MCP` | Phase 5 | plans Lambda ARN (for contact flows) |
 | `/agentic-cx-telco/agentcore/lambda/ai-session-arn` | `CX-TELCO-MCP` | Phase 5 | ai_session Lambda ARN (for contact flows) |
-| `/agentic-cx-telco/kb/knowledge-base-id` | `CX-TELCO-KB` | script | KB id (read by `associate_esim_guide.py`) |
+| `/agentic-cx-telco/kb/knowledge-base-id` | `CX-TELCO-KB` | script | KB id (read by `associate_guide.py`) |
 | `/agentic-cx-telco/kb/assistant-association-id` | `CX-TELCO-KB` | Phase 4 | KB↔assistant association id (agent Retrieve binding) |
 | `/agentic-cx-telco/connect/security-profile-selfservice-id` | `CX-TELCO-CONNECT-SUPPORT` | manual | self-service AI-agent security profile id |
 | `/agentic-cx-telco/connect/security-profile-assist-id` | `CX-TELCO-CONNECT-SUPPORT` | manual | agent-assist security profile id |
@@ -507,7 +507,7 @@ find it, then wire the eSIM guide to its article:
 
 ```bash
 python knowledge_bases/tag_kb_content.py --wait --expect 21 --kb-id <kb-id> --profile connect-industry
-python knowledge_bases/associate_esim_guide.py --profile connect-industry   # add --dry-run to preview
+python knowledge_bases/associate_guide.py --profile connect-industry   # add --dry-run to preview
 ```
 
 After **Phase 3**, build the Lex bot's three locales (`en_US`, `es_US`, `pt_BR`) in the

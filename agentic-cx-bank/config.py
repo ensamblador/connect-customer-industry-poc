@@ -23,11 +23,10 @@ deploy order (see app.py):
 Two trailing sections hold values that are NOT consumed by a stack: those read
 by post-deploy operational scripts, and those not referenced anywhere today.
 
-This project is a content-only retheme of the sibling telco project: the flat,
-phase-grouped structure and every constant name are preserved; only the domain
-values change from telecommunications to retail banking. A trailing collision
-guard keeps the configuration invalid if any banking name still resolves to a
-live telco name on the shared Connect instance / account.
+This project re-themes the shared reference architecture for retail banking: the
+flat, phase-grouped structure and every constant name are preserved; only the
+domain values change. Every resource name is industry-prefixed so it never
+collides with a sibling project's resources on the shared Connect instance.
 """
 
 import os
@@ -39,7 +38,7 @@ import os
 # stacks synthesize without a live instance (HAS_REAL_INSTANCE gates the
 # instance-bound resources). These three identity values are the single source
 # of truth referenced by every consumer (they intentionally match the shared
-# instance and are therefore excluded from the banking-name collision guard).
+# instance across the sibling industry projects).
 INSTANCE_ALIAS = "test-connect-garriden-virginia"
 INSTANCE_ID = "5da70598-a9a2-4387-9f54-1e054fcba60b"
 
@@ -149,18 +148,18 @@ NEWLINE_VIEW_CONTENT = "views/banco-card-request-form/view-content.json"
 # Agent-facing guide: a customer-managed view renders the steps, driven by a
 # guide contact flow that chains ShowView blocks. The view + guide flow are built
 # here; the AMAZON_CONNECT_GUIDE content association that binds the flow to the
-# KB content is a post-deploy step (see ACTIVATE_CARD_GUIDE_CONTENT_MATCH in the
-# Scripts section). CARD_GUIDE_FLOW_NAME names the flow here AND lets the script
+# KB content is a post-deploy step (see GUIDE_CONTENT_MATCH in the
+# Scripts section). GUIDE_FLOW_NAME names the flow here AND lets the script
 # resolve its ARN by name.
-CARD_GUIDE_VIEW_NAME = "BancoCardActivationGuide"
-CARD_GUIDE_VIEW_CONTENT = "views/banco-card-activation-guide/view-content.json"
-FLOW_CARD_GUIDE = "flows/banco-card-activation-guide-es/flow.json"
+GUIDE_VIEW_NAME = "BancoCardActivationGuide"
+GUIDE_VIEW_CONTENT = "views/banco-card-activation-guide/view-content.json"
+FLOW_GUIDE = "flows/banco-card-activation-guide-es/flow.json"
 # Flow name == the label shown on the step-by-step GUIDE button in the agent
 # panel (Q in Connect renders the guide button using the flow's name). Also how
-# associate_activate_card_guide.py resolves the flow ARN. AWS::Connect::ContactFlow
+# associate_guide.py resolves the flow ARN. AWS::Connect::ContactFlow
 # updates Name in place (no replacement), so renaming + redeploy relabels the
 # button without breaking the existing content association.
-CARD_GUIDE_FLOW_NAME = "Activar tarjeta"
+GUIDE_FLOW_NAME = "Activar tarjeta"
 
 # --- Lex V2 Q-in-Connect passthrough bot ---
 # A Nova Sonic v2 bot whose single AMAZON.QInConnectIntent delegates to the
@@ -245,21 +244,19 @@ WEBSITE_INVALIDATION_PATHS = ["/index.html"]
 WEBSITE_PRICE_CLASS = "PRICE_CLASS_100"
 WEBSITE_HTTP_VERSION = "HTTP2"
 WEBSITE_VIEWER_PROTOCOL_POLICY = "REDIRECT_TO_HTTPS"
-# SPA-style error mapping → serve index.html on 403/404.
-WEBSITE_ERROR_RESPONSES = [
-    {"http_status": 403, "response_http_status": 200, "response_page_path": "/index.html", "ttl_seconds": 0},
-    {"http_status": 404, "response_http_status": 200, "response_page_path": "/index.html", "ttl_seconds": 0},
-]
+# NOTE: the SPA-style error mapping (403/404 → index.html) is a fixed standard
+# baked into the website hosting construct (webhosting/webhosting_construct.py),
+# not a config knob.
 
 # ========================================================================== #
 # POST-DEPLOY SCRIPTS (not consumed by any stack)
 # ========================================================================== #
-# knowledge_bases/associate_activate_card_guide.py finds the activate-card KB
+# knowledge_bases/associate_guide.py finds the activate-card KB
 # content by this title substring and creates the AMAZON_CONNECT_GUIDE
-# association to the guide flow (resolved by CARD_GUIDE_FLOW_NAME). Run it after
+# association to the guide flow (resolved by GUIDE_FLOW_NAME). Run it after
 # the KB syncs — the content ids are post-ingestion values, so none are
 # hard-coded here.
-ACTIVATE_CARD_GUIDE_CONTENT_MATCH = "activar-tarjeta"
+GUIDE_CONTENT_MATCH = "activar-tarjeta"
 # (The KB content tagging script, knowledge_bases/tag_kb_content.py, reads its
 # tags from knowledge_bases/bank/manifest.json, not from this file.)
 
@@ -279,75 +276,3 @@ KB_CONTENT_TAGS = {"industry": "bank"}
 BUILD_AI_AGENTS = True
 BUILD_AGENT_ASSIST = True
 
-# ========================================================================== #
-# COLLISION GUARD (Requirement 2.7)
-# ========================================================================== #
-# The banking project shares a Connect instance / AWS account with the live
-# telco project, so every banking resource name MUST be distinct from the live
-# telco names. If any banking name defined above still resolves to a live telco
-# name, the configuration is INVALID: the guard surfaces the colliding name(s)
-# WITHOUT overwriting the offending value, and CONFIG_VALID stays False until the
-# collision is resolved by hand. Connect instance identity (INSTANCE_ALIAS,
-# INSTANCE_ID, ASSISTANT_ID) is intentionally shared and is excluded here.
-
-# Known LIVE telco names on the shared instance / account (mirrors
-# agentic-cx-telco/config.py). A banking name equal to any of these collides.
-_LIVE_TELCO_NAMES = frozenset({
-    "telco-api",
-    "telco-mcp-server",
-    "telco-rest-api-oas-target",
-    "telco-mcp-server-apikey",
-    "telco-selfservice-api-key",
-    "telco-selfservice-api-usage-plan",
-    "telco-accounts",
-    "telco-plans",
-    "telco-lines",
-    "telco-kb",
-    "telco-selfservice-ai-agent",
-    "telco-agent-assist-iac",
-    "TelcoNewLineForm",
-    "TelcoEsimActivationGuide",
-    "TelcoEscalationHandoff",
-    "Activar eSIM",
-    "telco-qconnect-bot-v2",
-    "telco-selfservice-voice-orchestration",
-    "telco-selfservice-chat-orchestration",
-    "telco-agent-assist-orchestration",
-    "telco-selfservice-voice-es",
-    "telco-selfservice-chat-es",
-    "telco-agent-assist-es",
-    "telco-agent-screenpop-es",
-    "escalate-to-agent",
-    "set-customer-session-telco",
-    "telco-selfservice-es-inbound",
-    "telco-esim-activation-guide-es",
-})
-
-# Banking names subject to the guard: constant name → configured value. Instance
-# identity (shared on purpose) is deliberately NOT included.
-_BANKING_NAMES = {
-    "API_NAME": API_NAME,
-    "GATEWAY_NAME": GATEWAY_NAME,
-    "AI_AGENT_MCP_TARGET": AI_AGENT_MCP_TARGET,
-    "ACCOUNTS_TABLE_NAME": ACCOUNTS_TABLE_NAME,
-    "PLANS_TABLE_NAME": PLANS_TABLE_NAME,
-    "LINES_TABLE_NAME": LINES_TABLE_NAME,
-    "KB_NAME": KB_NAME,
-    "AI_AGENT_SECURITY_PROFILE_NAME": AI_AGENT_SECURITY_PROFILE_NAME,
-    "AI_AGENT_ASSIST_SECURITY_PROFILE_NAME": AI_AGENT_ASSIST_SECURITY_PROFILE_NAME,
-    "NEWLINE_VIEW_NAME": NEWLINE_VIEW_NAME,
-    "CARD_GUIDE_VIEW_NAME": CARD_GUIDE_VIEW_NAME,
-    "CARD_GUIDE_FLOW_NAME": CARD_GUIDE_FLOW_NAME,
-    "LEX_BOT_NAME": LEX_BOT_NAME,
-    "ESCALATION_HANDOFF_VIEW_NAME": ESCALATION_HANDOFF_VIEW_NAME,
-}
-
-# Colliding names, surfaced (never overwritten): constant name → offending value.
-COLLIDING_NAMES = {
-    name: value
-    for name, value in _BANKING_NAMES.items()
-    if value in _LIVE_TELCO_NAMES
-}
-# The configuration is valid only when no banking name collides with a live
-# telco name. Consumers may assert on CONFIG_VALID before synth.
-CONFIG_VALID = not COLLIDING_NAMES

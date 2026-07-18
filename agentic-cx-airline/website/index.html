@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AeroLatam | Vuelos, millas y viajes por Latinoamérica</title>
+    <meta
+      name="description"
+      content="AeroLatam: reserva vuelos, acumula millas y viaja por toda Latinoamérica."
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+
+  <body>
+    <!-- ============ Header ============ -->
+    <header class="site-header" id="inicio">
+      <div class="container header-inner">
+        <a class="brand" href="#inicio" aria-label="AeroLatam - Inicio">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">AeroLatam</span>
+        </a>
+
+        <button
+          type="button"
+          class="nav-toggle"
+          data-nav-toggle
+          aria-label="Abrir menú"
+          aria-controls="site-nav"
+        >
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+
+        <nav class="main-nav" id="site-nav" aria-label="Navegación principal">
+          <a href="#productos" data-nav-link>Tarifas</a>
+          <a href="#sucursales" data-nav-link>Destinos</a>
+          <a href="#ayuda" data-nav-link>Ayuda</a>
+          <a href="/datos" target="_blank" rel="noopener">Datos demo</a>
+        </nav>
+
+        <div class="header-actions" id="session-area">
+          <!-- Estado sin sesión -->
+          <div class="session-block" data-session-logged-out>
+            <button type="button" class="btn btn-primary" data-login-open>
+              Iniciar sesión
+            </button>
+          </div>
+
+          <!-- Estado con sesión -->
+          <div class="session-block" data-session-logged-in hidden>
+            <span class="session-email" data-session-email></span>
+            <button type="button" class="btn btn-ghost" data-logout>
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============ Hero ============ -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="container hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">Vuela sin fronteras</p>
+            <h1 id="hero-title">Tu próximo viaje por toda Latinoamérica</h1>
+            <p class="hero-sub">
+              Reserva vuelos, acumula millas y gestiona tus viajes con la red
+              de destinos más amplia de la región. Una sola aerolínea para
+              todos tus viajes.
+            </p>
+            <div class="hero-cta">
+              <a class="btn btn-primary btn-lg" href="#productos" data-nav-link
+                >Ver tarifas</a
+              >
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="hero-card">
+              <span class="hero-card-net">24/7</span>
+              <span class="hero-card-label">Viaja con AeroLatam</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Tarifas ============ -->
+      <section class="section" id="productos" aria-labelledby="productos-title">
+        <div class="container">
+          <header class="section-head">
+            <h2 id="productos-title">Nuestras tarifas</h2>
+            <p>
+              Elige la tarifa que se adapta a tu viaje. Sin letra pequeña.
+            </p>
+          </header>
+
+          <div class="card-grid">
+            <article class="plan-card">
+              <h3 class="plan-name">Tarifa Light</h3>
+              <p class="plan-price">
+                <span class="amount">$79</span> USD/tramo
+              </p>
+              <ul class="plan-features">
+                <li>Equipaje de mano incluido</li>
+                <li>Acumula millas AeroLatam Club</li>
+                <li>Ideal para viajes cortos y sin equipaje</li>
+              </ul>
+              <a class="btn btn-primary" href="#ayuda" data-nav-link
+                >Reservar</a
+              >
+            </article>
+
+            <article class="plan-card plan-card-featured">
+              <span class="plan-badge">Más popular</span>
+              <h3 class="plan-name">Tarifa Plus</h3>
+              <p class="plan-price">
+                <span class="amount">$129</span> USD/tramo
+              </p>
+              <ul class="plan-features">
+                <li>Una maleta documentada incluida</li>
+                <li>Cambios de vuelo flexibles</li>
+                <li>Selección de asiento estándar</li>
+              </ul>
+              <a class="btn btn-accent" href="#ayuda" data-nav-link
+                >Reservar</a
+              >
+            </article>
+
+            <article class="plan-card">
+              <h3 class="plan-name">Tarifa Top</h3>
+              <p class="plan-price">
+                <span class="amount">$199</span> USD/tramo
+              </p>
+              <ul class="plan-features">
+                <li>Dos maletas y embarque prioritario</li>
+                <li>Acceso a salas VIP y upgrades preferentes</li>
+                <li>Cambios y reembolsos sin cargo</li>
+              </ul>
+              <a class="btn btn-primary" href="#ayuda" data-nav-link
+                >Reservar</a
+              >
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Destinos y aeropuertos ============ -->
+      <section class="section" id="sucursales" aria-labelledby="sucursales-title">
+        <div class="container cobertura-inner">
+          <div class="cobertura-copy">
+            <h2 id="sucursales-title">Destinos y aeropuertos</h2>
+            <p>
+              Volamos a las principales ciudades de Latinoamérica y conectamos
+              con destinos en todo el mundo. Reserva, haz check-in y sigue tu
+              vuelo desde donde estés, o desde la app de AeroLatam.
+            </p>
+            <ul class="coverage-stats">
+              <li><strong>+80</strong> destinos en la región</li>
+              <li><strong>+15</strong> países conectados</li>
+              <li><strong>24/7</strong> soporte y check-in digital</li>
+            </ul>
+          </div>
+          <div class="cobertura-map" aria-hidden="true">
+            <span class="map-pin map-pin-1"></span>
+            <span class="map-pin map-pin-2"></span>
+            <span class="map-pin map-pin-3"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Ayuda / Soporte ============ -->
+      <section
+        class="section section-alt"
+        id="ayuda"
+        aria-labelledby="ayuda-title"
+      >
+        <div class="container ayuda-inner">
+          <h2 id="ayuda-title">¿Necesitas ayuda?</h2>
+          <p>
+            Nuestro equipo de soporte está disponible para resolver tus dudas
+            sobre reservas, equipaje, check-in y millas. Inicia un chat con un
+            agente y obtén respuesta al instante.
+          </p>
+          <p class="ayuda-hint">
+            Usa la burbuja de chat en la esquina de la pantalla para comenzar
+            una conversación. Si inicias sesión, compartiremos tu correo con el
+            agente para atenderte más rápido.
+          </p>
+          <button type="button" class="btn btn-accent btn-lg" data-chat-open>
+            Iniciar sesión para un mejor soporte
+          </button>
+          <p class="ayuda-hint">
+            ¿Eres del equipo? Consulta los
+            <a href="/datos" target="_blank" rel="noopener">datos demo</a>
+            (pasajeros, tarifas y tarjetas) del backend.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ Footer ============ -->
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">AeroLatam</span>
+          <p class="footer-tagline">Vuela por Latinoamérica.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Enlaces del pie de página">
+          <a href="#productos" data-nav-link>Tarifas</a>
+          <a href="#sucursales" data-nav-link>Destinos</a>
+          <a href="#ayuda" data-nav-link>Ayuda</a>
+        </nav>
+        <div class="footer-legal">
+          <a href="#">Términos y condiciones</a>
+          <a href="#">Política de privacidad</a>
+          <p class="footer-copy">
+            © 2024 AeroLatam. Todos los derechos reservados.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ============ Modal de Login ============ -->
+    <div
+      class="login-modal"
+      id="login-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="login-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="login-backdrop" data-login-close></div>
+      <div class="login-dialog" role="document">
+        <button
+          type="button"
+          class="login-close"
+          data-login-close
+          aria-label="Cerrar"
+        >
+          &times;
+        </button>
+        <h2 id="login-title">Iniciar sesión</h2>
+        <p class="login-sub">
+          Ingresa tu correo electrónico para una atención más personalizada.
+        </p>
+        <form class="login-form" id="login-form" novalidate>
+          <label for="login-email">Correo electrónico</label>
+          <input
+            type="email"
+            id="login-email"
+            name="email"
+            placeholder="tucorreo@ejemplo.com"
+            autocomplete="email"
+          />
+          <p class="login-error" id="login-error" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary btn-block">
+            Entrar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- App bootstrap: wires the login modal, nav toggle, session controls. -->
+    <script type="module" src="/src/main.js"></script>
+
+
+    
+    <!--REPLACE WITH CONNECT WIDGET AS IS (BELOW THIS LINE)-->
+<script type="text/javascript">
+  (function(w, d, x, id){
+    s=d.createElement('script');
+    s.src='https://test-connect-garriden-virginia.my.connect.aws/connectwidget/static/amazon-connect-chat-interface-client.js';
+    s.async=1;
+    s.id=id;
+    d.getElementsByTagName('head')[0].appendChild(s);
+    w[x] =  w[x] || function() { (w[x].ac = w[x].ac || []).push(arguments) };
+  })(window, document, 'amazon_connect', 'ba6ea626-dc84-4cd8-a94b-7d9db35c703d');
+  amazon_connect('styles', { iconType: 'CHAT_VOICE', openChat: { color: '#ffffff', backgroundColor: '#58c3f9' }, closeChat: { color: '#ffffff', backgroundColor: '#58c3f9'} });
+  amazon_connect('snippetId', 'QVFJREFIaDRobWZ4TDRrQys5SXJsU0RsT2NjaHpDOEQvN3ZqSEZkQWdhY1I3SUhoUXdFT1JvMlJERjIxK2dlckw3UWZURlliQUFBQWJqQnNCZ2txaGtpRzl3MEJCd2FnWHpCZEFnRUFNRmdHQ1NxR1NJYjNEUUVIQVRBZUJnbGdoa2dCWlFNRUFTNHdFUVFNUWlWQWlpUUdHcU95MGVHMUFnRVFnQ3UwMTFMZHR1dmVaQ0poMTFKMU5uY204bVpFR3FBcmxXT3NlOE5BcTBldGdZbTBXQldVSE42Q0xGS0k6OjVwdytHcWdkMUlNYzc1ZzUxd2xqVEk3K0JyTG50U1BhbExVZjFOMzRDL2cwcXRXeGdPS2U4WFNPdDhnYitEblhqVmJtMDl1MW9DaHMxNHh6MmhYS3hVdnpPOVpxVVpQdVMxOWVDU1BBKzY4cThnQWEwZTBzQmJCeXZMV3I3NUJxWXVveWVwaTJ3TkdXMkJNOWRqTHFrMjNmcXlYRjQrTT0=');
+  amazon_connect('supportedMessagingContentTypes', [ 'text/plain', 'text/markdown', 'application/vnd.amazonaws.connect.message.interactive', 'application/vnd.amazonaws.connect.message.interactive.response' ]);
+</script>
+<!--END OF CONNECT WIDGET (ABOVE THIS LINE)-->
+    <script>
+      amazon_connect("customStyles", {
+        global: {
+          frameWidth: "390px",
+          frameHeight: "700px",
+          fontSize: "16px",
+          typeface: "Arial, sans-serif",
+        },
+      });
+      window._connectContactAttrs = {};
+          (function () {
+      var attrs = window._connectContactAttrs || (window._connectContactAttrs = {});
+      if (!attrs.email) {
+        try {
+          var stored = sessionStorage.getItem('airline_email');
+          if (stored) attrs.email = stored;
+        } catch (e) { /* sessionStorage no disponible: se omite el email */ }
+      }
+      // Se registra la MISMA referencia de objeto (attrs === window._connectContactAttrs)
+      // con el widget. auth.js/main.js mutan ese objeto in-place tras el login
+      // (set/delete de .email), así que el widget siempre lee el estado actual
+      // sin necesidad de volver a llamar a contactAttributes con un objeto nuevo.
+      // Si no hay email disponible, la propiedad queda ausente y el chat se
+      // inicia sin el atributo.
+      amazon_connect('contactAttributes', attrs);
+    })();
+    </script>
+  </body>
+</html>

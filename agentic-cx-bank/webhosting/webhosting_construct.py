@@ -212,14 +212,20 @@ class Webhosting(Construct):
             default_root_object=config.WEBSITE_DEFAULT_ROOT_OBJECT,
             price_class=_PRICE_CLASS_MAP[config.WEBSITE_PRICE_CLASS],
             http_version=_HTTP_VERSION_MAP[config.WEBSITE_HTTP_VERSION],
+            # Standard SPA-style error mapping → serve index.html on 403/404.
             error_responses=[
                 cloudfront.ErrorResponse(
-                    http_status=err["http_status"],
-                    response_http_status=err["response_http_status"],
-                    response_page_path=err["response_page_path"],
-                    ttl=Duration.seconds(err["ttl_seconds"]),
-                )
-                for err in config.WEBSITE_ERROR_RESPONSES
+                    http_status=403,
+                    response_http_status=200,
+                    response_page_path="/index.html",
+                    ttl=Duration.seconds(0),
+                ),
+                cloudfront.ErrorResponse(
+                    http_status=404,
+                    response_http_status=200,
+                    response_page_path="/index.html",
+                    ttl=Duration.seconds(0),
+                ),
             ],
         )
 

@@ -1,0 +1,29 @@
+Reservations: booking, changing, and canceling flights
+======================================================
+
+With AeroLatam you can manage your reservations on the website, in the mobile app, or with a representative. Each reservation creates a six-character code you use to look it up and change it.
+
+How do I book a flight?
+-----------------------
+
+Enter your origin, destination, and dates in the AeroLatam search tool, pick your flight and fare class, and fill in each passenger's details. After payment you receive your reservation code and itinerary by email.
+
+What fare classes are available?
+--------------------------------
+
+We offer three fares: Light, which includes carry-on baggage only; Plus, which adds checked baggage and changes at a reduced fee; and Top, which includes baggage, flexible changes, and free seat selection.
+
+How do I change or cancel my reservation?
+-----------------------------------------
+
+Go to "My trips" with your reservation code and last name to change the date, time, or route. The Light fare does not allow changes; Plus and Top do, with any applicable fare difference. To cancel, use the same section or contact a representative.
+
+How do refunds work?
+--------------------
+
+Refundable fares (Top) return the amount paid according to the ticket conditions. Light and Plus fares are generally non-refundable, though you may recover unused taxes and fees. Refunds are processed to the original payment method in roughly 20 business days.
+
+No-show policy
+--------------
+
+If you miss your flight without canceling beforehand, the reservation is marked as a no-show and later segments may be canceled. In that case the fare is usually lost; check with a representative about any possible credit.

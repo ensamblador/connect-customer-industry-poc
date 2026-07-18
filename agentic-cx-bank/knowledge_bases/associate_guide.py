@@ -1,27 +1,40 @@
 #!/usr/bin/env python3
 """
-associate_esim_guide.py — bind the eSIM step-by-step guide contact flow to its
-`esim-activacion` Q in Connect (Wisdom) knowledge-base content via
-AMAZON_CONNECT_GUIDE content associations.
+associate_guide.py — bind THIS project's step-by-step GUIDE contact flow to its
+Q in Connect (Wisdom) knowledge-base article(s) via AMAZON_CONNECT_GUIDE content
+associations.
+
+This is the single, industry-agnostic guide-association script shared by every
+industry project in this repo. It performs the association that CORRESPONDS to
+the current project, resolving everything from that project's `config.py` via
+the standard guide constants:
+
+  * ``GUIDE_FLOW_NAME``     — the guide contact flow's name (button label);
+  * ``GUIDE_CONTENT_MATCH`` — the title/name substring identifying the guide
+    article(s) in the knowledge base.
+
+So the SAME file drops into each project and "does the corresponding
+associations" for that industry (whichever step-by-step guide that project
+provisions — e.g. an activation guide or a claim/report guide).
 
 WHY THIS IS A SCRIPT (not a CDK custom resource)
 ------------------------------------------------
 The EXTERNAL S3 crawler creates a NEW content item (new contentId) for every
-object it ingests, and the eSIM article exists once PER LANGUAGE (es/pt/en). So
+object it ingests, and the guide article exists once PER LANGUAGE (es/pt/en). So
 the content ids only exist AFTER the asynchronous KB sync, and they change on
 every re-sync — awkward to express as a deploy-time CloudFormation resource (it
 would need post-ingestion ids hand-copied into config). Like KB tagging
 (`tag_kb_content.py`), the association is therefore an OPERATIONAL step that runs
-AFTER ingestion: deploy the stack (which builds the eSIM view + guide flow),
+AFTER ingestion: deploy the stack (which builds the guide view + guide flow),
 sync the KB, then run this script.
 
 WHAT IT DOES
 ------------
-1. Resolves the knowledge-base id (from SSM `KB_ID`, or --kb-id) and the eSIM
-   guide flow ARN (resolved by NAME — config.ESIM_GUIDE_FLOW_NAME — via
-   connect:ListContactFlows for config.INSTANCE_ID, or --flow-arn).
-2. `list-contents` on the KB and selects every item whose title/name contains
-   the match substring (config.ESIM_GUIDE_CONTENT_MATCH, default "esim").
+1. Resolves the knowledge-base id (from SSM `KB_ID`, or --kb-id) and the guide
+   flow ARN (resolved by NAME from config — via connect:ListContactFlows for
+   config.INSTANCE_ID, or --flow-arn).
+2. `list-contents` on the KB and selects EVERY item whose title/name contains
+   the match substring (all languages of the guide article).
 3. For each match, creates an AMAZON_CONNECT_GUIDE association to the guide flow,
    IDEMPOTENTLY: if an AMAZON_CONNECT_GUIDE association already points at the
    flow it is left untouched; if it points elsewhere it is deleted and
@@ -33,9 +46,9 @@ WHAT IT DOES
 USAGE
 -----
     # from this directory (knowledge_bases/), with the venv active
-    python associate_esim_guide.py --profile connect-industry --region us-east-1
-    python associate_esim_guide.py --kb-id <id> --flow-arn <arn>   # skip lookups
-    python associate_esim_guide.py --match esim --dry-run          # preview only
+    python associate_guide.py --profile connect-industry --region us-east-1
+    python associate_guide.py --kb-id <id> --flow-arn <arn>   # skip lookups
+    python associate_guide.py --match <substr> --dry-run      # preview only
 
 Requires boto3 and AWS credentials (via --profile or the environment).
 """
@@ -60,6 +73,21 @@ import config  # noqa: E402
 from shared import ssm_names  # noqa: E402
 
 GUIDE = "AMAZON_CONNECT_GUIDE"
+
+
+# --------------------------------------------------------------------------- #
+# Config resolution — every project's config.py defines the SAME standard guide
+# constants, so the identical file drops into each project unchanged.
+# --------------------------------------------------------------------------- #
+def guide_flow_name() -> str:
+    """The guide flow NAME this project provisions (config.GUIDE_FLOW_NAME)."""
+    return getattr(config, "GUIDE_FLOW_NAME", "") or ""
+
+
+def guide_content_match() -> str:
+    """The KB title/name substring for this project's guide article(s)
+    (config.GUIDE_CONTENT_MATCH)."""
+    return getattr(config, "GUIDE_CONTENT_MATCH", "") or ""
 
 
 # --------------------------------------------------------------------------- #
@@ -122,7 +150,7 @@ def _existing_guide_association(qc, kb_id: str, content_id: str) -> dict | None:
             return None
 
 
-def _list_esim_contents(qc, kb_id: str, match: str) -> list[dict]:
+def _list_guide_contents(qc, kb_id: str, match: str) -> list[dict]:
     """Return content items whose title or name contains ``match`` (case-insensitive)."""
     needle = match.lower()
     out: list[dict] = []
@@ -175,22 +203,34 @@ def _associate(qc, kb_id: str, content_id: str, flow_arn: str, dry_run: bool) ->
 
 def main() -> int:
     ap = argparse.ArgumentParser(
-        description="Associate the eSIM guide flow with its KB content (AMAZON_CONNECT_GUIDE)."
+        description="Associate this project's step-by-step guide flow with its KB "
+        "content (AMAZON_CONNECT_GUIDE)."
     )
     ap.add_argument("--kb-id", help="Knowledge base id (default: from SSM KB_ID).")
-    ap.add_argument("--flow-arn", help="eSIM guide flow ARN (default: resolved by name).")
+    ap.add_argument("--flow-arn", help="Guide flow ARN (default: resolved by name).")
     ap.add_argument("--instance-id", help="Connect instance id (default: config.INSTANCE_ID).")
-    ap.add_argument("--flow-name", help="eSIM guide flow name (default: config.ESIM_GUIDE_FLOW_NAME).")
-    ap.add_argument("--match", help="Title/name substring to match (default: config.ESIM_GUIDE_CONTENT_MATCH).")
+    ap.add_argument("--flow-name", help="Guide flow name (default: resolved from config).")
+    ap.add_argument("--match", help="Title/name substring to match (default: resolved from config).")
     ap.add_argument("--region", help="AWS region (default: AWS_REGION / profile default).")
     ap.add_argument("--profile", help="AWS profile (default: environment).")
     ap.add_argument("--dry-run", action="store_true", help="Show what would be associated; make no changes.")
     args = ap.parse_args()
 
     instance_id = args.instance_id or getattr(config, "INSTANCE_ID", "")
-    flow_name = args.flow_name or config.ESIM_GUIDE_FLOW_NAME
-    match = args.match or getattr(config, "ESIM_GUIDE_CONTENT_MATCH", "esim")
+    flow_name = args.flow_name or guide_flow_name()
+    match = args.match or guide_content_match()
     region = args.region or os.getenv("AWS_REGION")
+
+    if not flow_name:
+        sys.exit(
+            "No guide flow name configured. Define GUIDE_FLOW_NAME in config.py, "
+            "or pass --flow-name."
+        )
+    if not match:
+        sys.exit(
+            "No guide content match configured. Define GUIDE_CONTENT_MATCH "
+            "in config.py, or pass --match."
+        )
 
     session = boto3.Session(profile_name=args.profile) if args.profile else boto3.Session()
     qc = session.client("qconnect", region_name=region)
@@ -207,7 +247,7 @@ def main() -> int:
     if args.dry_run:
         print("mode:      DRY RUN (no changes)\n")
 
-    contents = _list_esim_contents(qc, kb_id, match)
+    contents = _list_guide_contents(qc, kb_id, match)
     if not contents:
         sys.exit(
             f"No content items match {match!r} in KB {kb_id}. Has the KB finished "
@@ -223,7 +263,7 @@ def main() -> int:
         print(f"  [{status:>13}] {title} ({content_id})")
 
     summary = ", ".join(f"{k}={v}" for k, v in sorted(counts.items()))
-    print(f"\nDone. {len(contents)} eSIM content item(s): {summary}")
+    print(f"\nDone. {len(contents)} guide content item(s): {summary}")
     return 0
 
 

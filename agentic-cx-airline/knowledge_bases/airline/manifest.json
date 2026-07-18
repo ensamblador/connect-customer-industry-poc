@@ -1,0 +1,180 @@
+{
+  "knowledgeBaseName": "airline-kb",
+  "knowledgeBaseId": "",
+  "knowledgeBaseType": "EXTERNAL",
+  "region": "us-east-1",
+  "assistantId": "06707aad-bb16-43d7-bfa0-3d8dd6c7b3d0",
+  "s3Prefix": "airline",
+  "managedBy": "cdk (CX-AIRLINE-KB / agentic_cx_airline.KnowledgeBaseStack)",
+  "resourceTags": { "industry": "airline" },
+  "entries": [
+    {
+      "name": "reservas-es",
+      "title": "Reservas: reservar, cambiar y cancelar vuelos",
+      "file": "entries/es/reservas.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "reservations", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "viajero-frecuente-es",
+      "title": "Programa de viajero frecuente y millas",
+      "file": "entries/es/viajero-frecuente.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "loyalty", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "check-in-es",
+      "title": "Check-in, embarque y asientos",
+      "file": "entries/es/check-in.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "checkin", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "equipaje-es",
+      "title": "Equipaje: políticas y tarifas",
+      "file": "entries/es/equipaje.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "baggage", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "faq-general-es",
+      "title": "Preguntas frecuentes",
+      "file": "entries/es/faq-general.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "faq", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "aeropuertos-es",
+      "title": "Aeropuertos, mostradores y horarios",
+      "file": "entries/es/aeropuertos.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "airports", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "maleta-perdida-es",
+      "title": "Cómo reportar y rastrear tu maleta perdida",
+      "file": "entries/es/maleta-perdida.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "baggage", "locale": "es-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "reservas-pt",
+      "title": "Reservas: reservar, alterar e cancelar voos",
+      "file": "entries/pt/reservas.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "reservations", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "viajero-frecuente-pt",
+      "title": "Programa de passageiro frequente e milhas",
+      "file": "entries/pt/viajero-frecuente.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "loyalty", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "check-in-pt",
+      "title": "Check-in, embarque e assentos",
+      "file": "entries/pt/check-in.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "checkin", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "equipaje-pt",
+      "title": "Bagagem: políticas e taxas",
+      "file": "entries/pt/equipaje.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "baggage", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "faq-general-pt",
+      "title": "Perguntas frequentes",
+      "file": "entries/pt/faq-general.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "faq", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "aeropuertos-pt",
+      "title": "Aeroportos, balcões e horários",
+      "file": "entries/pt/aeropuertos.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "airports", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "maleta-perdida-pt",
+      "title": "Como relatar e rastrear sua bagagem perdida",
+      "file": "entries/pt/maleta-perdida.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "baggage", "locale": "pt-BR" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "reservas-en",
+      "title": "Reservations: booking, changing, and canceling flights",
+      "file": "entries/en/reservas.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "reservations", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "viajero-frecuente-en",
+      "title": "Frequent flyer program and miles",
+      "file": "entries/en/viajero-frecuente.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "loyalty", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "check-in-en",
+      "title": "Check-in, boarding, and seats",
+      "file": "entries/en/check-in.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "checkin", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "equipaje-en",
+      "title": "Baggage: policies and fees",
+      "file": "entries/en/equipaje.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "baggage", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "faq-general-en",
+      "title": "Frequently asked questions",
+      "file": "entries/en/faq-general.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "faq", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "aeropuertos-en",
+      "title": "Airports, counters, and hours",
+      "file": "entries/en/aeropuertos.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "airports", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    },
+    {
+      "name": "maleta-perdida-en",
+      "title": "How to report and track your lost baggage",
+      "file": "entries/en/maleta-perdida.txt",
+      "contentType": "text/plain",
+      "tags": { "topic": "baggage", "locale": "en-US" },
+      "source": "drafted (placeholder facts)"
+    }
+  ]
+}

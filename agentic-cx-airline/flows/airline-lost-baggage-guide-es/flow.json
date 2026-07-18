@@ -1,0 +1,260 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "set-logging",
+  "Metadata": {
+    "entryPointPosition": { "x": -240, "y": 0 },
+    "ActionMetadata": {
+      "set-logging": { "position": { "x": -40, "y": 0 } },
+      "step-1": { "position": { "x": 200, "y": 0 } },
+      "step-2": { "position": { "x": 480, "y": 0 } },
+      "step-3": { "position": { "x": 760, "y": 0 } },
+      "step-4": { "position": { "x": 1040, "y": 0 } },
+      "step-5": { "position": { "x": 1320, "y": 0 } },
+      "step-6": { "position": { "x": 1600, "y": 0 } },
+      "end-guide": { "position": { "x": 1880, "y": 0 } }
+    },
+    "Annotations": []
+  },
+  "Actions": [
+    {
+      "Identifier": "set-logging",
+      "Type": "UpdateFlowLoggingBehavior",
+      "Parameters": { "FlowLoggingBehavior": "Enabled" },
+      "Transitions": {
+        "NextAction": "step-1"
+      }
+    },
+    {
+      "Identifier": "step-1",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 1 de 6",
+          "showPrevious": "false",
+          "showNext": "true",
+          "stepHeading": "Confirma que tu maleta no llegó y reúne tu información de vuelo",
+          "stepBody": "Si tu equipaje no apareció en la banda del aeropuerto, no salgas de la zona de reclamo. Ten a mano tu tarjeta de embarque, el número de reserva y el talón de equipaje que te entregaron al facturar."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-1",
+        "Conditions": [
+          {
+            "NextAction": "step-2",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-1", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-1", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-1", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-2",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 2 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Acude al mostrador de Equipajes de AeroLatam",
+          "stepBody": "Dirígete al mostrador de \"Baggage Service\" o Equipajes de AeroLatam en el aeropuerto de llegada antes de salir. Si ya saliste, puedes iniciar el reporte desde la app o el sitio web de AeroLatam."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-2",
+        "Conditions": [
+          {
+            "NextAction": "step-1",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-3",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-2", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-2", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-2", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-3",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 3 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Presenta tu talón de equipaje y describe tu maleta",
+          "stepBody": "Entrega el talón de equipaje (baggage claim tag) y describe tu maleta: color, tamaño, marca y cualquier señal distintiva. Esto ayuda a localizarla más rápido en la red de AeroLatam."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-3",
+        "Conditions": [
+          {
+            "NextAction": "step-2",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-4",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-3", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-3", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-3", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-4",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 4 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Registra tu reporte y obtén tu número de PIR",
+          "stepBody": "El agente registrará un reporte de irregularidad de equipaje (PIR) y te dará un número de referencia. Guarda ese número: con él podrás dar seguimiento a la búsqueda de tu maleta."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-4",
+        "Conditions": [
+          {
+            "NextAction": "step-3",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-5",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-4", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-4", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-4", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-5",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 5 de 6",
+          "showPrevious": "true",
+          "showNext": "true",
+          "stepHeading": "Proporciona una dirección de entrega y tus datos de contacto",
+          "stepBody": "Indica la dirección donde quieres recibir tu maleta y un teléfono o correo de contacto. Cuando AeroLatam localice tu equipaje, te lo enviaremos sin costo hasta el domicilio que indiques."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-5",
+        "Conditions": [
+          {
+            "NextAction": "step-4",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "step-6",
+            "Condition": { "Operator": "Equals", "Operands": ["Next"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-5", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-5", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-5", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "step-6",
+      "Type": "ShowView",
+      "Parameters": {
+        "ViewResource": {
+          "Id": "CARD_GUIDE_VIEW_ARN_PLACEHOLDER"
+        },
+        "InvocationTimeLimitSeconds": "1200",
+        "ViewData": {
+          "stepCounter": "Paso 6 de 6",
+          "showPrevious": "true",
+          "showNext": "false",
+          "stepHeading": "Haz seguimiento con tu número de PIR",
+          "stepBody": "Consulta el estado de tu maleta con el número de PIR en la app o el sitio de AeroLatam. La mayoría de los equipajes se localiza en 24-48 horas. Si necesitas ayuda, un representante puede revisar el estado por ti."
+        }
+      },
+      "Transitions": {
+        "NextAction": "step-6",
+        "Conditions": [
+          {
+            "NextAction": "step-5",
+            "Condition": { "Operator": "Equals", "Operands": ["Previous"] }
+          },
+          {
+            "NextAction": "end-guide",
+            "Condition": { "Operator": "Equals", "Operands": ["End"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "step-6", "ErrorType": "NoMatchingCondition" },
+          { "NextAction": "step-6", "ErrorType": "TimeLimitExceeded" },
+          { "NextAction": "step-6", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Identifier": "end-guide",
+      "Type": "DisconnectParticipant",
+      "Parameters": {},
+      "Transitions": {}
+    }
+  ]
+}

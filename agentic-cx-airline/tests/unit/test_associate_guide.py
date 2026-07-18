@@ -1,35 +1,33 @@
 """
-tests/unit/test_associate_activate_card_guide.py — mock-based unit tests for the
-post-deploy guide-association script (``knowledge_bases/associate_activate_card_guide.py``).
+tests/unit/test_associate_guide.py — mock-based unit tests for the shared
+post-deploy guide-association script (``knowledge_bases/associate_guide.py``).
 
-The script binds the ``Activar tarjeta`` guide contact flow to its
-``activar-tarjeta`` Q in Connect knowledge-base content via an
-``AMAZON_CONNECT_GUIDE`` content association. It is pure orchestration over two
-boto3 clients (``qconnect`` and ``connect``), so every test here stubs those
-clients with in-memory fakes (objects exposing the needed methods / paginators)
-— no real AWS is ever contacted.
+The script binds THIS project's step-by-step guide contact flow to its guide
+Q in Connect knowledge-base article(s) via ``AMAZON_CONNECT_GUIDE`` content
+associations. It is pure orchestration over two boto3 clients (``qconnect`` and
+``connect``), so every test here stubs those clients with in-memory fakes — no
+real AWS is ever contacted.
 
-Coverage maps to Requirement 11 acceptance criteria:
-
+Coverage:
+  * config resolution — the flow name / match resolve from whichever guide
+    constant this project's config.py defines;
   * flow-name resolution via ``connect:ListContactFlows`` — found -> ARN,
-    not-found -> error / no changes                                (11.4, 11.5)
-  * case-insensitive substring content matching                    (11.2)
-  * exactly-one-match required — zero -> error, >1 -> error,
-    exactly one -> proceed                                         (11.3, 11.1)
-  * idempotent ``_associate`` branches — already-points-at-flow ->
-    'exists' (no mutation); points-elsewhere -> delete+create ->
-    'replaced'; absent -> create -> 'created'                      (11.6, 11.7, 11.1)
-  * ``--dry-run`` reports would-create / would-replace / exists and
-    invokes NO create or delete operation                          (11.8)
-
-Validates: Requirements 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8
+    not-found -> error / no changes;
+  * case-insensitive substring content matching;
+  * ALL matching content items are associated (one guide article per language),
+    idempotently;
+  * idempotent ``_associate`` branches — already-points-at-flow -> 'exists'
+    (no mutation); points-elsewhere -> delete+create -> 'replaced'; absent ->
+    create -> 'created';
+  * ``--dry-run`` reports would-create / would-replace / exists and invokes NO
+    create or delete operation.
 """
 
 from __future__ import annotations
 
 import pytest
 
-from knowledge_bases import associate_activate_card_guide as script
+from knowledge_bases import associate_guide as script
 
 GUIDE = script.GUIDE  # "AMAZON_CONNECT_GUIDE"
 
@@ -119,12 +117,19 @@ OTHER_ARN = "arn:aws:connect:us-east-1:111122223333:instance/i-1/contact-flow/cf
 
 
 # --------------------------------------------------------------------------- #
-# _resolve_flow_arn — Requirements 11.4, 11.5
+# Config resolution — the shared script reads THIS project's guide constants.
+# --------------------------------------------------------------------------- #
+def test_config_resolution_returns_nonempty_flow_and_match():
+    assert script.guide_flow_name(), "a guide flow name must resolve from config"
+    assert script.guide_content_match(), "a guide content match must resolve from config"
+
+
+# --------------------------------------------------------------------------- #
+# _resolve_flow_arn
 # --------------------------------------------------------------------------- #
 def test_resolve_flow_arn_explicit_short_circuits():
-    # An explicit --flow-arn wins without calling the connect client at all.
     fake = FakeConnect(flow_pages=[])
-    got = script._resolve_flow_arn(fake, "i-1", "Activar tarjeta", FLOW_ARN)
+    got = script._resolve_flow_arn(fake, "i-1", "Guide flow", FLOW_ARN)
     assert got == FLOW_ARN
     assert fake.calls == [], "explicit ARN must not trigger a ListContactFlows call"
 
@@ -132,10 +137,10 @@ def test_resolve_flow_arn_explicit_short_circuits():
 def test_resolve_flow_arn_found_by_name():
     pages = [
         {"ContactFlowSummaryList": [{"Name": "Otro flujo", "Arn": OTHER_ARN}]},
-        {"ContactFlowSummaryList": [{"Name": "Activar tarjeta", "Arn": FLOW_ARN}]},
+        {"ContactFlowSummaryList": [{"Name": "Guide flow", "Arn": FLOW_ARN}]},
     ]
     fake = FakeConnect(flow_pages=pages)
-    got = script._resolve_flow_arn(fake, "i-1", "Activar tarjeta", None)
+    got = script._resolve_flow_arn(fake, "i-1", "Guide flow", None)
     assert got == FLOW_ARN
 
 
@@ -143,38 +148,38 @@ def test_resolve_flow_arn_not_found_errors_no_changes():
     pages = [{"ContactFlowSummaryList": [{"Name": "Otro flujo", "Arn": OTHER_ARN}]}]
     fake = FakeConnect(flow_pages=pages)
     with pytest.raises(SystemExit):
-        script._resolve_flow_arn(fake, "i-1", "Activar tarjeta", None)
+        script._resolve_flow_arn(fake, "i-1", "Guide flow", None)
 
 
 def test_resolve_flow_arn_no_instance_errors():
     fake = FakeConnect(flow_pages=[])
     with pytest.raises(SystemExit):
-        script._resolve_flow_arn(fake, "", "Activar tarjeta", None)
+        script._resolve_flow_arn(fake, "", "Guide flow", None)
 
 
 # --------------------------------------------------------------------------- #
-# _list_card_guide_contents — Requirement 11.2 (case-insensitive substring)
+# _list_guide_contents — case-insensitive substring on title OR name
 # --------------------------------------------------------------------------- #
 def test_list_contents_matches_case_insensitive_substring_on_title_or_name():
     pages = [
         {
             "contentSummaries": [
-                {"contentId": "c1", "title": "Guia ACTIVAR-TARJETA es", "name": "x"},
-                {"contentId": "c2", "title": "Comisiones", "name": "comisiones"},
-                {"contentId": "c3", "title": "", "name": "activar-tarjeta-pt"},
+                {"contentId": "c1", "title": "Guia GUIDE es", "name": "x"},
+                {"contentId": "c2", "title": "Otro", "name": "otro"},
+                {"contentId": "c3", "title": "", "name": "guide-pt"},
             ]
         }
     ]
     qc = FakeQConnect(content_pages=pages)
-    out = script._list_card_guide_contents(qc, "kb-1", "activar-tarjeta")
+    out = script._list_guide_contents(qc, "kb-1", "guide")
     ids = {item["contentId"] for item in out}
     assert ids == {"c1", "c3"}, "match on title OR name, case-insensitive"
 
 
 def test_list_contents_no_match_returns_empty():
-    pages = [{"contentSummaries": [{"contentId": "c2", "title": "Comisiones"}]}]
+    pages = [{"contentSummaries": [{"contentId": "c2", "title": "Otro"}]}]
     qc = FakeQConnect(content_pages=pages)
-    assert script._list_card_guide_contents(qc, "kb-1", "activar-tarjeta") == []
+    assert script._list_guide_contents(qc, "kb-1", "guide") == []
 
 
 # --------------------------------------------------------------------------- #
@@ -210,10 +215,9 @@ def test_existing_guide_association_absent_returns_none():
 
 
 # --------------------------------------------------------------------------- #
-# _associate — idempotent branches — Requirements 11.1, 11.6, 11.7
+# _associate — idempotent branches
 # --------------------------------------------------------------------------- #
 def test_associate_exists_leaves_unchanged():
-    # Existing GUIDE association already points at the target flow.
     assoc_pages = [{"contentAssociationSummaries": [_guide_summary("a1", FLOW_ARN)]}]
     qc = FakeQConnect(assoc_pages=assoc_pages)
     status = script._associate(qc, "kb-1", "c1", FLOW_ARN, dry_run=False)
@@ -222,7 +226,6 @@ def test_associate_exists_leaves_unchanged():
 
 
 def test_associate_replaces_when_pointing_elsewhere():
-    # Existing association points at a DIFFERENT flow -> delete + recreate.
     assoc_pages = [{"contentAssociationSummaries": [_guide_summary("a1", OTHER_ARN)]}]
     qc = FakeQConnect(assoc_pages=assoc_pages)
     status = script._associate(qc, "kb-1", "c1", FLOW_ARN, dry_run=False)
@@ -247,7 +250,7 @@ def test_associate_creates_when_absent():
 
 
 # --------------------------------------------------------------------------- #
-# _associate dry-run — Requirement 11.8 (no mutating calls)
+# _associate dry-run — no mutating calls
 # --------------------------------------------------------------------------- #
 def test_associate_dry_run_would_create_makes_no_calls():
     qc = FakeQConnect(assoc_pages=[{"contentAssociationSummaries": []}])
@@ -273,7 +276,7 @@ def test_associate_dry_run_exists_makes_no_calls():
 
 
 # --------------------------------------------------------------------------- #
-# main() — end-to-end with a stubbed boto3 Session. Requirements 11.1, 11.3, 11.8
+# main() — end-to-end with a stubbed boto3 Session.
 # --------------------------------------------------------------------------- #
 class FakeSession:
     """Returns preset fake clients keyed by service name from ``client(...)``."""
@@ -286,11 +289,7 @@ class FakeSession:
 
 
 def _run_main(monkeypatch, qc, argv):
-    """Invoke script.main() with boto3.Session and sys.argv stubbed.
-
-    A fake ``ssm`` and ``connect`` client are supplied but the test argv passes
-    --kb-id and --flow-arn so neither lookup client is exercised (isolating the
-    content-match + associate logic under test)."""
+    """Invoke script.main() with boto3.Session and sys.argv stubbed."""
     session = FakeSession(
         {"qconnect": qc, "connect": FakeConnect([]), "ssm": object()}
     )
@@ -300,22 +299,46 @@ def _run_main(monkeypatch, qc, argv):
 
 
 def _one_match_pages():
-    return [{"contentSummaries": [{"contentId": "c1", "title": "activar-tarjeta es"}]}]
+    return [{"contentSummaries": [{"contentId": "c1", "title": "guide es"}]}]
 
 
-def test_main_exactly_one_match_creates(monkeypatch, capsys):
+def test_main_one_match_creates(monkeypatch, capsys):
     qc = FakeQConnect(
         content_pages=_one_match_pages(),
         assoc_pages=[{"contentAssociationSummaries": []}],
     )
     rc = _run_main(
         monkeypatch, qc,
-        ["--kb-id", "kb-1", "--flow-arn", FLOW_ARN, "--match", "activar-tarjeta"],
+        ["--kb-id", "kb-1", "--flow-arn", FLOW_ARN, "--match", "guide"],
     )
     assert rc == 0
-    assert len(qc.created) == 1, "exactly one match must proceed to create"
+    assert len(qc.created) == 1
     out = capsys.readouterr().out
     assert "created" in out
+
+
+def test_main_multiple_matches_associates_all(monkeypatch, capsys):
+    # The guide article exists once per language: ALL matches must be associated.
+    pages = [
+        {
+            "contentSummaries": [
+                {"contentId": "c1", "title": "guide es"},
+                {"contentId": "c2", "title": "guide pt"},
+                {"contentId": "c3", "title": "guide en"},
+            ]
+        }
+    ]
+    qc = FakeQConnect(
+        content_pages=pages, assoc_pages=[{"contentAssociationSummaries": []}]
+    )
+    rc = _run_main(
+        monkeypatch, qc,
+        ["--kb-id", "kb-1", "--flow-arn", FLOW_ARN, "--match", "guide"],
+    )
+    assert rc == 0
+    assert len(qc.created) == 3, "every language copy of the guide must be associated"
+    out = capsys.readouterr().out
+    assert "3 guide content item(s)" in out
 
 
 def test_main_zero_matches_errors_no_changes(monkeypatch):
@@ -325,25 +348,7 @@ def test_main_zero_matches_errors_no_changes(monkeypatch):
     with pytest.raises(SystemExit):
         _run_main(
             monkeypatch, qc,
-            ["--kb-id", "kb-1", "--flow-arn", FLOW_ARN, "--match", "activar-tarjeta"],
-        )
-    assert qc.created == [] and qc.deleted == []
-
-
-def test_main_multiple_matches_errors_no_changes(monkeypatch):
-    pages = [
-        {
-            "contentSummaries": [
-                {"contentId": "c1", "title": "activar-tarjeta es"},
-                {"contentId": "c2", "title": "activar-tarjeta pt"},
-            ]
-        }
-    ]
-    qc = FakeQConnect(content_pages=pages)
-    with pytest.raises(SystemExit):
-        _run_main(
-            monkeypatch, qc,
-            ["--kb-id", "kb-1", "--flow-arn", FLOW_ARN, "--match", "activar-tarjeta"],
+            ["--kb-id", "kb-1", "--flow-arn", FLOW_ARN, "--match", "guide"],
         )
     assert qc.created == [] and qc.deleted == []
 
@@ -355,8 +360,7 @@ def test_main_dry_run_makes_no_mutating_calls(monkeypatch, capsys):
     )
     rc = _run_main(
         monkeypatch, qc,
-        ["--kb-id", "kb-1", "--flow-arn", FLOW_ARN, "--match", "activar-tarjeta",
-         "--dry-run"],
+        ["--kb-id", "kb-1", "--flow-arn", FLOW_ARN, "--match", "guide", "--dry-run"],
     )
     assert rc == 0
     assert qc.created == [] and qc.deleted == [], "dry-run must not mutate"
@@ -366,8 +370,6 @@ def test_main_dry_run_makes_no_mutating_calls(monkeypatch, capsys):
 
 
 def test_main_flow_not_found_errors_no_changes(monkeypatch):
-    # No --flow-arn: force resolution via a connect client whose flow list is
-    # empty, so the flow name cannot be resolved -> SystemExit, no mutation.
     qc = FakeQConnect(content_pages=_one_match_pages())
     session = FakeSession(
         {"qconnect": qc, "connect": FakeConnect([]), "ssm": object()}
@@ -376,7 +378,7 @@ def test_main_flow_not_found_errors_no_changes(monkeypatch):
     monkeypatch.setattr(
         script.sys, "argv",
         ["prog", "--kb-id", "kb-1", "--instance-id", "i-1",
-         "--flow-name", "Activar tarjeta", "--match", "activar-tarjeta"],
+         "--flow-name", "Guide flow", "--match", "guide"],
     )
     with pytest.raises(SystemExit):
         script.main()

@@ -141,18 +141,18 @@ NEWLINE_VIEW_CONTENT = "views/telco-newline-form/view-content.json"
 # Agent-facing guide: a customer-managed view renders the steps, driven by a
 # guide contact flow that chains ShowView blocks. The view + guide flow are built
 # here; the AMAZON_CONNECT_GUIDE content association that binds the flow to the
-# KB content is a post-deploy step (see ESIM_GUIDE_CONTENT_MATCH in the Scripts
-# section). ESIM_GUIDE_FLOW_NAME names the flow here AND lets the script resolve
+# KB content is a post-deploy step (see GUIDE_CONTENT_MATCH in the Scripts
+# section). GUIDE_FLOW_NAME names the flow here AND lets the script resolve
 # its ARN by name.
-ESIM_GUIDE_VIEW_NAME = "TelcoEsimActivationGuide"
-ESIM_GUIDE_VIEW_CONTENT = "views/telco-esim-activation-guide/view-content.json"
-FLOW_ESIM_GUIDE = "flows/telco-esim-activation-guide-es/flow.json"
+GUIDE_VIEW_NAME = "TelcoEsimActivationGuide"
+GUIDE_VIEW_CONTENT = "views/telco-esim-activation-guide/view-content.json"
+FLOW_GUIDE = "flows/telco-esim-activation-guide-es/flow.json"
 # Flow name == the label shown on the step-by-step GUIDE button in the agent
 # panel (Q in Connect renders the guide button using the flow's name). Also how
-# associate_esim_guide.py resolves the flow ARN. AWS::Connect::ContactFlow
+# associate_guide.py resolves the flow ARN. AWS::Connect::ContactFlow
 # updates Name in place (no replacement), so renaming + redeploy relabels the
 # button without breaking the existing content association.
-ESIM_GUIDE_FLOW_NAME = "Activar eSIM"
+GUIDE_FLOW_NAME = "Activar eSIM"
 
 # --- Lex V2 Q-in-Connect passthrough bot ---
 # A Nova Sonic v2 bot whose single AMAZON.QInConnectIntent delegates to the
@@ -237,20 +237,18 @@ WEBSITE_INVALIDATION_PATHS = ["/index.html"]
 WEBSITE_PRICE_CLASS = "PRICE_CLASS_100"
 WEBSITE_HTTP_VERSION = "HTTP2"
 WEBSITE_VIEWER_PROTOCOL_POLICY = "REDIRECT_TO_HTTPS"
-# SPA-style error mapping → serve index.html on 403/404.
-WEBSITE_ERROR_RESPONSES = [
-    {"http_status": 403, "response_http_status": 200, "response_page_path": "/index.html", "ttl_seconds": 0},
-    {"http_status": 404, "response_http_status": 200, "response_page_path": "/index.html", "ttl_seconds": 0},
-]
+# NOTE: the SPA-style error mapping (403/404 → index.html) is a fixed standard
+# baked into the website hosting construct (webhosting/webhosting_construct.py),
+# not a config knob.
 
 # ========================================================================== #
 # POST-DEPLOY SCRIPTS (not consumed by any stack)
 # ========================================================================== #
-# knowledge_bases/associate_esim_guide.py finds the eSIM KB content by this title
+# knowledge_bases/associate_guide.py finds the eSIM KB content by this title
 # substring and creates the AMAZON_CONNECT_GUIDE association to the guide flow
-# (resolved by ESIM_GUIDE_FLOW_NAME). Run it after the KB syncs — the content ids
+# (resolved by GUIDE_FLOW_NAME). Run it after the KB syncs — the content ids
 # are post-ingestion values, so none are hard-coded here.
-ESIM_GUIDE_CONTENT_MATCH = "esim"
+GUIDE_CONTENT_MATCH = "esim"
 # (The KB content tagging script, knowledge_bases/tag_kb_content.py, reads its
 # tags from knowledge_bases/telco/manifest.json, not from this file.)
 

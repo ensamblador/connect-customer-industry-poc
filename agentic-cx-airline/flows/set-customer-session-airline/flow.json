@@ -1,0 +1,154 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "is-hosted",
+  "Metadata": {
+    "Name": "set-customer-session-airline",
+    "Description": "Classifies the contact endpoint (hosted-widget email when $.Attributes.HostedWidget-email contains '@', else the voice phone number when $.Channel equals VOICE), writes it to a contact attribute (email or phoneNumber), then invokes the ai-session-airline Lambda to look the customer up in the airline-accounts table and publish the full record into the Q in Connect (Wisdom) session as $.Custom.<field>. When the Lambda reports is_customer=TRUE the module promotes customerId/name/phoneNumber/email to contact attributes. The contact is never blocked: no endpoint, an unknown customer, or any action error all complete the module."
+  },
+  "Actions": [
+    {
+      "Parameters": {
+        "ComparisonValue": "$.Attributes.HostedWidget-email"
+      },
+      "Identifier": "is-hosted",
+      "Type": "Compare",
+      "Transitions": {
+        "NextAction": "check-channel",
+        "Conditions": [
+          {
+            "NextAction": "set-email-attr",
+            "Condition": { "Operator": "TextContains", "Operands": ["@"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "check-channel", "ErrorType": "NoMatchingCondition" }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "ComparisonValue": "$.Channel"
+      },
+      "Identifier": "check-channel",
+      "Type": "Compare",
+      "Transitions": {
+        "NextAction": "end-success",
+        "Conditions": [
+          {
+            "NextAction": "set-phone-attr",
+            "Condition": { "Operator": "Equals", "Operands": ["VOICE"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "end-success", "ErrorType": "NoMatchingCondition" }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Attributes": { "email": "$.Attributes.HostedWidget-email" },
+        "TargetContact": "Current"
+      },
+      "Identifier": "set-email-attr",
+      "Type": "UpdateContactAttributes",
+      "Transitions": {
+        "NextAction": "invoke-lookup",
+        "Errors": [
+          { "NextAction": "end-error", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Attributes": { "phoneNumber": "$.CustomerEndpoint.Address" },
+        "TargetContact": "Current"
+      },
+      "Identifier": "set-phone-attr",
+      "Type": "UpdateContactAttributes",
+      "Transitions": {
+        "NextAction": "invoke-lookup",
+        "Errors": [
+          { "NextAction": "end-error", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "LambdaFunctionARN": "AI_SESSION_LAMBDA_ARN_PLACEHOLDER",
+        "InvocationType": "SYNCHRONOUS",
+        "InvocationTimeLimitSeconds": "8",
+        "LambdaInvocationAttributes": {
+          "email": "$.Attributes.email",
+          "phoneNumber": "$.Attributes.phoneNumber"
+        },
+        "ResponseValidation": { "ResponseType": "STRING_MAP" }
+      },
+      "Identifier": "invoke-lookup",
+      "Type": "InvokeLambdaFunction",
+      "Transitions": {
+        "NextAction": "is-customer",
+        "Errors": [
+          { "NextAction": "end-error", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "ComparisonValue": "$.External.is_customer"
+      },
+      "Identifier": "is-customer",
+      "Type": "Compare",
+      "Transitions": {
+        "NextAction": "end-success",
+        "Conditions": [
+          {
+            "NextAction": "set-customer-attrs",
+            "Condition": { "Operator": "Equals", "Operands": ["TRUE"] }
+          }
+        ],
+        "Errors": [
+          { "NextAction": "end-success", "ErrorType": "NoMatchingCondition" }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Attributes": {
+          "customerId": "$.External.customerId",
+          "name": "$.External.name",
+          "phoneNumber": "$.External.phoneNumber",
+          "email": "$.External.email"
+        },
+        "TargetContact": "Current"
+      },
+      "Identifier": "set-customer-attrs",
+      "Type": "UpdateContactAttributes",
+      "Transitions": {
+        "NextAction": "end-success",
+        "Errors": [
+          { "NextAction": "end-error", "ErrorType": "NoMatchingError" }
+        ]
+      }
+    },
+    {
+      "Parameters": {},
+      "Identifier": "end-success",
+      "Type": "EndFlowModuleExecution",
+      "Transitions": {}
+    },
+    {
+      "Parameters": {},
+      "Identifier": "end-error",
+      "Type": "EndFlowModuleExecution",
+      "Transitions": {}
+    }
+  ],
+  "Settings": {
+    "InputParameters": [],
+    "OutputParameters": [],
+    "Transitions": [
+      { "DisplayName": "Success", "ReferenceName": "Success", "Description": "Endpoint classified and (when a known customer) the Wisdom session populated and customer attributes set; contact not blocked." },
+      { "DisplayName": "Error", "ReferenceName": "Error", "Description": "An attribute write or the lookup Lambda invocation failed; module completed without blocking the contact." }
+    ]
+  }
+}

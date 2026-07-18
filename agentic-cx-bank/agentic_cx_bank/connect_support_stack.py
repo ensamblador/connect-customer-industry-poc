@@ -11,7 +11,7 @@ Merged stack for the Connect resources the AI agents (Phase 4) and contact flows
     guide.
   * The activate-card guide contact flow (the AMAZON_CONNECT_GUIDE content
     association that binds it to the KB content is created post-deploy by
-    knowledge_bases/associate_activate_card_guide.py — see that script).
+    knowledge_bases/associate_guide.py — see that script).
 
 Cross-stack inputs (consumed from SSM at deploy time):
     GATEWAY_ID  (Phase 1) — the bare gateway id == the security-profile MCP
@@ -31,7 +31,7 @@ Note — the activate-card guide content associations are NOT created by this
 stack. The content ids are POST-INGESTION values (the EXTERNAL crawler assigns a
 fresh id per object on every sync), so binding them is an operational,
 post-deploy step like KB tagging: run
-knowledge_bases/associate_activate_card_guide.py after the KB syncs. It resolves
+knowledge_bases/associate_guide.py after the KB syncs. It resolves
 the guide flow by name and the activate-card content by title, so no content ids
 are hand-maintained in config.
 """
@@ -127,8 +127,8 @@ class ConnectSupportStack(Stack):
             self,
             "CardGuideView",
             instance_arn=instance_arn,
-            name=config.CARD_GUIDE_VIEW_NAME,
-            content_path=os.path.join(_ROOT, config.CARD_GUIDE_VIEW_CONTENT),
+            name=config.GUIDE_VIEW_NAME,
+            content_path=os.path.join(_ROOT, config.GUIDE_VIEW_CONTENT),
             actions=["Previous", "Next", "End"],
             description="Banking activate-card step-by-step guided view, es-US.",
         )
@@ -138,8 +138,8 @@ class ConnectSupportStack(Stack):
             self,
             "CardGuideFlow",
             instance_arn=instance_arn,
-            name=config.CARD_GUIDE_FLOW_NAME,
-            flow_path=os.path.join(_ROOT, config.FLOW_CARD_GUIDE),
+            name=config.GUIDE_FLOW_NAME,
+            flow_path=os.path.join(_ROOT, config.FLOW_GUIDE),
             flow_type="CONTACT_FLOW",
             description="Banking activate-card step-by-step guide flow, es-US, CDK-managed.",
             replacements={
@@ -152,8 +152,8 @@ class ConnectSupportStack(Stack):
         # NOT created here. Binding the guide flow to each `activar-tarjeta` KB
         # content item is a post-deploy operational step (the content ids are
         # post-ingestion values), handled by
-        # knowledge_bases/associate_activate_card_guide.py. Run it after the KB
-        # syncs; it resolves this flow by name (config.CARD_GUIDE_FLOW_NAME) and
+        # knowledge_bases/associate_guide.py. Run it after the KB
+        # syncs; it resolves this flow by name (config.GUIDE_FLOW_NAME) and
         # the activate-card content by title.
 
         # --- Lex V2 Q-in-Connect passthrough bot (native CDK) ---

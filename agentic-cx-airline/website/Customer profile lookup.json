@@ -1,0 +1,519 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "show email-copy-1",
+  "Metadata": {
+    "entryPointPosition": {
+      "x": -340.8,
+      "y": -6.4
+    },
+    "ActionMetadata": {
+      "531c06dd-457e-464b-8a4c-72e56d479896": {
+        "position": {
+          "x": 839.2,
+          "y": 520
+        },
+        "children": [
+          "8b23580a-ad49-48d9-9a00-a4dcbc0fcd8b"
+        ],
+        "parameters": {
+          "Attributes": {
+            "customerFirstName": {
+              "useDynamic": true
+            },
+            "customerLastName": {
+              "useDynamic": true
+            },
+            "ProfileId": {
+              "useDynamic": true
+            }
+          }
+        },
+        "dynamicParams": [
+          "customerFirstName",
+          "customerLastName",
+          "ProfileId"
+        ],
+        "isSplitModule": true
+      },
+      "8b23580a-ad49-48d9-9a00-a4dcbc0fcd8b": {
+        "position": {
+          "x": 839.2,
+          "y": 520
+        },
+        "parameters": {
+          "CustomerId": {
+            "useDynamic": true
+          }
+        },
+        "dynamicParams": [
+          "customerId"
+        ],
+        "isSplitModule": true
+      },
+      "11674762-8c43-4dcf-a62d-470ac3261e49": {
+        "position": {
+          "x": 560,
+          "y": 1040
+        }
+      },
+      "60f922ee-f535-4bc9-85ab-50b7a3befdc8": {
+        "position": {
+          "x": 1680,
+          "y": 520
+        }
+      },
+      "Update session data Lambda": {
+        "position": {
+          "x": 1120,
+          "y": 520
+        },
+        "isFriendlyName": true,
+        "parameters": {
+          "LambdaFunctionARN": {
+            "displayName": "ConnectAssistantUpdateSessionData"
+          },
+          "LambdaInvocationAttributes": {
+            "firstName": {
+              "useDynamic": true
+            },
+            "lastName": {
+              "useDynamic": true
+            },
+            "customerId": {
+              "useDynamic": true
+            },
+            "email": {
+              "useDynamic": true
+            }
+          }
+        },
+        "dynamicMetadata": {
+          "firstName": true,
+          "lastName": true,
+          "customerId": true,
+          "email": true
+        }
+      },
+      "19d5bf01-69eb-403d-97c2-42f70a70ad2b": {
+        "position": {
+          "x": 1400,
+          "y": 780
+        }
+      },
+      "59f2a612-41c1-4362-a3e7-137dc73a4e5b": {
+        "position": {
+          "x": 1400,
+          "y": 260
+        }
+      },
+      "2cca5d4c-7a68-4287-a3ba-b285f387f60e": {
+        "position": {
+          "x": 280,
+          "y": 780
+        }
+      },
+      "Associate": {
+        "position": {
+          "x": 560,
+          "y": 520
+        },
+        "isFriendlyName": true,
+        "parameters": {
+          "ProfileRequestData": {
+            "ProfileId": {
+              "useDynamic": true
+            },
+            "ContactId": {
+              "useDynamic": true
+            }
+          }
+        }
+      },
+      "Lookup by phone number": {
+        "position": {
+          "x": 280,
+          "y": 260
+        },
+        "isFriendlyName": true,
+        "parameters": {
+          "ProfileRequestData": {
+            "IdentifierName": {
+              "displayName": "Phone"
+            },
+            "IdentifierValue": {
+              "useDynamic": true
+            }
+          }
+        },
+        "useDynamic": {
+          "IdentifierName": true,
+          "IdentifierValue": true
+        },
+        "customerProfilesAction": "GetCustomerProfile"
+      },
+      "Lookup by email": {
+        "position": {
+          "x": 280,
+          "y": 520
+        },
+        "isFriendlyName": true,
+        "parameters": {},
+        "useDynamic": {},
+        "customerProfilesAction": "GetCustomerProfile"
+      },
+      "446106ef-b307-4cc9-b0d2-8f80b917103a": {
+        "position": {
+          "x": 0,
+          "y": 260
+        },
+        "conditions": [],
+        "conditionMetadata": [
+          {
+            "id": "f2ce73fc-0bce-4fb4-8917-3254825101cf",
+            "operator": {
+              "name": "Equals",
+              "value": "Equals",
+              "shortDisplay": "="
+            },
+            "value": "VOICE"
+          }
+        ]
+      },
+      "IS Hosted": {
+        "position": {
+          "x": -321.6,
+          "y": 365.6
+        },
+        "isFriendlyName": true,
+        "conditions": [],
+        "conditionMetadata": [
+          {
+            "id": "adb30ea4-0f83-4b8e-a440-23504fe9ccd8",
+            "operator": {
+              "name": "Contains",
+              "value": "Contains",
+              "shortDisplay": "contains"
+            },
+            "value": "@"
+          }
+        ]
+      },
+      "show email-copy-1": {
+        "position": {
+          "x": -340.8,
+          "y": 85.6
+        },
+        "isFriendlyName": true
+      }
+    },
+    "Annotations": [],
+    "name": "Customer profile lookup",
+    "description": "",
+    "status": "published",
+    "settings": {
+      "transitions": {
+        "results": [
+          {
+            "name": "Profile found",
+            "description": "Customer profile lookup successful"
+          },
+          {
+            "name": "No profile found",
+            "description": "No customer profile was found."
+          }
+        ]
+      }
+    },
+    "hash": {}
+  },
+  "Actions": [
+    {
+      "Parameters": {
+        "Attributes": {
+          "customerFirstName": "$.Customer.FirstName",
+          "customerLastName": "$.Customer.LastName",
+          "ProfileId": "$.Customer.ProfileId"
+        },
+        "TargetContact": "Current"
+      },
+      "Identifier": "531c06dd-457e-464b-8a4c-72e56d479896",
+      "Type": "UpdateContactAttributes",
+      "Transitions": {
+        "NextAction": "8b23580a-ad49-48d9-9a00-a4dcbc0fcd8b",
+        "Errors": [
+          {
+            "NextAction": "Update session data Lambda",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "TargetContact": "Current",
+        "CustomerId": "$.Customer.ProfileId"
+      },
+      "Identifier": "8b23580a-ad49-48d9-9a00-a4dcbc0fcd8b",
+      "Type": "UpdateContactData",
+      "Transitions": {
+        "NextAction": "Update session data Lambda",
+        "Errors": [
+          {
+            "NextAction": "Update session data Lambda",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {},
+      "Identifier": "11674762-8c43-4dcf-a62d-470ac3261e49",
+      "Type": "EndFlowModuleExecution",
+      "Transitions": {}
+    },
+    {
+      "Parameters": {
+        "Result": "Profile found"
+      },
+      "Identifier": "60f922ee-f535-4bc9-85ab-50b7a3befdc8",
+      "Type": "EndFlowModuleExecution",
+      "Transitions": {}
+    },
+    {
+      "Parameters": {
+        "LambdaFunctionARN": "arn:aws:lambda:us-east-1:461004555540:function:ConnectAssistantUpdateSessionData",
+        "InvocationTimeLimitSeconds": "5",
+        "InvocationType": "SYNCHRONOUS",
+        "LambdaInvocationAttributes": {
+          "firstName": "$.Customer.FirstName",
+          "lastName": "$.Customer.LastName",
+          "customerId": "$.Customer.ProfileId",
+          "email": "$.Customer.EmailAddress"
+        },
+        "ResponseValidation": {
+          "ResponseType": "STRING_MAP"
+        }
+      },
+      "Identifier": "Update session data Lambda",
+      "Type": "InvokeLambdaFunction",
+      "Transitions": {
+        "NextAction": "60f922ee-f535-4bc9-85ab-50b7a3befdc8",
+        "Errors": [
+          {
+            "NextAction": "60f922ee-f535-4bc9-85ab-50b7a3befdc8",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Result": "No profile found"
+      },
+      "Identifier": "19d5bf01-69eb-403d-97c2-42f70a70ad2b",
+      "Type": "EndFlowModuleExecution",
+      "Transitions": {}
+    },
+    {
+      "Parameters": {
+        "Text": "Multiple profiles found.  Please delete duplicates."
+      },
+      "Identifier": "59f2a612-41c1-4362-a3e7-137dc73a4e5b",
+      "Type": "MessageParticipant",
+      "Transitions": {
+        "NextAction": "11674762-8c43-4dcf-a62d-470ac3261e49",
+        "Errors": [
+          {
+            "NextAction": "11674762-8c43-4dcf-a62d-470ac3261e49",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Text": "Customer profile lookup error\n"
+      },
+      "Identifier": "2cca5d4c-7a68-4287-a3ba-b285f387f60e",
+      "Type": "MessageParticipant",
+      "Transitions": {
+        "NextAction": "11674762-8c43-4dcf-a62d-470ac3261e49",
+        "Errors": [
+          {
+            "NextAction": "11674762-8c43-4dcf-a62d-470ac3261e49",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "ProfileRequestData": {
+          "ProfileId": "$.Customer.ProfileId",
+          "ContactId": "$.ContactId"
+        }
+      },
+      "Identifier": "Associate",
+      "Type": "AssociateContactToCustomerProfile",
+      "Transitions": {
+        "NextAction": "531c06dd-457e-464b-8a4c-72e56d479896",
+        "Errors": [
+          {
+            "NextAction": "531c06dd-457e-464b-8a4c-72e56d479896",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "ProfileRequestData": {
+          "IdentifierName": "_phone",
+          "IdentifierValue": "$.CustomerEndpoint.Address"
+        },
+        "ProfileResponseData": [
+          "EmailAddress",
+          "FirstName",
+          "LastName"
+        ]
+      },
+      "Identifier": "Lookup by phone number",
+      "Type": "GetCustomerProfile",
+      "Transitions": {
+        "NextAction": "Associate",
+        "Errors": [
+          {
+            "NextAction": "2cca5d4c-7a68-4287-a3ba-b285f387f60e",
+            "ErrorType": "NoMatchingError"
+          },
+          {
+            "NextAction": "59f2a612-41c1-4362-a3e7-137dc73a4e5b",
+            "ErrorType": "MultipleFoundError"
+          },
+          {
+            "NextAction": "19d5bf01-69eb-403d-97c2-42f70a70ad2b",
+            "ErrorType": "NoneFoundError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "ProfileRequestData": {
+          "IdentifierName": "_email",
+          "IdentifierValue": "$.Attributes.HostedWidget-email"
+        },
+        "ProfileResponseData": [
+          "EmailAddress",
+          "FirstName",
+          "LastName"
+        ]
+      },
+      "Identifier": "Lookup by email",
+      "Type": "GetCustomerProfile",
+      "Transitions": {
+        "NextAction": "Associate",
+        "Errors": [
+          {
+            "NextAction": "2cca5d4c-7a68-4287-a3ba-b285f387f60e",
+            "ErrorType": "NoMatchingError"
+          },
+          {
+            "NextAction": "59f2a612-41c1-4362-a3e7-137dc73a4e5b",
+            "ErrorType": "MultipleFoundError"
+          },
+          {
+            "NextAction": "19d5bf01-69eb-403d-97c2-42f70a70ad2b",
+            "ErrorType": "NoneFoundError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "ComparisonValue": "$.Channel"
+      },
+      "Identifier": "446106ef-b307-4cc9-b0d2-8f80b917103a",
+      "Type": "Compare",
+      "Transitions": {
+        "NextAction": "Lookup by email",
+        "Conditions": [
+          {
+            "NextAction": "Lookup by phone number",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "VOICE"
+              ]
+            }
+          }
+        ],
+        "Errors": [
+          {
+            "NextAction": "Lookup by email",
+            "ErrorType": "NoMatchingCondition"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "ComparisonValue": "$.Attributes.HostedWidget-email"
+      },
+      "Identifier": "IS Hosted",
+      "Type": "Compare",
+      "Transitions": {
+        "NextAction": "446106ef-b307-4cc9-b0d2-8f80b917103a",
+        "Conditions": [
+          {
+            "NextAction": "Lookup by email",
+            "Condition": {
+              "Operator": "TextContains",
+              "Operands": [
+                "@"
+              ]
+            }
+          }
+        ],
+        "Errors": [
+          {
+            "NextAction": "446106ef-b307-4cc9-b0d2-8f80b917103a",
+            "ErrorType": "NoMatchingCondition"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "Text": "Recibido email =  $.Attributes.HostedWidget-email"
+      },
+      "Identifier": "show email-copy-1",
+      "Type": "MessageParticipant",
+      "Transitions": {
+        "NextAction": "IS Hosted",
+        "Errors": [
+          {
+            "NextAction": "IS Hosted",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    }
+  ],
+  "Settings": {
+    "InputParameters": [],
+    "OutputParameters": [],
+    "Transitions": [
+      {
+        "DisplayName": "Success",
+        "ReferenceName": "Success",
+        "Description": ""
+      },
+      {
+        "DisplayName": "Error",
+        "ReferenceName": "Error",
+        "Description": ""
+      }
+    ]
+  }
+}

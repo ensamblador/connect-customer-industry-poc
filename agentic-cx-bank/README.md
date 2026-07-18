@@ -164,7 +164,7 @@ graph TD
 - **Flujo de contacto de la guía de activar tarjeta** (nombre visible **`Activar
   tarjeta`**). La asociación de contenido `AMAZON_CONNECT_GUIDE` que vincula el flujo con
   el contenido `activar-tarjeta` de la KB se crea post-despliegue con
-  `knowledge_bases/associate_activate_card_guide.py` (los ids de contenido son valores
+  `knowledge_bases/associate_guide.py` (los ids de contenido son valores
   posteriores a la ingesta), no por el stack.
 - **Bot Lex V2 de paso a Q-in-Connect** (`banco-qconnect-bot-v2`): un único
   `AMAZON.QInConnectIntent` cableado al asistente de agentes de IA, 3 locales
@@ -497,7 +497,7 @@ agentic-cx-bank/
 ├── knowledge_bases/          # Construct de KB + artículos de banca + scripts post-despliegue
 │   ├── knowledge_base.py
 │   ├── tag_kb_content.py                  # post-despliegue: etiqueta el contenido de la KB para segmentación de Retrieve
-│   └── associate_activate_card_guide.py   # post-despliegue: crea la asociación AMAZON_CONNECT_GUIDE
+│   └── associate_guide.py   # post-despliegue: crea la asociación AMAZON_CONNECT_GUIDE
 ├── connect/                  # Bloques de construcción de Connect (constructs + lambdas inline/CR)
 │   ├── mcp_integration.py         # Integración de aplicación MCP + ProfileDetacher (CR inline)
 │   ├── basic_queue_lookup_cr.py   # Construct BasicQueueLookup
@@ -538,10 +538,9 @@ secretos; las credenciales de AWS se resuelven desde tu perfil/SSO local en tiem
 despliegue), ordenadas por la fase de despliegue que primero consume cada valor. Grupos
 clave: identidad de Connect (`INSTANCE_ID`, `INSTANCE_ALIAS`, `ASSISTANT_ID`,
 `HAS_REAL_INSTANCE`), nombres, ajustes de KB, perfiles de seguridad, vistas/guía, bot de
-Lex, agentes de IA/prompts/modelos, flujos de contacto, y ajustes de build del sitio. Un
-**guard de colisión** al final mantiene la configuración inválida (`CONFIG_VALID ==
-False`) si algún nombre de banca aún resuelve a un nombre en vivo en la instancia de
-Connect compartida, exponiendo el nombre conflictivo sin sobrescribirlo. Ver `config.py`
+Lex, agentes de IA/prompts/modelos, flujos de contacto, y ajustes de build del sitio.
+Cada nombre de recurso lleva el prefijo de su industria, así que nunca colisiona con los
+recursos de un proyecto hermano en la instancia de Connect compartida. Ver `config.py`
 para la lista completa anotada.
 
 ### Parámetros SSM (el contrato entre stacks)
@@ -621,8 +620,8 @@ python knowledge_bases/tag_kb_content.py --wait --expect 21 --profile connect-in
 
 # 2. Vincula el flujo de la guía "Activar tarjeta" con el contenido activar-tarjeta de la KB
 #    (asociación AMAZON_CONNECT_GUIDE idempotente). Añade --dry-run para previsualizar.
-python knowledge_bases/associate_activate_card_guide.py --profile connect-industry
-python knowledge_bases/associate_activate_card_guide.py --dry-run --profile connect-industry
+python knowledge_bases/associate_guide.py --profile connect-industry
+python knowledge_bases/associate_guide.py --dry-run --profile connect-industry
 ```
 
 Después de la **Fase 4**, asigna los perfiles de seguridad de la Fase 3 a los agentes de

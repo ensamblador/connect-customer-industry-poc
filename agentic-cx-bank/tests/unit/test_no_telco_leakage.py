@@ -33,11 +33,9 @@ Scope / exclusions:
   * Build / vendored / cache directories are pruned: ``.venv/``,
     ``node_modules/``, ``cdk.out/``, ``dist/`` (website build output),
     ``__pycache__/``, ``.git/``, ``.pytest_cache/``.
-  * ``config.py`` is the single documented file-level exception. Requirement 2.7
-    mandates a collision guard that lists the live telco resource names so a
-    banking name can never silently collide with them; the guard therefore MUST
-    contain telco tokens. Its banking VALUES are validated by part 2 above, so
-    config is not a blind spot.
+  * ``config.py`` carries no telco token and is scanned like any other shipping
+    file — every resource name is industry-prefixed, so a sibling collision is
+    structurally impossible and no name-mirroring guard is needed.
   * The only allowed cross-project dependency is the external ``/flows/init/es``
     module reference resolved from SSM — it carries no telco token, so in effect
     zero telco tokens remain anywhere in the banking project source.
@@ -118,11 +116,6 @@ SKIP_EXTENSIONS = {
     ".pyc",
 }
 
-# config.py is the single documented file-level exception (see module docstring
-# and Requirement 2.7). Its banking values are validated separately.
-DOCUMENTED_EXCEPTION_FILES = {BANK_ROOT / "config.py"}
-
-
 def _is_pruned(path: Path) -> bool:
     """True if any path component is an excluded directory name."""
     return any(part in EXCLUDED_DIR_NAMES for part in path.parts)
@@ -190,8 +183,6 @@ def test_no_telco_token_in_shipping_assets():
     YAML, website source, README) may contain a telco substring."""
     offenders: list[str] = []
     for path in _iter_shipping_files():
-        if path in DOCUMENTED_EXCEPTION_FILES:
-            continue
         try:
             text = path.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):
@@ -207,38 +198,9 @@ def test_no_telco_token_in_shipping_assets():
     )
 
 
-def test_config_py_exception_only_touches_the_collision_guard():
-    """The documented config.py exception is narrow: its telco tokens must be
-    confined to the retheme docstring / comments and the Requirement 2.7
-    collision guard (``_LIVE_TELCO_NAMES``). This proves the exception is not a
-    hiding place for a real banking-name leak — cross-checked by the
-    banking-value scan below."""
-    text = (BANK_ROOT / "config.py").read_text(encoding="utf-8")
-    # Every telco mention must be a comment, a docstring line, or part of the
-    # guard's literal telco-name set / its explanatory prose.
-    for lineno in _telco_line_numbers(text):
-        line = text.splitlines()[lineno - 1]
-        stripped = line.strip()
-        is_comment = stripped.startswith("#")
-        is_guard_literal = stripped.startswith('"telco') or stripped.startswith("'telco")
-        is_docstring_prose = "telco" in stripped.lower() and not stripped.startswith(
-            ("API_", "GATEWAY_", "KB_", "LEX_", "ACCOUNTS_", "PLANS_", "LINES_",
-             "NEWLINE_", "CARD_", "ESCALATION_", "AI_AGENT_")
-        )
-        assert is_comment or is_guard_literal or is_docstring_prose, (
-            f"config.py line {lineno} carries a telco token outside the "
-            f"documented collision guard / docstring: {line!r}"
-        )
-
-
 # --------------------------------------------------------------------------- #
 # Part 2 — config banking-value scan (Requirements 2.1, 2.3)
 # --------------------------------------------------------------------------- #
-
-# Guard machinery in config that intentionally references telco names; excluded
-# from the banking-value scan (see Requirement 2.7 collision guard).
-_CONFIG_GUARD_ATTRS = {"COLLIDING_NAMES", "CONFIG_VALID"}
-
 
 def _strings_in(value) -> Iterator[str]:
     """Recursively yield every string contained in a config value."""
@@ -258,7 +220,7 @@ def test_config_banking_values_have_no_telco():
     bot/agent identifiers, paths, tags — is free of a telco substring."""
     offenders: list[str] = []
     for name in dir(config):
-        if name.startswith("_") or name in _CONFIG_GUARD_ATTRS:
+        if name.startswith("_"):
             continue
         value = getattr(config, name)
         # ``_strings_in`` only descends str/dict/list/tuple/set values, so
@@ -270,14 +232,6 @@ def test_config_banking_values_have_no_telco():
     assert not offenders, (
         "telco token found in configured banking values:\n  "
         + "\n  ".join(sorted(offenders))
-    )
-
-
-def test_config_reports_no_collision_with_live_telco_names():
-    """The collision guard must confirm the banking names are all distinct from
-    the live telco names (a positive signal that the re-theme is complete)."""
-    assert config.CONFIG_VALID is True, (
-        f"banking names collide with live telco names: {config.COLLIDING_NAMES}"
     )
 
 

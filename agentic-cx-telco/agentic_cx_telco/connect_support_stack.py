@@ -11,7 +11,7 @@ Merged stack for the Connect resources the AI agents (Phase 4) and contact flows
     guide.
   * The eSIM guide contact flow (the AMAZON_CONNECT_GUIDE content association
     that binds it to the KB content is created post-deploy by
-    knowledge_bases/associate_esim_guide.py — see that script).
+    knowledge_bases/associate_guide.py — see that script).
 
 Cross-stack inputs (consumed from SSM at deploy time):
     GATEWAY_ID  (Phase 1) — the bare gateway id == the security-profile MCP
@@ -30,7 +30,7 @@ edge is declared in app.py.
 Note — the eSIM guide content associations are NOT created by this stack. The
 content ids are POST-INGESTION values (the EXTERNAL crawler assigns a fresh id
 per object on every sync), so binding them is an operational, post-deploy step
-like KB tagging: run knowledge_bases/associate_esim_guide.py after the KB syncs.
+like KB tagging: run knowledge_bases/associate_guide.py after the KB syncs.
 It resolves the guide flow by name and the eSIM content by title, so no content
 ids are hand-maintained in config.
 """
@@ -126,8 +126,8 @@ class ConnectSupportStack(Stack):
             self,
             "EsimGuideView",
             instance_arn=instance_arn,
-            name=config.ESIM_GUIDE_VIEW_NAME,
-            content_path=os.path.join(_ROOT, config.ESIM_GUIDE_VIEW_CONTENT),
+            name=config.GUIDE_VIEW_NAME,
+            content_path=os.path.join(_ROOT, config.GUIDE_VIEW_CONTENT),
             actions=["Previous", "Next", "End"],
             description="Telco eSIM activation step-by-step guided view, es-US.",
         )
@@ -137,8 +137,8 @@ class ConnectSupportStack(Stack):
             self,
             "EsimGuideFlow",
             instance_arn=instance_arn,
-            name=config.ESIM_GUIDE_FLOW_NAME,
-            flow_path=os.path.join(_ROOT, config.FLOW_ESIM_GUIDE),
+            name=config.GUIDE_FLOW_NAME,
+            flow_path=os.path.join(_ROOT, config.FLOW_GUIDE),
             flow_type="CONTACT_FLOW",
             description="Telco eSIM activation step-by-step guide flow, es-US, CDK-managed.",
             replacements={
@@ -150,9 +150,9 @@ class ConnectSupportStack(Stack):
         # --- eSIM guide content associations (AMAZON_CONNECT_GUIDE) ---
         # NOT created here. Binding the guide flow to each `esim-activacion` KB
         # content item is a post-deploy operational step (the content ids are
-        # post-ingestion values), handled by knowledge_bases/associate_esim_guide.py.
+        # post-ingestion values), handled by knowledge_bases/associate_guide.py.
         # Run it after the KB syncs; it resolves this flow by name
-        # (config.ESIM_GUIDE_FLOW_NAME) and the eSIM content by title.
+        # (config.GUIDE_FLOW_NAME) and the eSIM content by title.
 
         # --- Lex V2 Q-in-Connect passthrough bot (native CDK) ---
         # A Nova Sonic v2 bot whose only intent delegates to the Q in Connect
