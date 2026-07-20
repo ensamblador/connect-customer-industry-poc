@@ -23,4 +23,6 @@ packages = [
     "cdk_constructs.webhosting",
     "cdk_constructs.connect",
     "cdk_constructs.knowledge_bases",
+    "cdk_constructs.agent_core",
+    "cdk_constructs.apis",
 ]

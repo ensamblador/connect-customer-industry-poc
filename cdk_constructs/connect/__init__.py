@@ -17,7 +17,9 @@ from cdk_constructs.connect.ai_agents import (
 from cdk_constructs.connect.ai_prompts import OrchestrationPrompt
 from cdk_constructs.connect.basic_queue_lookup_cr import BasicQueueLookup
 from cdk_constructs.connect.flows import ContactFlow, ContactFlowModule
+from cdk_constructs.connect.lambda_integration import LambdaConnectIntegration
 from cdk_constructs.connect.lex_bot import QInConnectLexBot
+from cdk_constructs.connect.mcp_integration import McpServerIntegration
 from cdk_constructs.connect.security_profile import (
     DEFAULT_AI_AGENT_PERMISSIONS,
     AiAgentSecurityProfile,
@@ -33,6 +35,8 @@ __all__ = [
     "ContactFlowModule",
     "CustomerManagedView",
     "DEFAULT_AI_AGENT_PERMISSIONS",
+    "LambdaConnectIntegration",
+    "McpServerIntegration",
     "OrchestrationAIAgent",
     "OrchestrationPrompt",
     "QInConnectLexBot",

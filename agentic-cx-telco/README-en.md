@@ -387,25 +387,19 @@ agentic-cx-telco/
 │       ├── accounts/handler.py
 │       ├── plans/handler.py
 │       ├── lines/handler.py
-│       └── ai_session/handler.py
+│       ├── ai_session/handler.py
+│       └── data_viewer/index.py   # /datos data-viewer handler (per-industry branding)
 │
-├── apis/                      # REST API construct + OpenAPI spec (telco_api.py, openapi/)
-├── agent_core/                # AgentCore gateway + API-key credential provider constructs
-├── databases/                # DynamoDB tables construct + seed data (data/)
-├── knowledge_bases/          # KB construct + telco articles + post-deploy scripts
-│   ├── knowledge_base.py
+├── apis/                      # Industry data: openapi/openapi.yaml + telco_api.py (REST route map)
+├── databases/                # `Tables` construct (per-industry schema) + seed data (data/)
+├── knowledge_bases/          # KB content (telco articles) + post-deploy scripts
 │   ├── tag_kb_content.py          # post-deploy: tags KB content for Retrieve segmentation
 │   └── associate_guide.py    # post-deploy: creates the AMAZON_CONNECT_GUIDE association
-├── connect/                  # Connect building blocks (constructs + inline/CR lambdas)
-│   ├── mcp_integration.py         # MCP application integration + ProfileDetacher (inline CR)
-│   ├── basic_queue_lookup_cr.py   # BasicQueueLookup construct
-│   ├── basic_queue_lookup_cr_lambda/index.py   # its CR handler
-│   ├── ai_agents.py / ai_prompts.py / security_profile.py / lex_bot.py / views.py / flows.py
-│   └── lambda_integration.py
+├── connect/                  # Connect industry data
+│   └── agent_tools.py             # `AgentToolset`: MCP tool catalog, instructions, chat guide
 ├── connect_ai_agents/        # Authored orchestration prompt YAML per agent surface
 ├── flows/                    # Contact flow + module JSON (one folder per flow)
 ├── views/                    # Customer-managed view JSON (newline form / eSIM guide / handoff)
-├── webhosting/               # Website hosting construct + data_viewer_lambda/index.py
 ├── website/                  # Vite "Latam Telco" front-end (build output → website/dist)
 ├── shared/ssm_names.py       # The cross-stack SSM parameter-name contract
 └── tests/unit/               # pytest scaffold

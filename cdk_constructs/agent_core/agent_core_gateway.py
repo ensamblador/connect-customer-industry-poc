@@ -1,9 +1,9 @@
 """
-agent_core/agent_core_gateway.py — Bedrock AgentCore gateway that exposes the
-banking REST API as an MCP server.
+cdk_constructs/agent_core/agent_core_gateway.py — Bedrock AgentCore gateway that
+exposes a backend REST API as an MCP server.
 
-Following the project convention, ALL AgentCore constructs (gateways,
-runtimes, targets) live under `agent_core/`. This module mirrors the method
+Industry-agnostic: the gateway name, discovery URL, and description are passed
+in by each app's MCP stack. This module mirrors the method
 layout of the reference `agentcore-gateway-primitive`:
 
     create_role()              — the execution role the gateway assumes
@@ -51,7 +51,7 @@ from constructs import Construct
 
 
 class AgentCoreGateway(Construct):
-    """AgentCore MCP gateway fronting the banking REST API."""
+    """AgentCore MCP gateway fronting a backend REST API."""
 
     def __init__(
         self,

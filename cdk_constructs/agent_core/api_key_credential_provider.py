@@ -1,5 +1,5 @@
 """
-agent_core/api_key_credential_provider.py — AgentCore API Key credential
+cdk_constructs/agent_core/api_key_credential_provider.py — AgentCore API Key credential
 provider, created via a custom resource.
 
 OpenAPI-schema gateway targets require an explicit credential provider (the

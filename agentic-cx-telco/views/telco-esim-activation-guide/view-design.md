@@ -3,7 +3,7 @@
 Customer-managed view (`AWS::Connect::View`) for the **agent-facing**
 eSIM activation step-by-step guide. Authored as `view-content.json` (the
 `Content` payload of `CreateView` / `UpdateView`) and deployed via CDK
-(`connect/views.py`, the existing `CustomerManagedView` construct). This
+(`cdk_constructs/connect/views.py`, the existing `CustomerManagedView` construct). This
 document records the view's purpose, structure, the data-binding contract
 with the guide flow, the ARN convention, the Req 4 manual permission
 note, and the server-deploy verification status.
@@ -140,7 +140,7 @@ guide collects no form output, so `$.Views.ViewResultData` is unused.
 ## Qualified-ARN convention ($LATEST)
 
 The `ShowView` block references the view by its **qualified** ARN. The
-CDK construct (`connect/views.py`) exposes:
+CDK construct (`cdk_constructs/connect/views.py`) exposes:
 
 - `view_arn` → `CfnView.attr_view_arn` (the unqualified ARN).
 - `view_qualified_arn` → `f"{view_arn}:$LATEST"`.

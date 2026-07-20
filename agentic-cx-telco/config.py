@@ -171,7 +171,7 @@ AI_AGENT_LOCALE = "es_US"
 # prompt runs (kept as authored in the live domain, NOT forced to one model).
 # Authoring path is native AWS::Wisdom::AIAgent (CfnAIAgent); tool input schemas
 # must not carry `maxLength` (the provider stringifies it -> invalid JSON Schema
-# -> breaks orchestration; see connect/ai_agents.py). The `<sources>` citation
+# -> breaks orchestration; see cdk_constructs/connect/ai_agents.py). The `<sources>` citation
 # behavior is enforced by the system Retrieve tool, not these bodies.
 AI_AGENT_VOICE_PROMPT = "connect_ai_agents/telco-selfservice-voice/prompts/telco-selfservice-orchestration-voice.yaml"
 AI_AGENT_VOICE_MODEL = "global.anthropic.claude-haiku-4-5-20251001-v1:0"
@@ -238,7 +238,7 @@ WEBSITE_PRICE_CLASS = "PRICE_CLASS_100"
 WEBSITE_HTTP_VERSION = "HTTP2"
 WEBSITE_VIEWER_PROTOCOL_POLICY = "REDIRECT_TO_HTTPS"
 # NOTE: the SPA-style error mapping (403/404 → index.html) is a fixed standard
-# baked into the website hosting construct (webhosting/webhosting_construct.py),
+# baked into the website hosting construct (cdk_constructs/webhosting/webhosting_construct.py),
 # not a config knob.
 
 # ========================================================================== #

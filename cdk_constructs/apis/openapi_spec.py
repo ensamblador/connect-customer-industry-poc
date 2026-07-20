@@ -1,11 +1,16 @@
 """
-apis/openapi_spec.py — load the authored OpenAPI spec and render it for the
-AgentCore gateway's inline OpenAPI target.
+cdk_constructs/apis/openapi_spec.py — load an authored OpenAPI spec and render it
+for an AgentCore gateway's inline OpenAPI target.
+
+Industry-agnostic loader. The authored ``openapi.yaml`` stays in each app under
+``apis/openapi/openapi.yaml`` (industry data); this module just reads it, forces
+the single server URL to the Fn::Sub TEMPLATE, and re-serializes to a compact
+JSON string. Callers pass the path to their spec and the server description.
 
 Flow (decided design — "render at synth with Fn.sub"):
 
-  1. apis/openapi/openapi.yaml is the authored, rich spec (descriptions,
-     request/response schemas, examples). Its `servers[0].url` is a TEMPLATE:
+  1. ``apis/openapi/openapi.yaml`` is the authored, rich spec (descriptions,
+     request/response schemas, examples). Its ``servers[0].url`` is a TEMPLATE:
          https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/${Stage}
   2. At synth we read + parse the YAML and re-serialize it to a compact JSON
      string (AgentCore's inline_payload is a single string; JSON is a valid
@@ -22,12 +27,8 @@ inline spec's server URL matches the actually-deployed API.
 from __future__ import annotations
 
 import json
-import os
 
 import yaml
-
-# Path to the authored spec (next to this module, under openapi/).
-SPEC_PATH = os.path.join(os.path.dirname(__file__), "openapi", "openapi.yaml")
 
 # The Fn::Sub variables the server URL template uses. ${AWS::Region} is a
 # CloudFormation pseudo-parameter resolved automatically; ApiId and Stage are
@@ -37,23 +38,25 @@ SERVER_URL_TEMPLATE = (
 )
 
 
-def load_spec() -> dict:
-    """Parse the authored OpenAPI YAML into a dict."""
-    with open(SPEC_PATH, "r", encoding="utf-8") as fh:
+def load_spec(spec_path: str) -> dict:
+    """Parse the authored OpenAPI YAML at ``spec_path`` into a dict."""
+    with open(spec_path, "r", encoding="utf-8") as fh:
         return yaml.safe_load(fh)
 
 
-def render_spec_json() -> str:
+def render_spec_json(spec_path: str, server_description: str) -> str:
     """
-    Return the spec as a compact JSON string with the server URL set to the
-    Fn::Sub TEMPLATE (markers intact). The caller wraps this in Fn.sub so the
-    markers resolve to the real deployed values at deploy time.
+    Return the spec at ``spec_path`` as a compact JSON string with the server
+    URL set to the Fn::Sub TEMPLATE (markers intact). The caller wraps this in
+    Fn.sub so the markers resolve to the real deployed values at deploy time.
 
-    JSON is used (not YAML) because: it's a valid OpenAPI document, it's
+    ``server_description`` is the human label for the single server entry (an
+    industry-specific string, e.g. "Deployed banking self-service API Gateway
+    endpoint"). JSON is used (not YAML) because it's a valid OpenAPI document,
     stdlib-serializable, and embedding it as a single CloudFormation string is
     far less error-prone than multi-line YAML.
     """
-    spec = load_spec()
+    spec = load_spec(spec_path)
 
     # Force the single server URL to the template; the authored file already
     # has it, but we set it explicitly so the contract is not dependent on the
@@ -61,7 +64,7 @@ def render_spec_json() -> str:
     spec["servers"] = [
         {
             "url": SERVER_URL_TEMPLATE,
-            "description": "Deployed banking self-service API Gateway endpoint",
+            "description": server_description,
         }
     ]
 
@@ -69,13 +72,13 @@ def render_spec_json() -> str:
     return json.dumps(spec, separators=(",", ":"))
 
 
-def operation_summaries() -> list[dict]:
+def operation_summaries(spec_path: str) -> list[dict]:
     """
     Convenience: list (operationId, method, path) for every operation in the
     authored spec — handy for building tool filters/overrides if a target ever
     needs them alongside the inline schema.
     """
-    spec = load_spec()
+    spec = load_spec(spec_path)
     out: list[dict] = []
     for path, methods in spec.get("paths", {}).items():
         for method, op in methods.items():

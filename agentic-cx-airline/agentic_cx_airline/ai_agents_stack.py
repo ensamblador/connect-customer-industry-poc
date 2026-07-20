@@ -8,7 +8,7 @@ that bind each published prompt version. Each prompt keeps its own model
 
 Agents are authored with the native CfnAIAgent (no agent version is created).
 Tool input schemas carry no `maxLength` (the provider stringifies it into an
-invalid JSON Schema and breaks orchestration — see connect/ai_agents.py).
+invalid JSON Schema and breaks orchestration — see cdk_constructs/connect/ai_agents.py).
 
 Tool surfaces:
     voice  : Retrieve + 9 MCP + Escalate + Complete           (newLine confirm ON)

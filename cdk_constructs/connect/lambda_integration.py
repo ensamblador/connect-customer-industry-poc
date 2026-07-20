@@ -1,5 +1,5 @@
 """
-connect/lambda_integration.py — associate a Lambda function with an Amazon
+cdk_constructs/connect/lambda_integration.py — associate a Lambda function with an Amazon
 Connect instance so contact flows can invoke it.
 
 Unlike the MCP server (an APPLICATION integration wired via custom resources in

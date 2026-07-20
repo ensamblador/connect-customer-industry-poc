@@ -2,7 +2,7 @@
 
 Customer-managed view (`AWS::Connect::View`) for the **chat** new-line
 guided form. Authored as `view-content.json` (the `Content` payload of
-`CreateView` / `UpdateView`) and deployed via CDK (`connect/views.py`,
+`CreateView` / `UpdateView`) and deployed via CDK (`cdk_constructs/connect/views.py`,
 task 4). This document records the view's purpose, structure, the
 data-binding contract with the flow, the validation decisions, the ARN
 convention, and the server-deploy verification status.
@@ -131,7 +131,7 @@ local validator reports 0 errors as authored.
 ## Qualified-ARN convention ($LATEST)
 
 The `ShowView` block references the view by its **qualified** ARN. The
-CDK construct (`connect/views.py`, task 4) exposes:
+CDK construct (`cdk_constructs/connect/views.py`, task 4) exposes:
 
 - `view_arn` → `CfnView.attr_view_arn` (the unqualified ARN).
 - `view_qualified_arn` → `f"{view_arn}:$LATEST"`.

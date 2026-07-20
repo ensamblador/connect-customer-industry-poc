@@ -1,5 +1,5 @@
 """
-connect/lex_bot.py — Amazon Lex V2 Q-in-Connect passthrough bot as CDK (CfnBot).
+cdk_constructs/connect/lex_bot.py — Amazon Lex V2 Q-in-Connect passthrough bot as CDK (CfnBot).
 
 A single Lex V2 bot whose only real intent is `AMAZON.QInConnectIntent`,
 wired to the Q in Connect assistant. Every utterance is delegated to the

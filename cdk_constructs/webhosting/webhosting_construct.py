@@ -169,7 +169,7 @@ class Webhosting(Construct):
         """
         root = project_root or os.path.dirname(os.path.abspath(config.__file__))
         # Default env→table map. NOTE: the ``PLANS_TABLE`` / ``LINES_TABLE``
-        # keys are telco-era names still read by each app's data-viewer Lambda;
+        # keys are legacy names still read by each app's data-viewer Lambda;
         # override this map (and the handler) as part of the neutral-naming pass.
         tables = data_viewer_tables or {
             "ACCOUNTS_TABLE": config.ACCOUNTS_TABLE_NAME,

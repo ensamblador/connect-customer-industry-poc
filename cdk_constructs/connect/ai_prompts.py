@@ -1,5 +1,5 @@
 """
-connect/ai_prompts.py — Q in Connect Orchestration AI prompts as CDK.
+cdk_constructs/connect/ai_prompts.py — Q in Connect Orchestration AI prompts as CDK.
 
 Phase 4 (prompts-first): each agent runs a versioned ORCHESTRATION prompt
 authored as `CfnAIPrompt` + a published `CfnAIPromptVersion`. The prompt bodies

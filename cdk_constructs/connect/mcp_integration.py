@@ -1,5 +1,5 @@
 """
-connect/mcp_integration.py — register an AgentCore MCP gateway as an Amazon
+cdk_constructs/connect/mcp_integration.py — register an AgentCore MCP gateway as an Amazon
 Connect instance integration.
 
 This is NOT a Lex/Lambda IntegrationAssociation. `connect.CfnIntegrationAssociation`

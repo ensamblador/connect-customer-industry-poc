@@ -1,5 +1,5 @@
 """
-connect/security_profile.py — Amazon Connect security profile for an AI agent.
+cdk_constructs/connect/security_profile.py — Connect security profile for an AI agent.
 
 A Connect AI agent's tool access is governed by a security profile: each tool
 the agent invokes maps to a human-agent permission that must be present on the
@@ -13,10 +13,10 @@ profile assigned to the agent. From the admin guide
     Customer Profiles          Customer Profiles - View         -> CustomerProfiles.View
     Tasks (StartTaskContact)   Tasks - Create                   -> Tasks.Create
 
-The airline self-service agent's only data tool is the KB **Retrieve** tool, so
-the least-privilege profile carries a single permission: **`Wisdom.View`**.
-This mirrors the existing `airline-selfservice-ai-agent` profile on the instance
-(its sole permission is `Wisdom.View`).
+A self-service agent whose only data tool is the KB **Retrieve** tool needs a
+single permission: **`Wisdom.View`** — the least-privilege default here. Grant
+more (e.g. `Cases.View`, `CustomerProfiles.View`) via `permissions` when the
+agent gains tools.
 
 `AiAgentSecurityProfile` wraps `connect.CfnSecurityProfile`. Pass `permissions`
 to grant additional tool permissions (e.g. `Cases.View`, `CustomerProfiles.View`)

@@ -1,5 +1,5 @@
 """
-connect/basic_queue_lookup_cr.py — resolve a Connect queue ARN by name at deploy
+cdk_constructs/connect/basic_queue_lookup_cr.py — resolve a Connect queue ARN by name at deploy
 time via a boto3 custom resource.
 
 Root cause this works around: Connect queue ids are unique PER INSTANCE, so a

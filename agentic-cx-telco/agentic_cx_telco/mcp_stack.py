@@ -13,10 +13,10 @@ per-resource-type constructs verbatim:
     Tables                 databases/databases.py      (L2 dynamodb.Table + seed CR)
     Lambdas                lambdas/project_lambdas.py   (L2 lambda.Function)
     TelcoApi               apis/telco_api.py            (L2 apigateway.RestApi + key)
-    AgentCoreGateway       agent_core/agent_core_gateway.py  (L1 CfnGateway/Target)
-    ApiKeyCredentialProvider  agent_core/...            (AgentCore credential provider)
-    McpServerIntegration   connect/mcp_integration.py   (AppIntegrations MCP_SERVER)
-    LambdaConnectIntegration  connect/lambda_integration.py (L1 CfnIntegrationAssociation)
+    AgentCoreGateway       cdk_constructs/agent_core/   (L1 CfnGateway/Target)
+    ApiKeyCredentialProvider  cdk_constructs/agent_core/ (AgentCore credential provider)
+    McpServerIntegration   cdk_constructs/connect/      (AppIntegrations MCP_SERVER)
+    LambdaConnectIntegration  cdk_constructs/connect/    (L1 CfnIntegrationAssociation)
 
 Construct choices: standard resources use L1/L2 constructs (DynamoDB, Lambda,
 API Gateway, Secrets Manager are L2; the AgentCore gateway + target are the L1
@@ -35,20 +35,23 @@ Other ids/urls are surfaced as CfnOutputs only, not on the SSM bus.
 
 from __future__ import annotations
 
+import os
+
 from aws_cdk import CfnOutput, Stack
 from aws_cdk import aws_iam as iam
 from constructs import Construct
 
 import config
-from agent_core.agent_core_gateway import AgentCoreGateway
-from agent_core.api_key_credential_provider import ApiKeyCredentialProvider
-from apis import openapi_spec
+from cdk_constructs.agent_core import AgentCoreGateway, ApiKeyCredentialProvider
+from cdk_constructs.apis import openapi_spec
+from cdk_constructs.connect import LambdaConnectIntegration, McpServerIntegration
 from apis.telco_api import SECRET_API_KEY_JSON_KEY, TelcoApi
-from connect.lambda_integration import LambdaConnectIntegration
-from connect.mcp_integration import McpServerIntegration
 from databases.databases import Tables
 from lambdas.project_lambdas import Lambdas
 from shared import ssm_names
+
+# Project root (parent of the app package) — where apis/openapi/openapi.yaml lives.
+_APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class McpStack(Stack):
@@ -117,7 +120,10 @@ class McpStack(Stack):
         )
         self.openapi_target = self.gateway.add_openapi_inline_target(
             "telco-rest-api-oas",
-            spec_json_template=openapi_spec.render_spec_json(),
+            spec_json_template=openapi_spec.render_spec_json(
+                spec_path=os.path.join(_APP_ROOT, "apis", "openapi", "openapi.yaml"),
+                server_description="Deployed Telco self-service API Gateway endpoint",
+            ),
             rest_api_id=self.api.rest_api_id,
             stage=self.api.stage_name,
             api_key_provider_arn=self.api_key_provider.credential_provider_arn,

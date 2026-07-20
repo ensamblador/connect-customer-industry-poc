@@ -32,7 +32,7 @@ inference. The fix is simply to NOT put `maxLength` in tool input schemas.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
 from aws_cdk import aws_wisdom as wisdom
@@ -58,8 +58,8 @@ DEFAULT_ESCALATE_EXAMPLES = [
     "Customer: 'I want to pay my bill.' -> message then Escalate(escalationReason='out_of_scope', customerIntent='Make a payment', escalationSummary='Payments not available in self-service; transferring.', sentiment='neutral').",
 ]
 # Escalation-reason categories. Most are cross-industry; an app overrides the
-# whole tuple when it needs a domain-specific category (e.g. an airline uses
-# ``transaction_or_service_issue`` where a telco uses ``outage_or_service_issue``).
+# whole tuple when it needs a domain-specific category (e.g. one domain uses
+# ``transaction_or_service_issue`` where another uses ``outage_or_service_issue``).
 DEFAULT_ESCALATE_REASONS = (
     "billing_question",
     "service_issue",

@@ -145,7 +145,7 @@ numbers (`"1"`..`"6"`).
 
 ## Deploy
 
-In this project the flow is deployed by CDK (`connect/flows.py`
+In this project the flow is deployed by CDK (`cdk_constructs/connect/flows.py`
 `ContactFlow`), gated by `config.BUILD_ESIM_GUIDE` (+ `HAS_REAL_INSTANCE`),
 with `replacements={"ESIM_GUIDE_VIEW_ARN_PLACEHOLDER": view.view_qualified_arn}`.
 For a manual create/update against the reference instance:

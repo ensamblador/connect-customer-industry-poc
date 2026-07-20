@@ -1,7 +1,7 @@
 """
-connect/views.py — Amazon Connect customer-managed views as CDK.
+cdk_constructs/connect/views.py — Amazon Connect customer-managed views as CDK.
 
-Following the project convention, ALL `aws_connect` view constructs live here.
+Shared, industry-agnostic. ALL `aws_connect` view constructs live here.
 A customer-managed view is `connect.CfnView`; it renders in the customer's chat
 window via a "Show view" (`ShowView`) flow block. We keep the authored view
 JSON in `views/<name>/view-content.json` and load it verbatim, so the repo file

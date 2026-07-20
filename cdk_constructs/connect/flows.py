@@ -1,7 +1,7 @@
 """
-connect/flows.py — Amazon Connect contact flows (and flow modules) as CDK.
+cdk_constructs/connect/flows.py — Amazon Connect contact flows (and flow modules) as CDK.
 
-Following the project convention, ALL `aws_connect` flow constructs live here.
+Shared, industry-agnostic. ALL `aws_connect` flow constructs live here.
 A contact flow is `connect.CfnContactFlow`; its `content` is the Connect Flow
 language JSON (the same document `create-contact-flow --content` takes). We keep
 the authored JSON in `flows/<name>/flow.json` and load it verbatim, so the repo
@@ -23,8 +23,6 @@ references to it).
 """
 
 from __future__ import annotations
-
-import os
 
 from aws_cdk import aws_connect as connect
 from constructs import Construct

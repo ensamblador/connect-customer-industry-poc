@@ -390,25 +390,19 @@ agentic-cx-telco/
 │       ├── accounts/handler.py
 │       ├── plans/handler.py
 │       ├── lines/handler.py
-│       └── ai_session/handler.py
+│       ├── ai_session/handler.py
+│       └── data_viewer/index.py   # handler del visor de datos /datos (branding por industria)
 │
-├── apis/                      # Construct de la REST API + spec OpenAPI (telco_api.py, openapi/)
-├── agent_core/                # Constructs del gateway AgentCore + proveedor de credenciales por API key
-├── databases/                # Construct de tablas DynamoDB + datos semilla (data/)
-├── knowledge_bases/          # Construct de KB + artículos de telco + scripts post-despliegue
-│   ├── knowledge_base.py
+├── apis/                      # Datos de industria: openapi/openapi.yaml + telco_api.py (mapa de rutas REST)
+├── databases/                # Construct `Tables` (schema por industria) + datos semilla (data/)
+├── knowledge_bases/          # Contenido de la KB (artículos de telco) + scripts post-despliegue
 │   ├── tag_kb_content.py          # post-despliegue: etiqueta el contenido de la KB para segmentación de Retrieve
 │   └── associate_guide.py    # post-despliegue: crea la asociación AMAZON_CONNECT_GUIDE
-├── connect/                  # Bloques de construcción de Connect (constructs + lambdas inline/CR)
-│   ├── mcp_integration.py         # Integración de aplicación MCP + ProfileDetacher (CR inline)
-│   ├── basic_queue_lookup_cr.py   # Construct BasicQueueLookup
-│   ├── basic_queue_lookup_cr_lambda/index.py   # su handler de CR
-│   ├── ai_agents.py / ai_prompts.py / security_profile.py / lex_bot.py / views.py / flows.py
-│   └── lambda_integration.py
+├── connect/                  # Datos de industria de Connect
+│   └── agent_tools.py             # `AgentToolset`: catálogo de tools MCP, instrucciones, guía de chat
 ├── connect_ai_agents/        # YAML de prompts de orquestación por superficie de agente
 ├── flows/                    # JSON de flujos de contacto + módulos (una carpeta por flujo)
 ├── views/                    # JSON de vistas administradas por el cliente (formulario nueva línea / guía eSIM / traspaso)
-├── webhosting/               # Construct de hosting del sitio + data_viewer_lambda/index.py
 ├── website/                  # Front-end Vite "Latam Telco" (salida del build → website/dist)
 ├── shared/ssm_names.py       # El contrato de nombres de parámetros SSM entre stacks
 └── tests/unit/               # Andamiaje de pytest

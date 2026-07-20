@@ -471,7 +471,7 @@ agentic-cx-airline/
 ├── app.py                     # Entrada de la app CDK — cablea los seis stacks por fases + dependencias
 ├── config.py                  # Config plana a nivel de módulo, agrupada por fase de despliegue (sin secretos)
 ├── cdk.json                   # Ejecuta `python3 app.py`
-├── requirements.txt           # Deps de runtime (aws-cdk-lib, constructs, PyYAML, boto3)
+├── requirements.txt           # Deps de runtime (aws-cdk-lib, constructs) + `-e ../cdk_constructs` (constructs compartidos)
 ├── requirements-dev.txt       # Deps de dev (pytest)
 │
 ├── agentic_cx_airline/           # Los seis stacks CDK
@@ -488,27 +488,22 @@ agentic-cx-airline/
 │       ├── accounts/handler.py
 │       ├── products/handler.py
 │       ├── cards/handler.py
-│       └── ai_session/handler.py
+│       ├── ai_session/handler.py
+│       └── data_viewer/index.py   # handler del visor de datos /datos (branding por industria)
 │
-├── apis/                      # Construct de la REST API + spec OpenAPI (airline_api.py, openapi/)
-├── agent_core/                # Constructs del gateway AgentCore + proveedor de credenciales por API key
-├── databases/                # Construct de tablas DynamoDB + datos semilla (data/)
-├── knowledge_bases/          # Construct de KB + artículos de banca + scripts post-despliegue
-│   ├── knowledge_base.py
+├── apis/                      # Datos de industria: openapi/openapi.yaml + airline_api.py (mapa de rutas REST)
+├── databases/                # Construct `Tables` (schema por industria) + datos semilla (data/)
+├── knowledge_bases/          # Contenido de la KB (artículos de aerolínea) + scripts post-despliegue
 │   ├── tag_kb_content.py                  # post-despliegue: etiqueta el contenido de la KB para segmentación de Retrieve
 │   └── associate_guide.py   # post-despliegue: crea la asociación AMAZON_CONNECT_GUIDE
-├── connect/                  # Bloques de construcción de Connect (constructs + lambdas inline/CR)
-│   ├── mcp_integration.py         # Integración de aplicación MCP + ProfileDetacher (CR inline)
-│   ├── basic_queue_lookup_cr.py   # Construct BasicQueueLookup
-│   ├── ai_agents.py / ai_prompts.py / security_profile.py / lex_bot.py / views.py / flows.py
-│   └── lambda_integration.py
+├── connect/                  # Datos de industria de Connect
+│   └── agent_tools.py             # `AgentToolset`: catálogo de tools MCP, instrucciones, guía de chat
 ├── connect_ai_agents/        # YAML de prompts de orquestación por superficie de agente
 │   ├── airline-selfservice-voice/prompts/*.yaml
 │   ├── airline-selfservice-chat/prompts/*.yaml
 │   └── airline-agent-assist-es/prompts/*.yaml
 ├── flows/                    # JSON de flujos de contacto + módulos (una carpeta por flujo)
 ├── views/                    # JSON de vistas administradas por el cliente (formulario solicitud tarjeta / guía maleta perdida / traspaso)
-├── webhosting/               # Construct de hosting del sitio + data_viewer_lambda/index.py
 ├── website/                  # Front-end Vite "AeroLatam" (salida del build → website/dist)
 ├── shared/ssm_names.py       # El contrato de nombres de parámetros SSM entre stacks
 └── tests/unit/               # Andamiaje de pytest

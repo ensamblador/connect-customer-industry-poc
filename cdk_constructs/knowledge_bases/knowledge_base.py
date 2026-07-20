@@ -1,5 +1,5 @@
 """
-knowledge_bases/knowledge_base.py — reusable Q in Connect (Wisdom) knowledge
+cdk_constructs/knowledge_bases/knowledge_base.py — reusable Q in Connect (Wisdom) knowledge
 base, backed by an S3 document source.
 
 Modular + reusable: instantiate `S3KnowledgeBase` once per knowledge base.
@@ -75,7 +75,7 @@ class S3KnowledgeBase(Construct):
         self._name = name
         # Optional logical folder the entries live under inside the bucket.
         # When None (default), entries go to the BUCKET ROOT — which is what
-        # the deployed airline-kb uses. Organizational only — the S3
+        # the deployed KBs use. Organizational only — the S3
         # DataIntegration SourceURI is the whole bucket, so the crawler
         # ingests every object regardless of prefix. Do NOT default this to
         # the KB name: changing the prefix re-keys the BucketDeployment, which
