@@ -39,7 +39,7 @@ from aws_cdk import aws_connect as connect
 from constructs import Construct
 
 import config
-from knowledge_bases.knowledge_base import S3KnowledgeBase
+from cdk_constructs.knowledge_bases import S3KnowledgeBase
 from shared import ssm_names
 
 

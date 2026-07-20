@@ -7,3 +7,5 @@ constructs>=10.5.0,<11.0.0
 # be rendered (server URL substituted) and inlined into the AgentCore target.
 PyYAML>=6.0,<7.0
 boto3
+# Shared, industry-agnostic CDK constructs (editable install from the monorepo root).
+-e ../cdk_constructs

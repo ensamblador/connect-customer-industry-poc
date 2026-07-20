@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cdk-constructs"
+version = "0.1.0"
+description = "Shared, industry-agnostic CDK constructs and helpers for the agentic-cx industry apps."
+requires-python = ">=3.11"
+dependencies = [
+    "aws-cdk-lib>=2.260.0,<3.0.0",
+    "constructs>=10.5.0,<11.0.0",
+]
+
+# Single-folder (flat) layout: this directory IS the ``cdk_constructs`` package
+# (pyproject lives inside it), so there is no redundant ``cdk_constructs/cdk_constructs``
+# nesting. ``package-dir`` maps the import name to "." and each subpackage is
+# listed explicitly (add new modules here as they are extracted).
+[tool.setuptools]
+package-dir = { "cdk_constructs" = "." }
+packages = [
+    "cdk_constructs",
+    "cdk_constructs.webhosting",
+    "cdk_constructs.connect",
+    "cdk_constructs.knowledge_bases",
+]

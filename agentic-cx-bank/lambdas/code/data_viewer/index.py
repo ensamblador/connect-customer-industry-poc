@@ -1,7 +1,7 @@
 """
-webhosting/data_viewer_lambda/index.py — demo data viewer.
+lambdas/code/data_viewer/index.py — demo data viewer.
 
-Renders the three airline DynamoDB tables (accounts, products, cards) as a
+Renders the three banking DynamoDB tables (accounts, products, cards) as a
 single styled HTML page. Invoked through a CloudFront behavior (path /datos*)
 backed by a Lambda Function URL with OAC (AWS_IAM auth — not publicly
 reachable).
@@ -90,7 +90,7 @@ def _table_section(title, items):
 _PAGE = """<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AeroLatam | Datos demo</title>
+<title>Latam Banco | Datos demo</title>
 <style>
 :root{--morado:#1a0052;--rosa:#e60050;--bg:#f5f4fb;--line:#e3e0ef;}
 *{box-sizing:border-box;}
@@ -116,11 +116,11 @@ footer{text-align:center;color:#8a8699;font-size:12px;padding:16px;}
 </style></head>
 <body>
 <header class="top">
-  <h1>AeroLatam — Datos demo</h1>
+  <h1>Latam Banco — Datos demo</h1>
   <p>Contenido de las tablas DynamoDB del backend (solo lectura). <a href="/">Volver al sitio</a></p>
 </header>
 <main>{CONTENT}</main>
-<footer>Datos de demostración · AeroLatam</footer>
+<footer>Datos de demostración · Latam Banco</footer>
 </body></html>"""
 
 

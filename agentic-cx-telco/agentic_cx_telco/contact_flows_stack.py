@@ -40,9 +40,12 @@ from aws_cdk import CfnOutput, Fn, Stack
 from constructs import Construct
 
 import config
-from connect.basic_queue_lookup_cr import BasicQueueLookup
-from connect.flows import ContactFlow, ContactFlowModule
-from connect.views import CustomerManagedView
+from cdk_constructs.connect import (
+    BasicQueueLookup,
+    ContactFlow,
+    ContactFlowModule,
+    CustomerManagedView,
+)
 from shared import ssm_names
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

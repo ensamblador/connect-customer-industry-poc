@@ -44,10 +44,12 @@ from aws_cdk import CfnOutput, Stack
 from constructs import Construct
 
 import config
-from connect.flows import ContactFlow
-from connect.lex_bot import QInConnectLexBot
-from connect.security_profile import AiAgentSecurityProfile
-from connect.views import CustomerManagedView
+from cdk_constructs.connect import (
+    AiAgentSecurityProfile,
+    ContactFlow,
+    CustomerManagedView,
+    QInConnectLexBot,
+)
 from shared import ssm_names
 
 # Project root (where the views/ and flows/ asset folders live), so asset paths

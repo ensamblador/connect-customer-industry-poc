@@ -41,7 +41,8 @@ import aws_cdk as cdk
 from aws_cdk.assertions import Template
 
 import config
-from connect.ai_agents import AgentSurface, build_tools
+from cdk_constructs.connect import AgentSurface, build_tools
+from connect.agent_tools import TOOLSET
 from agentic_cx_airline.ai_agents_stack import AiAgentsStack
 
 # --------------------------------------------------------------------------- #
@@ -270,6 +271,7 @@ def test_build_tools_surface_counts_and_names(surface: str):
     agent_surface, expected_count, expected_names = SURFACE_EXPECTATIONS[surface]
     tools = build_tools(
         agent_surface,
+        TOOLSET,
         assistant_association_id="assoc-test",
         mcp_tool_prefix="gateway_test__airline-rest-api-oas-target___",
         content_language=config.AI_AGENT_CONTENT_LANGUAGE,

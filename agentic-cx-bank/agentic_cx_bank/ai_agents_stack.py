@@ -33,8 +33,8 @@ from aws_cdk import CfnOutput, Stack
 from constructs import Construct
 
 import config
-from connect.ai_agents import AgentSurface, OrchestrationAIAgent
-from connect.ai_prompts import OrchestrationPrompt
+from cdk_constructs.connect import AgentSurface, OrchestrationAIAgent, OrchestrationPrompt
+from connect.agent_tools import TOOLSET
 from shared import ssm_names
 
 # Project root, so prompt asset paths resolve regardless of cdk's cwd.
@@ -111,6 +111,7 @@ class AiAgentsStack(Stack):
             assistant_id=assistant_id,
             connect_instance_arn=connect_instance_arn,
             locale=config.AI_AGENT_LOCALE,
+            toolset=TOOLSET,
             assistant_association_id=kb_assoc_id,
             mcp_tool_prefix=mcp_tool_prefix,
             content_language_key=config.KB_LANGUAGE_TAG_KEY,

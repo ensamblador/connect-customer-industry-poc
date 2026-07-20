@@ -3,7 +3,10 @@ agentic_cx_bank/website_stack.py — Phase 6: the static "Latam Banco" website.
 
 Final, independent phase. Deploys the Vite-built site (website/dist) to a
 private S3 bucket served through CloudFront with Origin Access Control (OAC),
-reusing the webhosting/Webhosting construct verbatim.
+reusing the shared, industry-agnostic ``cdk_constructs.webhosting.Webhosting``
+construct. This stack is a thin wrapper: it reads the banking ``config`` and
+passes the industry values (asset paths, table names, CloudFront knobs) into
+the shared construct.
 
 The site hosts the Amazon Connect chat widget and passes the logged-in email
 as a contact attribute, so it complements the chat self-service + agent-assist
@@ -29,7 +32,7 @@ from aws_cdk import Stack
 from constructs import Construct
 
 import config
-from webhosting.webhosting_construct import Webhosting
+from cdk_constructs.webhosting import Webhosting
 
 
 class WebsiteStack(Stack):
@@ -40,6 +43,6 @@ class WebsiteStack(Stack):
 
         # The construct validates that website/dist exists at synth time, so
         # gate on BUILD_WEBSITE to allow an empty synth before the site is
-        # built.
+        # built. All config→props wiring lives in Webhosting.from_config.
         if config.BUILD_WEBSITE:
-            self.webhosting = Webhosting(self, "Webhosting")
+            self.webhosting = Webhosting.from_config(self, "Webhosting", config=config)
