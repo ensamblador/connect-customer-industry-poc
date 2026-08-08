@@ -1,0 +1,32 @@
+{
+  "Items": [
+    {
+      "reservationId": {"S": "res-8001"},
+      "customerId": {"S": "cust-5001"},
+      "flightId": {"S": "flight-AL100"},
+      "passengerName": {"S": "María González"},
+      "email": {"S": "maria.gonzalez@example.com"},
+      "date": {"S": "2026-08-15"},
+      "time": {"S": "06:30"},
+      "origin": {"S": "BOG"},
+      "destination": {"S": "MDE"},
+      "status": {"S": "confirmed"},
+      "createdAt": {"S": "2026-07-20T10:00:00Z"},
+      "notes": {"S": "Reserva confirmada; asiento 12A."}
+    },
+    {
+      "reservationId": {"S": "res-8002"},
+      "customerId": {"S": "cust-5002"},
+      "flightId": {"S": "flight-AL200"},
+      "passengerName": {"S": "James Carter"},
+      "email": {"S": "james.carter@example.com"},
+      "date": {"S": "2026-08-15"},
+      "time": {"S": "09:00"},
+      "origin": {"S": "BOG"},
+      "destination": {"S": "LIM"},
+      "status": {"S": "pending"},
+      "createdAt": {"S": "2026-08-01T14:30:00Z"},
+      "notes": {"S": "Reserva pendiente de confirmación de pago."}
+    }
+  ]
+}

@@ -39,15 +39,15 @@ import os
 # instance-bound resources). These three identity values are the single source
 # of truth referenced by every consumer (they intentionally match the shared
 # instance across the sibling industry projects).
-INSTANCE_ALIAS = "test-connect-garriden-virginia"
-INSTANCE_ID = "5da70598-a9a2-4387-9f54-1e054fcba60b"
+INSTANCE_ALIAS = "chat-demos-latam"
+INSTANCE_ID = "30b0e238-b3bd-4f61-9f04-c0b24e4a2f74"
 
 # The Connect Q in Connect assistant id (a.k.a. the "AI agents domain" id — the
 # same resource). Single source of truth for every assistant reference
 # (consumed by Phase 1 ai-session env, Phase 2 KB association, Phase 3 Lex bot,
 # Phase 4 prompts/agents/logging, Phase 5 flow ASSISTANT_ARN).
 
-ASSISTANT_ID = "06707aad-bb16-43d7-bfa0-3d8dd6c7b3d0"
+ASSISTANT_ID = "e1de1c2a-08ea-49e9-9dae-2ad3c80e78fd"
 # ========================================================================== #
 # PHASE 1 — CX-AIRLINE-MCP (McpStack)
 # data + compute + REST API + AgentCore MCP gateway + Connect MCP/Lambda integ.
@@ -61,8 +61,13 @@ GATEWAY_NAME = "airline-mcp-server"
 
 # DynamoDB tables backing the REST API / MCP tools.
 ACCOUNTS_TABLE_NAME = "airline-accounts"
-PLANS_TABLE_NAME = "airline-products"
-LINES_TABLE_NAME = "airline-cards"
+FLIGHTS_TABLE_NAME = "airline-flights"
+RESERVATIONS_TABLE_NAME = "airline-reservations"
+
+# Backward-compat aliases consumed by the shared webhosting construct's
+# data-viewer Lambda (env vars PLANS_TABLE / LINES_TABLE).
+PLANS_TABLE_NAME = FLIGHTS_TABLE_NAME
+LINES_TABLE_NAME = RESERVATIONS_TABLE_NAME
 
 # MCP gateway target name. Phase 1 builds the agent toolId prefix
 # "gateway_<id>__<target>___" from it; Phase 3 reuses it to build the
@@ -130,19 +135,19 @@ AI_AGENT_MCP_OPERATIONS = [
     "getAccountByPhone",
     "getAccountByEmail",
     "getAccount",
-    "getAccountBalance",
-    "listProducts",
-    "getProduct",
-    "requestCard",
-    "listCustomerCards",
-    "getCard",
+    "getAccountFlights",
+    "listFlights",
+    "getFlight",
+    "createReservation",
+    "listCustomerReservations",
+    "getReservation",
 ]
 
 # --- Customer-managed views ---
-# The card-request guided form (AWS::Connect::View), rendered in the chat window by a
+# The reservation-request guided form (AWS::Connect::View), rendered in the chat window by a
 # "Show view" (ShowView) block; authored payload in views/<name>/view-content.json.
-NEWLINE_VIEW_NAME = "AirlineCardRequestForm"
-NEWLINE_VIEW_CONTENT = "views/airline-card-request-form/view-content.json"
+NEWLINE_VIEW_NAME = "AirlineReservationForm"
+NEWLINE_VIEW_CONTENT = "views/airline-reservation-form/view-content.json"
 
 # --- Lost-baggage step-by-step guide ---
 # Agent-facing guide: a customer-managed view renders the steps, driven by a

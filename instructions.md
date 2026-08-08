@@ -148,9 +148,9 @@ Estos no tienen recurso nativo de CloudFormation y deben hacerse a mano:
 
    Connect crea el **service role** y el **service-linked role** por ti como parte de esta alternancia, y `{industria}-qconnect-bot-v2` se vuelve visible para la instancia. (**No** necesitas crear el service-linked role de Lex a mano.)
 
-3. **Compila los locales del bot Lex** (consola de Amazon Lex V2): abre `{industria}-qconnect-bot-v2` y compila `en_US`, `es_US`, `pt_BR`. Intencionalmente no se auto-compilan para mantener los despliegues rápidos; una vez compilados, el TestBotAlias (`TSTALIASID`) sirve DRAFT y el flujo inbound (ya vinculado vía SSM) funciona.
+3. **Compila los locales del bot Lex** (consola de Amazon Lex V2): abre `{industria}-qconnect-bot-v2` y compila `en_US`, `es_US`, `pt_BR` **si no están ya en estado BUILD** (el estado se muestra junto a cada locale). Intencionalmente no se auto-compilan para mantener los despliegues rápidos; una vez compilados, el TestBotAlias (`TSTALIASID`) sirve DRAFT y el flujo inbound (ya vinculado vía SSM) funciona. Si los tres locales ya muestran **Built**, puedes omitir este paso.
 
-   > **Habilita los locales también en el TestBotAlias.** Después de compilar, asegúrate de que cada locale (`en_US`/`es_US`/`pt_BR`) esté habilitado en el **TestBotAlias**. Si un locale no está habilitado en el alias que usa el flujo, el chat falla en el paso `ConnectParticipantWithLexBot` con `The BotAliasId TSTALIASID does not have Language <locale> enabled`. Algunas apps cablean esto automáticamente con un pequeño custom resource en `CX-{INDUSTRIA}-CONNECT-SUPPORT`; si la tuya no, confírmalo en la consola (Aliases → TestBotAlias → Languages) o vía `aws lexv2-models update-bot-alias`. En todos los casos aún debes **compilar** los tres locales en la consola de Lex.
+   > **Habilita los locales también en el TestBotAlias.** Después de compilar, asegúrate de que cada locale (`en_US`/`es_US`/`pt_BR`) esté habilitado en el **TestBotAlias**. Si un locale no está habilitado en el alias que usa el flujo, el chat falla en el paso `ConnectParticipantWithLexBot` con `The BotAliasId TSTALIASID does not have Language <locale> enabled`. Algunas apps cablean esto automáticamente con un pequeño custom resource en `CX-{INDUSTRIA}-CONNECT-SUPPORT`; si la tuya no, confírmalo en la consola (Aliases → TestBotAlias → Languages) o vía `aws lexv2-models update-bot-alias`. En todos los casos aún debes **compilar** los tres locales en la consola de Lex si no están ya compilados.
 
 ---
 
@@ -194,7 +194,7 @@ cdk deploy CX-{INDUSTRIA}-WEBSITE
 | 5 | script | `associate_guide.py` — script único compartido; asocia la guía que corresponde a cada industria (resuelto desde `GUIDE_FLOW_NAME` / `GUIDE_CONTENT_MATCH` en `config.py`) |
 | 6 | manual | Adjuntar los perfiles de seguridad de la Fase 3 a los tres agentes de IA (autoriza las herramientas MCP), luego **publicar una nueva versión** — sin esto, las llamadas a herramientas fallan con `Target entity not found` |
 | 6 | manual | Tomar control del bot en Connect: Flows → alternar Lex Bot Management off+save, on+save (crea los roles) — hazlo **antes** de compilar los locales |
-| 6 | manual | Compilar los locales `en_US` / `es_US` / `pt_BR` del bot Lex y confirmar que estén habilitados en el TestBotAlias |
+| 6 | manual | Compilar los locales `en_US` / `es_US` / `pt_BR` del bot Lex (si no están ya en estado **Built**) y confirmar que estén habilitados en el TestBotAlias |
 | 7 | manual | Crear el widget de chat (añadir `http://localhost` + el output `https://{id}.cloudfront.net` como **orígenes aprobados**), pegarlo entre los marcadores del widget en `website/index.html`, recompilar + redesplegar el sitio |
 
 > Repite los pasos **3–7** por cada industria (`telco`, `banco`, `airline`) que quieras desplegar, sustituyendo `{industria}` / `{INDUSTRIA}`.

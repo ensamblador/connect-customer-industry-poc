@@ -55,7 +55,10 @@
         ],
         "parameters": {
           "TextToSpeechVoice": {
-            "languageCode": "es-US"
+            "languageCode": "en-US"
+          },
+          "TextToSpeechEngine": {
+            "voiceProvider": "connect:agentic"
           }
         },
         "overrideConsoleVoice": true,
@@ -413,9 +416,8 @@
     },
     {
       "Parameters": {
-        "TextToSpeechVoice": "Lupe",
-        "TextToSpeechEngine": "Generative",
-        "TextToSpeechStyle": "None"
+        "TextToSpeechVoice": "KATIE",
+        "TextToSpeechEngine": "connect:agentic"
       },
       "Identifier": "set-voice",
       "Type": "UpdateContactTextToSpeechVoice",
@@ -431,7 +433,7 @@
     },
     {
       "Parameters": {
-        "LanguageCode": "es-US"
+        "LanguageCode": "en-US"
       },
       "Identifier": "bb554164-4b23-43c4-ba21-8cdb932a667d",
       "Type": "UpdateContactData",

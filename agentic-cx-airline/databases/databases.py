@@ -6,11 +6,11 @@ this single `Tables` construct so the stack composes them in one place.
 
 Three tables back the API:
 
-  * accounts  (PK accountId,  GSI phoneNumber-index)  — customer accounts;
-                                                        lookup by phone number
-  * products  (PK productId)                          — airline product catalog
-  * cards     (PK cardId,     GSI customerId-index)   — card / product requests;
-                                                        lookup by customer
+  * accounts      (PK accountId,      GSI phoneNumber-index, GSI email-index)
+                                      — passenger accounts; lookup by phone/email
+  * flights       (PK flightId)       — available flights catalog
+  * reservations  (PK reservationId,  GSI customerId-index)
+                                      — flight reservations; lookup by customer
 
 Sample data is loaded at deploy time with the AwsCustomResource +
 DynamoDB BatchWriteItem technique (see databases/data/*.json), modeled on the
@@ -52,13 +52,13 @@ class Tables(Construct):
         construct_id: str,
         *,
         accounts_table_name: str,
-        products_table_name: str,
-        cards_table_name: str,
+        flights_table_name: str,
+        reservations_table_name: str,
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # accounts — PK accountId; GSI to look an account up by phone number.
+        # accounts — PK accountId; GSI to look an account up by phone number or email.
         self.accounts = dynamodb.Table(
             self,
             "AccountsTable",
@@ -83,28 +83,28 @@ class Tables(Construct):
             projection_type=dynamodb.ProjectionType.ALL,
         )
 
-        # products — PK productId; small catalog, scanned/filtered for listing.
-        self.products = dynamodb.Table(
+        # flights — PK flightId; small catalog, scanned/filtered for listing.
+        self.flights = dynamodb.Table(
             self,
-            "ProductsTable",
-            table_name=products_table_name,
+            "FlightsTable",
+            table_name=flights_table_name,
             partition_key=dynamodb.Attribute(
-                name="productId", type=dynamodb.AttributeType.STRING
+                name="flightId", type=dynamodb.AttributeType.STRING
             ),
             **_TABLE_CONFIG,
         )
 
-        # cards — PK cardId; GSI to list a customer's card / product requests.
-        self.cards = dynamodb.Table(
+        # reservations — PK reservationId; GSI to list a customer's reservations.
+        self.reservations = dynamodb.Table(
             self,
-            "CardsTable",
-            table_name=cards_table_name,
+            "ReservationsTable",
+            table_name=reservations_table_name,
             partition_key=dynamodb.Attribute(
-                name="cardId", type=dynamodb.AttributeType.STRING
+                name="reservationId", type=dynamodb.AttributeType.STRING
             ),
             **_TABLE_CONFIG,
         )
-        self.cards.add_global_secondary_index(
+        self.reservations.add_global_secondary_index(
             index_name=self.CUSTOMER_INDEX_NAME,
             partition_key=dynamodb.Attribute(
                 name="customerId", type=dynamodb.AttributeType.STRING
@@ -114,8 +114,8 @@ class Tables(Construct):
 
         # Load sample data into each table.
         self._load_sample_data("accounts", self.accounts)
-        self._load_sample_data("products", self.products)
-        self._load_sample_data("cards", self.cards)
+        self._load_sample_data("flights", self.flights)
+        self._load_sample_data("reservations", self.reservations)
 
     # ------------------------------------------------------------------ #
     def _load_sample_data(self, name: str, table: dynamodb.Table) -> None:
@@ -161,4 +161,4 @@ class Tables(Construct):
 
     # ------------------------------------------------------------------ #
     def get_all_tables(self) -> list[dynamodb.Table]:
-        return [self.accounts, self.products, self.cards]
+        return [self.accounts, self.flights, self.reservations]

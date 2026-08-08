@@ -6,11 +6,10 @@
       "name": {"S": "María González"},
       "phoneNumber": {"S": "+12065550101"},
       "email": {"S": "maria.gonzalez@example.com"},
-      "productId": {"S": "prod-tarjeta-oro"},
+      "flights": {"L": [{"S": "flight-AL100"}, {"S": "flight-AL305"}]},
       "status": {"S": "active"},
-      "balance": {"N": "48250"},
-      "currency": {"S": "MILES"},
-      "dueDate": {"S": "2026-12-31"}
+      "membershipTier": {"S": "gold"},
+      "miles": {"N": "48250"}
     },
     {
       "accountId": {"S": "acct-1002"},
@@ -18,11 +17,10 @@
       "name": {"S": "James Carter"},
       "phoneNumber": {"S": "+12065550102"},
       "email": {"S": "james.carter@example.com"},
-      "productId": {"S": "prod-tarjeta-clasica"},
+      "flights": {"L": [{"S": "flight-AL200"}]},
       "status": {"S": "active"},
-      "balance": {"N": "9120"},
-      "currency": {"S": "MILES"},
-      "dueDate": {"S": "2026-09-30"}
+      "membershipTier": {"S": "classic"},
+      "miles": {"N": "9120"}
     },
     {
       "accountId": {"S": "acct-1003"},
@@ -30,11 +28,10 @@
       "name": {"S": "Aisha Khan"},
       "phoneNumber": {"S": "+12065550103"},
       "email": {"S": "aisha.khan@example.com"},
-      "productId": {"S": "prod-tarjeta-platino"},
-      "status": {"S": "suspended"},
-      "balance": {"N": "132540"},
-      "currency": {"S": "MILES"},
-      "dueDate": {"S": "2026-06-30"}
+      "flights": {"L": [{"S": "flight-AL410"}, {"S": "flight-AL520"}]},
+      "status": {"S": "active"},
+      "membershipTier": {"S": "platinum"},
+      "miles": {"N": "132540"}
     },
     {
       "accountId": {"S": "acct-1004"},
@@ -42,11 +39,10 @@
       "name": {"S": "Diego Fernández"},
       "phoneNumber": {"S": "+12065550104"},
       "email": {"S": "diego.fernandez@example.com"},
-      "productId": {"S": "prod-cuenta-nomina"},
+      "flights": {"L": [{"S": "flight-AL150"}]},
       "status": {"S": "active"},
-      "balance": {"N": "3480"},
-      "currency": {"S": "MILES"},
-      "dueDate": {"S": "2027-03-31"}
+      "membershipTier": {"S": "classic"},
+      "miles": {"N": "3480"}
     }
   ]
 }

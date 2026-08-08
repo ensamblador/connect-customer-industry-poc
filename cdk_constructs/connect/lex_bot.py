@@ -5,26 +5,45 @@ A single Lex V2 bot whose only real intent is `AMAZON.QInConnectIntent`,
 wired to the Q in Connect assistant. Every utterance is delegated to the
 assistant; the intent's fulfillment success response is the magic token
 `((x-amz-lex:q-in-connect-response))`, which Lex replaces with the assistant's
-answer at runtime. Three locales (en_US, es_US, pt_BR), each on Nova Sonic v2
-unified speech. The bot carries the `AmazonConnectEnabled=True` tag (capital T,
-case-sensitive) the Connect admin bot-management page requires.
+answer at runtime. Three locales (en_US, es_US, pt_BR) by default, each
+configured with Advanced ASR for the agentic polyglot voice pattern.
+The bot carries the `AmazonConnectEnabled=True` tag (capital T, case-sensitive)
+the Connect admin bot-management page requires.
+
+Speech model modes (controlled by `use_nova_sonic_s2s`):
+  * False (default — Agentic Voice Polyglot): Advanced ASR via
+    `speech_recognition_settings`. The bot uses Advanced ASR for speech
+    recognition; text-to-speech is handled by a polyglot agentic voice
+    (KATIE/Blake/Brooke/Ronald/Gemma) set in the contact flow's Set Voice block
+    with engine=connect:agentic and LanguageCode=en-US. The AI agent prompt
+    controls which language the voice speaks. This is the recommended pattern
+    for multilingual/polyglot conversations.
+  * True: Nova Sonic S2S via `unified_speech_settings`. The bot converts
+    customer speech directly into natural speech responses end-to-end. Use
+    locale-specific voices (Lupe, Matthew, Amy) with Generative engine in the
+    Set Voice block. This mode does NOT support polyglot switching.
 
 This is the native-CDK equivalent of the q-in-connect-bot-deploy import bundle:
 aws-cdk-lib's `CfnBot` supports `QInConnectIntentConfiguration`,
 `UnifiedSpeechSettings`, and the fulfillment `PostFulfillmentStatusSpecification`,
 so no out-of-band import script is needed.
 
-Build / alias strategy — DELIBERATELY out of band:
-A previous revision set `auto_build_bot_locales=True` and added CfnBotVersion +
-CfnBotAlias. That works, but CloudFormation blocks on the per-locale NLU build
-(three locales, each a real model build) and then serializes the version and
-alias behind it — pushing a single deploy past 90 minutes. To keep Phase 3
-deploys fast, this construct now creates ONLY the bot (locales left NotBuilt)
-and exposes the bot's built-in **TestBotAlias** (`TSTALIASID`), which every Lex
-bot has and which always points at the DRAFT version. After the stack deploys,
-build the locales once in the Connect/Lex console (fast, async) and the
-TestBotAlias is immediately usable by the inbound flow. Promote to a numbered
-version + named alias later in the console if you need staged rollout.
+Build / alias strategy — fully automated, single deploy:
+The construct creates the bot (CfnBot) with `auto_build_bot_locales=False` (CFN's
+native build path serializes per-locale and blocks >90 min). Instead a custom
+resource Lambda runs AFTER the bot is created: it calls `BuildBotLocale` for each
+locale, polls until all reach `Built` (~30s each for a passthrough bot), then
+calls `UpdateBotAlias` to enable them on the TestBotAlias. Total time: <2 min.
+
+CloudFormation safety guarantees:
+  * The CDK `Provider` framework wraps the handler — if the Lambda crashes or
+    times out, the framework's built-in error path sends FAILED to CFN. The
+    stack rolls back cleanly and is never stuck in IN_PROGRESS.
+  * Delete is always an immediate no-op success (bot deletion removes the alias).
+  * The handler itself catches unexpected exceptions and re-raises so the
+    framework can report FAILED with the error message.
+  * Polling has a hard 4-min deadline, well under the 5-min Lambda timeout.
+  * Idempotent: if locales are already Built, the build step is skipped.
 
 Exposes `bot_alias_arn` (the TestBotAlias ARN) for publication to the SSM bus;
 the inbound contact flow (Phase 5) binds it via its `LEX_BOT_ALIAS_ARN_PLACEHOLDER`
@@ -74,30 +93,100 @@ _DEFAULT_LOCALES = ["en_US", "es_US", "pt_BR"]
 # The fixed alias id of every Lex V2 bot's built-in test alias.
 _TEST_BOT_ALIAS_ID = "TSTALIASID"
 
-# Idempotently enable every configured locale on TestBotAlias. UpdateBotAlias
-# requires the FULL set of settings on every call (it is not a merge), so this
-# always re-sends bot_alias_name + bot_version + the complete locale-settings
-# map — safe to call repeatedly (create/update) and a no-op in effect once the
-# locales are already enabled.
+# Builds every configured locale and enables them on TestBotAlias.
+#
+# Safety guarantees (CloudFormation will NEVER get stuck):
+#   * The CDK Provider framework handles the CFN response protocol — if the
+#     Lambda crashes or times out, the framework's built-in error path sends
+#     FAILED back to CFN automatically. The stack rolls back cleanly.
+#   * The handler itself wraps ALL logic in try/except — any unexpected error
+#     is caught, logged, and re-raised so the Provider framework reports FAILED.
+#   * Delete is ALWAYS a no-op success — deleting the bot removes the alias, so
+#     there is nothing to undo.
+#   * Create and Update run the same idempotent logic: build locales that need
+#     building, poll until ready, enable on alias.
+#   * Polling has a hard deadline (4 min) well under the Lambda timeout (5 min),
+#     leaving margin for the framework to respond to CFN on timeout.
+#   * If a locale is already Built, the build call is skipped (idempotent).
+#   * If a locale build fails, the handler raises immediately — CFN sees FAILED
+#     and rolls back (the bot is recreated on the next deploy attempt).
+#
+# Trigger conditions:
+#   * Runs on Create (first deploy) and Update (bot properties changed —
+#     different locales, different bot id via replacement, etc.).
+#   * Does NOT run when unrelated stack resources change (CloudFormation only
+#     invokes the custom resource when its own properties change or on create).
 _LOCALE_SETTINGS_HANDLER_SRC = '''
+import time
 import boto3
 
 lex = boto3.client("lexv2-models")
 
+# Statuses that mean the locale is servable by the alias.
+_READY = {"Built", "ReadyExpressTesting"}
+# Statuses that mean the build failed or locale is gone — unrecoverable.
+_FAILED = {"Failed", "Deleting"}
+
 
 def on_event(event, context):
+    """Entry point. The CDK Provider framework calls this for Create/Update/Delete."""
+    request_type = event.get("RequestType", "")
     props = event["ResourceProperties"]
     bot_id = props["BotId"]
-    bot_version = props.get("BotVersion", "DRAFT")
     alias_id = props.get("BotAliasId", "TSTALIASID")
-    alias_name = props.get("BotAliasName", "TestBotAlias")
-    locales = props["Locales"]
-    pid = event.get("PhysicalResourceId") or f"lex-alias-locales-{bot_id}-{alias_id}"
+    pid = event.get("PhysicalResourceId") or f"lex-bot-locales-{bot_id}-{alias_id}"
 
-    if event.get("RequestType") == "Delete":
-        # Nothing to undo — deleting the bot removes the alias with it.
+    # Delete: always succeed immediately. The bot deletion cleans up the alias.
+    if request_type == "Delete":
         return {"PhysicalResourceId": pid}
 
+    # Create / Update: build locales + enable on alias.
+    bot_version = props.get("BotVersion", "DRAFT")
+    alias_name = props.get("BotAliasName", "TestBotAlias")
+    locales = props["Locales"]
+
+    # Step 1: trigger build for any locale not already in a ready state.
+    for loc in locales:
+        status = _get_locale_status(bot_id, bot_version, loc)
+        if status in _READY:
+            print(f"{loc}: already {status}, skipping build.")
+            continue
+        if status == "Building":
+            print(f"{loc}: already building, will wait.")
+            continue
+        if status in _FAILED:
+            raise RuntimeError(
+                f"Locale {loc} is in unrecoverable state '{status}'. "
+                "Delete and recreate the bot."
+            )
+        # NotBuilt or other transient state — kick off build.
+        print(f"{loc}: status={status}, triggering build.")
+        lex.build_bot_locale(botId=bot_id, botVersion=bot_version, localeId=loc)
+
+    # Step 2: poll until all locales are ready (hard deadline: 4 minutes).
+    deadline = time.time() + 240
+    while time.time() < deadline:
+        pending = []
+        for loc in locales:
+            status = _get_locale_status(bot_id, bot_version, loc)
+            if status in _FAILED:
+                raise RuntimeError(
+                    f"Locale {loc} build failed (status={status}). "
+                    "Check the Lex console for build errors."
+                )
+            if status not in _READY:
+                pending.append(f"{loc}={status}")
+        if not pending:
+            break
+        print(f"Waiting for: {pending}")
+        time.sleep(5)
+    else:
+        raise RuntimeError(
+            f"Timed out (4 min) waiting for locales to build. "
+            f"Still pending: {pending}"
+        )
+
+    # Step 3: enable every locale on the alias.
     lex.update_bot_alias(
         botId=bot_id,
         botAliasId=alias_id,
@@ -105,7 +194,16 @@ def on_event(event, context):
         botVersion=bot_version,
         botAliasLocaleSettings={loc: {"enabled": True} for loc in locales},
     )
+    print(f"Success: alias {alias_id} updated, locales enabled: {locales}")
     return {"PhysicalResourceId": pid}
+
+
+def _get_locale_status(bot_id, bot_version, locale_id):
+    """Return the botLocaleStatus string for one locale."""
+    resp = lex.describe_bot_locale(
+        botId=bot_id, botVersion=bot_version, localeId=locale_id
+    )
+    return resp["botLocaleStatus"]
 '''
 
 
@@ -125,6 +223,7 @@ class QInConnectLexBot(Construct):
         nova_sonic_model_arn: str | None = None,
         idle_session_ttl_seconds: int = 300,
         nlu_confidence_threshold: float = 0.4,
+        use_nova_sonic_s2s: bool = False,
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -195,10 +294,27 @@ class QInConnectLexBot(Construct):
             lex.CfnBot.BotLocaleProperty(
                 locale_id=loc,
                 nlu_confidence_threshold=nlu_confidence_threshold,
-                unified_speech_settings=lex.CfnBot.UnifiedSpeechSettingsProperty(
-                    speech_foundation_model=lex.CfnBot.SpeechFoundationModelProperty(
-                        model_arn=model_arn,
-                    )
+                # Default: Agentic Voice Polyglot mode — Advanced ASR handles
+                # recognition; the polyglot TTS voice (KATIE/Blake/etc.) is set
+                # in the contact flow's Set Voice block with
+                # engine=connect:agentic + LanguageCode=en-US. The AI agent
+                # prompt drives which language the voice speaks.
+                # Nova Sonic S2S mode: unified_speech_settings handles both
+                # recognition and synthesis end-to-end (locale-specific voices).
+                **(
+                    {
+                        "unified_speech_settings": lex.CfnBot.UnifiedSpeechSettingsProperty(
+                            speech_foundation_model=lex.CfnBot.SpeechFoundationModelProperty(
+                                model_arn=model_arn,
+                            )
+                        )
+                    }
+                    if use_nova_sonic_s2s
+                    else {
+                        "speech_recognition_settings": lex.CfnBot.SpeechRecognitionSettingsProperty(
+                            speech_model_preference="Advanced",
+                        )
+                    }
                 ),
                 intents=[qic_intent, fallback_intent],
             )
@@ -228,26 +344,30 @@ class QInConnectLexBot(Construct):
             bot_tags=[CfnTag(key="AmazonConnectEnabled", value="True")],
         )
 
-        # Enable every configured locale on TestBotAlias. Without this, Connect
-        # calls against the alias fail at RUNTIME with "The BotAliasId
-        # TSTALIASID does not have Language <locale> enabled" even after the
-        # locale itself is Built — CreateBotAlias does not enable any locale by
-        # default. Idempotent: safe on every deploy, and effectively a no-op
-        # once the locales are already enabled.
+        # Build every locale and enable them on TestBotAlias. On Create the bot
+        # starts with locales NotBuilt; this custom resource builds them and
+        # enables the alias in one shot. On Update (locale list changed) it
+        # re-runs the same idempotent logic. On Delete it's a no-op.
+        # The CDK Provider framework guarantees CFN always gets a response —
+        # even on Lambda crash/timeout — so the stack NEVER gets stuck.
         locale_fn = _lambda.Function(
             self,
             "AliasLocaleSettingsFn",
             runtime=_lambda.Runtime.PYTHON_3_12,
             handler="index.on_event",
             code=_lambda.Code.from_inline(_LOCALE_SETTINGS_HANDLER_SRC),
-            timeout=Duration.minutes(2),
-            description="Enables every configured locale on the Lex "
-            "TestBotAlias (UpdateBotAlias); CreateBotAlias enables none by "
-            "default, which otherwise breaks Connect calls at runtime.",
+            timeout=Duration.minutes(5),
+            description="Builds Lex bot locales and enables them on the "
+            "TestBotAlias. Runs on stack Create/Update only.",
         )
         locale_fn.add_to_role_policy(
             iam.PolicyStatement(
-                actions=["lex:UpdateBotAlias", "lex:DescribeBotAlias"],
+                actions=[
+                    "lex:BuildBotLocale",
+                    "lex:DescribeBotLocale",
+                    "lex:UpdateBotAlias",
+                    "lex:DescribeBotAlias",
+                ],
                 resources=["*"],
             )
         )

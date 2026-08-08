@@ -1,0 +1,67 @@
+{
+  "Template": {
+    "Head": {
+      "Title": "Reservar vuelo",
+      "Configuration": {
+        "Layout": {
+          "Columns": ["12"]
+        }
+      }
+    },
+    "Body": [
+      {
+        "Type": "Container",
+        "_id": "c1",
+        "Props": {
+          "Visibility": "true",
+          "HideBorder": "false"
+        },
+        "Content": [
+          {
+            "Type": "TextBox",
+            "_id": "intro",
+            "Props": { "Variant": "h3" },
+            "Content": ["Selecciona un vuelo para reservar"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-al100",
+            "Props": { "Variant": "primary", "Action": "flight-AL100" },
+            "Content": ["AL100 Bogotá → Medellín — 15 ago 06:30 — $89 USD"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-al200",
+            "Props": { "Variant": "primary", "Action": "flight-AL200" },
+            "Content": ["AL200 Bogotá → Lima — 15 ago 09:00 — $199 USD"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-al305",
+            "Props": { "Variant": "primary", "Action": "flight-AL305" },
+            "Content": ["AL305 Medellín → Ciudad de México — 16 ago 14:00 — $320 USD"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-al410",
+            "Props": { "Variant": "primary", "Action": "flight-AL410" },
+            "Content": ["AL410 Lima → Santiago — 17 ago 07:45 — $275 USD"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-al520",
+            "Props": { "Variant": "primary", "Action": "flight-AL520" },
+            "Content": ["AL520 Santiago → São Paulo — 18 ago 22:00 — $410 USD"]
+          },
+          {
+            "Type": "Button",
+            "_id": "b-cancel",
+            "Props": { "Variant": "normal", "Action": "Cancel" },
+            "Content": ["Cancelar"]
+          }
+        ]
+      }
+    ]
+  },
+  "Actions": ["flight-AL100", "flight-AL200", "flight-AL305", "flight-AL410", "flight-AL520", "Cancel"]
+}

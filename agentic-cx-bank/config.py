@@ -39,15 +39,15 @@ import os
 # instance-bound resources). These three identity values are the single source
 # of truth referenced by every consumer (they intentionally match the shared
 # instance across the sibling industry projects).
-INSTANCE_ALIAS = "test-connect-garriden-virginia"
-INSTANCE_ID = "5da70598-a9a2-4387-9f54-1e054fcba60b"
+INSTANCE_ALIAS = "chat-demos-latam"
+INSTANCE_ID = "30b0e238-b3bd-4f61-9f04-c0b24e4a2f74"
 
 # The Connect Q in Connect assistant id (a.k.a. the "AI agents domain" id — the
 # same resource). Single source of truth for every assistant reference
 # (consumed by Phase 1 ai-session env, Phase 2 KB association, Phase 3 Lex bot,
 # Phase 4 prompts/agents/logging, Phase 5 flow ASSISTANT_ARN).
 
-ASSISTANT_ID = "06707aad-bb16-43d7-bfa0-3d8dd6c7b3d0"
+ASSISTANT_ID = "e1de1c2a-08ea-49e9-9dae-2ad3c80e78fd"
 # ========================================================================== #
 # PHASE 1 — CX-BANCO-MCP (McpStack)
 # data + compute + REST API + AgentCore MCP gateway + Connect MCP/Lambda integ.

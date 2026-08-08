@@ -70,17 +70,17 @@ MCP_TOOL_NAMES = {
     "getAccountByPhone",
     "getAccountByEmail",
     "getAccount",
-    "getAccountBalance",
-    "listProducts",
-    "getProduct",
-    "requestCard",
-    "listCustomerCards",
-    "getCard",
+    "getAccountFlights",
+    "listFlights",
+    "getFlight",
+    "createReservation",
+    "listCustomerReservations",
+    "getReservation",
 }
 
 # Expected exact tool-name set per agent identifier.
 VOICE_TOOLS = {"Retrieve", *MCP_TOOL_NAMES, "Escalate", "Complete"}   # 12
-CHAT_TOOLS = VOICE_TOOLS | {"ShowCardRequestGuide"}                   # 13
+CHAT_TOOLS = VOICE_TOOLS | {"ShowReservationGuide"}                    # 13
 ASSIST_TOOLS = {"Retrieve", *MCP_TOOL_NAMES}                          # 10
 
 EXPECTED_TOOLS_BY_AGENT = {

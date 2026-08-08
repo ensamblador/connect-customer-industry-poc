@@ -4,7 +4,7 @@ connect/agent_tools.py — the AIRLINE AgentToolset (industry data for the agent
 All industry-specific agent data lives here: the 9 AgentCore-gateway MCP tools
 (names + per-tool guidance), the self-service and agent-assist Retrieve
 instructions/examples, the Escalate out-of-scope guidance + reason categories,
-the Complete closing example, and the chat-only ShowCardRequestGuide form. The
+the Complete closing example, and the chat-only ShowReservationGuide form. The
 reusable orchestration plumbing (the CfnAIAgent construct, tool composition,
 Escalate/Complete skeletons) lives in ``cdk_constructs.connect.ai_agents``.
 
@@ -17,12 +17,12 @@ from __future__ import annotations
 from cdk_constructs.connect import AgentToolset, rtc_tool_dict
 
 # The 9 AgentCore-gateway operations, with per-tool guidance (airline domain).
-# ``requestCard`` is state-changing: confirmation ON for voice/assist, OFF on
-# chat (the ShowCardRequestGuide form is the explicit confirmation there).
+# ``createReservation`` is state-changing: confirmation ON for voice/assist, OFF
+# on chat (the ShowReservationGuide form is the explicit confirmation there).
 MCP_TOOLS = [
     {
         "name": "getAccountByPhone",
-        "instruction": "Look up a customer account by phone number in E.164 format (e.g. +12065550101). The result includes the account id - reuse it for balance and card lookups.",
+        "instruction": "Look up a customer account by phone number in E.164 format (e.g. +12065550101). The result includes the account id - reuse it for flight and reservation lookups.",
         "examples": ["Customer gives 206 555 0101 -> phoneNumber=\"+12065550101\"."],
     },
     {
@@ -36,36 +36,36 @@ MCP_TOOLS = [
         "examples": ["Lookup returned accountId=\"acct-1001\" -> accountId=\"acct-1001\"."],
     },
     {
-        "name": "getAccountBalance",
-        "instruction": "Get the miles balance, currency (MILES), and miles expiration date (dueDate) for an account id. Use for miles balance or miles expiration questions, after you have the account id.",
-        "examples": ["Customer asks how many miles they have, accountId \"acct-1001\" -> accountId=\"acct-1001\"."],
+        "name": "getAccountFlights",
+        "instruction": "Get the flights associated with a customer's account, plus their membership tier and miles balance. Use for \"my flights\", \"what flights do I have\", or miles balance questions.",
+        "examples": ["Customer asks about their flights, accountId \"acct-1001\" -> accountId=\"acct-1001\"."],
     },
     {
-        "name": "listProducts",
-        "instruction": "List airline products, optionally filtered by a maximum annual fee (maxAnnualFee). Use for \"what products do you have\" or \"which card has the lowest fee\".",
-        "examples": ["Customer: \"cards with an annual fee under 50\" -> maxAnnualFee=50.", "Customer: \"what products do you offer\" -> no filter."],
+        "name": "listFlights",
+        "instruction": "List available flights, optionally filtered by origin and/or destination airport code (IATA 3-letter, e.g. BOG, MDE, LIM). Use for \"what flights are available\", \"flights from Bogotá to Lima\".",
+        "examples": ["Customer: \"flights from Bogotá to Medellín\" -> origin=\"BOG\", destination=\"MDE\".", "Customer: \"what flights do you have\" -> no filter."],
     },
     {
-        "name": "getProduct",
-        "instruction": "Get a single airline product's details by product id. Use after listProducts when the customer wants the details or fees of a specific product.",
-        "examples": ["Customer wants the Gold card, id \"prod-tarjeta-oro\" -> productId=\"prod-tarjeta-oro\"."],
+        "name": "getFlight",
+        "instruction": "Get a single flight's details by flight id. Use after listFlights when the customer wants details of a specific flight (schedule, price, seats).",
+        "examples": ["Customer wants details of flight AL100, id \"flight-AL100\" -> flightId=\"flight-AL100\"."],
     },
     {
-        "name": "requestCard",
-        "instruction": "Request a new card for an existing customer. This is a state-changing action: the customer must confirm before it runs (user confirmation is enforced by the runtime). Provide the customerId (from an account lookup) and the productId for the card; optionally notes. Tell the customer the returned card id and that the request is 'requested'.",
-        "examples": ["Customer confirms a new gold card, customerId \"cust-5001\" -> customerId=\"cust-5001\", productId=\"prod-tarjeta-oro\"."],
+        "name": "createReservation",
+        "instruction": "Create a new flight reservation for an existing customer. This is a state-changing action: the customer must confirm before it runs (user confirmation is enforced by the runtime). Provide the customerId (from an account lookup) and the flightId; optionally passengerName, email, date, time, and notes. Tell the customer the returned reservationId and that the status is 'pending'.",
+        "examples": ["Customer confirms reservation for flight AL100, customerId \"cust-5001\" -> customerId=\"cust-5001\", flightId=\"flight-AL100\"."],
         "requires_confirmation": True,
         "confirmation_off_on_chat": True,
     },
     {
-        "name": "listCustomerCards",
-        "instruction": "List a customer's cards and card requests by customerId. Use for \"my cards\" or \"the status of my new card request\", after you have the customerId from an account lookup.",
-        "examples": ["Customer asks about their cards, customerId \"cust-5001\" -> customerId=\"cust-5001\"."],
+        "name": "listCustomerReservations",
+        "instruction": "List a customer's reservations by customerId. Use for \"my reservations\" or \"the status of my booking\", after you have the customerId from an account lookup.",
+        "examples": ["Customer asks about their reservations, customerId \"cust-5001\" -> customerId=\"cust-5001\"."],
     },
     {
-        "name": "getCard",
-        "instruction": "Get a card request's status and details by card id. Use when the customer gives a specific card id.",
-        "examples": ["Customer: \"status of card-9001\" -> cardId=\"card-9001\"."],
+        "name": "getReservation",
+        "instruction": "Get a reservation's status and details by reservation id. Use when the customer gives a specific reservation id.",
+        "examples": ["Customer: \"status of res-8001\" -> reservationId=\"res-8001\"."],
     },
 ]
 
@@ -128,41 +128,41 @@ ESCALATE_REASONS = (
 )
 
 COMPLETE_EXAMPLES = [
-    "Good - question answered: emit a warm goodbye <message> then Complete(reason='question_answered', resolutionSummary='Confirmed the customer miles balance.', topicsDiscussed='miles').",
+    "Good - question answered: emit a warm goodbye <message> then Complete(reason='question_answered', resolutionSummary='Confirmed the customer flights and reservation status.', topicsDiscussed='flights, reservations').",
 ]
 
-# Chat-only guided card-request form (RETURN_TO_CONTROL).
-_SHOW_CARD_REQUEST_GUIDE_INPUT_SCHEMA = {
+# Chat-only guided reservation form (RETURN_TO_CONTROL).
+_SHOW_RESERVATION_GUIDE_INPUT_SCHEMA = {
     "type": "object",
     "properties": {
         "customerId": {"type": "string", "description": "The identified customer's id (from an account lookup). Required to launch the form."},
-        "productId": {"type": "string", "description": "Pre-select this product in the form if it was already discussed."},
+        "flightId": {"type": "string", "description": "Pre-select this flight in the form if it was already discussed."},
     },
     "required": ["customerId"],
 }
-_SHOW_CARD_REQUEST_GUIDE_INSTRUCTION = (
-    "Chat only. Call this when a chat customer wants a new card and you "
-    "already have their customerId (from an account lookup). Emit a brief "
+_SHOW_RESERVATION_GUIDE_INSTRUCTION = (
+    "Chat only. Call this when a chat customer wants to reserve a flight and "
+    "you already have their customerId (from an account lookup). Emit a brief "
     "<message> first (e.g. tell them you'll open a short form), then invoke "
-    "ShowCardRequestGuide with the customerId; optionally pre-fill productId "
-    "if it was already mentioned. Do NOT collect card details through the "
-    "requestCard tool conversationally on chat. If you do not have a "
+    "ShowReservationGuide with the customerId; optionally pre-fill flightId "
+    "if it was already mentioned. Do NOT collect reservation details through the "
+    "createReservation tool conversationally on chat. If you do not have a "
     "customerId, identify the customer first; if you cannot identify them, "
     "Escalate instead."
 )
 
 CHAT_TOOLS = (
     rtc_tool_dict(
-        "ShowCardRequestGuide",
+        "ShowReservationGuide",
         description=(
             "Ends the AI turn and returns control to the flow to display a "
-            "guided card request form in the chat window. Chat only."
+            "guided reservation form in the chat window. Chat only."
         ),
-        instruction=_SHOW_CARD_REQUEST_GUIDE_INSTRUCTION,
-        input_schema=_SHOW_CARD_REQUEST_GUIDE_INPUT_SCHEMA,
+        instruction=_SHOW_RESERVATION_GUIDE_INSTRUCTION,
+        input_schema=_SHOW_RESERVATION_GUIDE_INPUT_SCHEMA,
         examples=[
-            "Customer: 'quiero una tarjeta nueva', already identified as customerId 'cust-5001' -> message then ShowCardRequestGuide(customerId='cust-5001').",
-            "Customer asked for the Gold card, customerId 'cust-5001' -> ShowCardRequestGuide(customerId='cust-5001', productId='prod-tarjeta-oro').",
+            "Customer: 'quiero reservar un vuelo', already identified as customerId 'cust-5001' -> message then ShowReservationGuide(customerId='cust-5001').",
+            "Customer asked for flight AL100, customerId 'cust-5001' -> ShowReservationGuide(customerId='cust-5001', flightId='flight-AL100').",
         ],
     ),
 )

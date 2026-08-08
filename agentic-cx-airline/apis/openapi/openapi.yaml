@@ -2,11 +2,12 @@ openapi: 3.0.1
 info:
   title: Airline Self-Service API
   description: >
-    REST API for AeroLatam self-service: the AeroLatam Club catalog of
-    membership tiers and travel cards, frequent-flyer account lookup (by id,
-    phone number, or email), miles balance inquiry, and card requests. Exposed
-    to the Connect AI agent as MCP tools through a Bedrock AgentCore gateway.
-  version: 3.0.0
+    REST API for AeroLatam self-service: available flights catalog with
+    origin/destination filtering, frequent-flyer account lookup (by id,
+    phone number, or email), account flights inquiry, and flight reservations.
+    Exposed to the Connect AI agent as MCP tools through a Bedrock AgentCore
+    gateway.
+  version: 4.0.0
   contact:
     name: airline-cx
 
@@ -20,11 +21,11 @@ servers:
 
 tags:
   - name: Accounts
-    description: Frequent-flyer account profile, miles balance, and phone/email lookup
-  - name: Products
-    description: AeroLatam Club tier and travel card catalog operations
-  - name: Cards
-    description: Frequent-flyer card request operations
+    description: Frequent-flyer account profile, flights, and phone/email lookup
+  - name: Flights
+    description: Available flights catalog operations
+  - name: Reservations
+    description: Flight reservation operations
 
 security:
   - ApiKeyAuth: []
@@ -35,9 +36,9 @@ paths:
       operationId: getAccountByPhone
       summary: Look up a frequent-flyer account by phone number
       description: >
-        Find a customer's AeroLatam Club account by their phone number (E.164 format, e.g.
-        +12065550101). Use this when the customer is identified by phone rather
-        than account id. Returns the full account profile.
+        Find a customer's AeroLatam account by their phone number (E.164
+        format, e.g. +12065550101). Use this when the customer is identified
+        by phone rather than account id. Returns the full account profile.
       tags:
         - Accounts
       parameters:
@@ -73,9 +74,9 @@ paths:
       operationId: getAccountByEmail
       summary: Look up a frequent-flyer account by email address
       description: >
-        Find a customer's AeroLatam Club account by their email address. Use this when the
-        customer is identified by email rather than account id or phone. Returns
-        the full account profile.
+        Find a customer's AeroLatam account by their email address. Use this
+        when the customer is identified by email rather than account id or
+        phone. Returns the full account profile.
       tags:
         - Accounts
       parameters:
@@ -110,10 +111,11 @@ paths:
   /accounts/{accountId}:
     get:
       operationId: getAccount
-      summary: Get a frequent-flyer account profile
+      summary: Get a customer's account profile
       description: >
-        Retrieve a customer's AeroLatam Club account profile by account id, including
-        tier or card product id, account status, miles balance, currency, and contact details.
+        Get the full profile for an AeroLatam frequent-flyer account by
+        account id, including name, email, phone, membership tier, miles,
+        and associated flight ids.
       tags:
         - Accounts
       parameters:
@@ -131,12 +133,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Account'
-        '400':
-          description: Missing or invalid accountId.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '404':
           description: No account found for the supplied accountId.
           content:
@@ -144,14 +140,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /accounts/{accountId}/balance:
+  /accounts/{accountId}/flights:
     get:
-      operationId: getAccountBalance
-      summary: Get a customer's current miles balance
+      operationId: getAccountFlights
+      summary: Get the flights associated with an account
       description: >
-        Get the current miles balance, currency (MILES), and miles expiration
-        date for an AeroLatam Club account by account id. Use this for "how many
-        miles do I have" or "when do my miles expire" questions.
+        Get the list of flight ids associated with a customer's account,
+        along with their membership tier and miles balance. Use this to
+        check what flights the customer has booked or is tracking.
       tags:
         - Accounts
       parameters:
@@ -164,30 +160,34 @@ paths:
           example: acct-1001
       responses:
         '200':
-          description: The account's current balance.
+          description: The account's associated flights.
           content:
             application/json:
               schema:
                 type: object
                 required:
                   - accountId
-                  - balance
-                  - currency
+                  - flights
+                  - membershipTier
+                  - miles
                 properties:
                   accountId:
                     type: string
                     example: acct-1001
-                  balance:
+                  flights:
+                    type: array
+                    items:
+                      type: string
+                    description: List of flightId values associated with this account.
+                    example: ['flight-AL100', 'flight-AL305']
+                  membershipTier:
+                    type: string
+                    description: Customer's membership tier (classic, gold, platinum).
+                    example: gold
+                  miles:
                     type: number
                     description: Current miles balance.
-                    example: 15400
-                  currency:
-                    type: string
-                    example: MILES
-                  dueDate:
-                    type: string
-                    format: date
-                    example: '2026-06-20'
+                    example: 48250
         '404':
           description: No account found for the supplied accountId.
           content:
@@ -195,93 +195,94 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /products:
+  /flights:
     get:
-      operationId: listProducts
-      summary: List AeroLatam Club tiers and travel cards
+      operationId: listFlights
+      summary: List available flights
       description: >
-        List the available AeroLatam Club membership tiers and travel cards,
-        optionally filtered by a maximum annual fee (maxAnnualFee). Use this to
-        recommend a tier or card, e.g. "cards with no more than 50 in annual
-        fee". Results are ordered by annual fee ascending.
+        List available AeroLatam flights, optionally filtered by origin
+        and/or destination airport code (IATA 3-letter codes, e.g. BOG,
+        MDE, LIM). Use this to help customers find flights between cities.
+        Results are ordered by departure date and time ascending.
       tags:
-        - Products
+        - Flights
       parameters:
-        - name: maxAnnualFee
+        - name: origin
           in: query
           required: false
-          description: Only return products whose annual fee is at most this amount.
+          description: Filter by origin airport IATA code (e.g. BOG).
           schema:
-            type: number
-          example: 50
+            type: string
+          example: BOG
+        - name: destination
+          in: query
+          required: false
+          description: Filter by destination airport IATA code (e.g. MDE).
+          schema:
+            type: string
+          example: MDE
       responses:
         '200':
-          description: The matching products.
+          description: The matching flights.
           content:
             application/json:
               schema:
                 type: object
                 required:
-                  - products
+                  - flights
                   - count
                 properties:
-                  products:
+                  flights:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Product'
+                      $ref: '#/components/schemas/Flight'
                   count:
                     type: integer
                     example: 2
-        '400':
-          description: maxAnnualFee was not a valid number.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
 
-  /products/{productId}:
+  /flights/{flightId}:
     get:
-      operationId: getProduct
-      summary: Get an AeroLatam Club tier or travel card's details
+      operationId: getFlight
+      summary: Get a flight's details
       description: >
-        Get the full details of a single AeroLatam Club tier or travel card by
-        product id, including annual fee, price, and description.
+        Get the full details of a single AeroLatam flight by flight id,
+        including origin, destination, schedule, price, and available seats.
       tags:
-        - Products
+        - Flights
       parameters:
-        - name: productId
+        - name: flightId
           in: path
           required: true
-          description: The unique product identifier.
+          description: The unique flight identifier.
           schema:
             type: string
-          example: prod-tarjeta-oro
+          example: flight-AL100
       responses:
         '200':
-          description: The product details.
+          description: The flight details.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/Flight'
         '404':
-          description: No product found for the supplied productId.
+          description: No flight found for the supplied flightId.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /cards:
+  /reservations:
     post:
-      operationId: requestCard
-      summary: Request a new frequent-flyer card
+      operationId: createReservation
+      summary: Create a new flight reservation
       description: >
-        Request a new frequent-flyer card for an existing customer. This is a
+        Create a new flight reservation for an existing customer. This is a
         state-changing action — confirm with the customer before calling.
-        Provide the customerId and the productId for the requested card;
-        optionally free-text notes. Returns the created card request with its
-        generated cardId and status "requested".
+        Provide the customerId and flightId; optionally passengerName, email,
+        date, time, and free-text notes. Returns the created reservation with
+        its generated reservationId and status "pending".
       tags:
-        - Cards
+        - Reservations
       requestBody:
         required: true
         content:
@@ -290,27 +291,44 @@ paths:
               type: object
               required:
                 - customerId
-                - productId
+                - flightId
               properties:
                 customerId:
                   type: string
-                  description: The customer the new card is requested for.
+                  description: The customer the reservation is for.
                   example: cust-5001
-                productId:
+                flightId:
                   type: string
-                  description: The AeroLatam Club product the new card will use.
-                  example: prod-tarjeta-oro
+                  description: The flight to reserve.
+                  example: flight-AL100
+                passengerName:
+                  type: string
+                  description: Full name of the passenger.
+                  example: María González
+                email:
+                  type: string
+                  description: Contact email for the reservation.
+                  example: maria.gonzalez@example.com
+                date:
+                  type: string
+                  format: date
+                  description: Departure date for the reservation.
+                  example: '2026-08-15'
+                time:
+                  type: string
+                  description: Departure time for the reservation.
+                  example: '06:30'
                 notes:
                   type: string
-                  description: Optional free-text notes about the request.
-                  example: Additional card for a family member.
+                  description: Optional free-text notes about the reservation.
+                  example: Window seat preferred.
       responses:
         '201':
-          description: The created card request.
+          description: The created reservation.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Card'
+                $ref: '#/components/schemas/Reservation'
         '400':
           description: Missing required fields.
           content:
@@ -318,41 +336,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     get:
-      operationId: listCustomerCards
-      summary: List a customer's card requests
+      operationId: listCustomerReservations
+      summary: List a customer's reservations
       description: >
-        List all cards and card requests for a customer by customerId. Use this
-        to check a customer's existing cards before requesting a new one or to
-        report status.
+        List all reservations for a customer by customerId. Use this to
+        check a customer's existing bookings before creating a new one or
+        to report reservation status.
       tags:
-        - Cards
+        - Reservations
       parameters:
         - name: customerId
           in: query
           required: true
-          description: The customer whose cards to list.
+          description: The customer whose reservations to list.
           schema:
             type: string
-          example: cust-5003
+          example: cust-5001
       responses:
         '200':
-          description: The customer's cards.
+          description: The customer's reservations.
           content:
             application/json:
               schema:
                 type: object
                 required:
                   - customerId
-                  - cards
+                  - reservations
                   - count
                 properties:
                   customerId:
                     type: string
-                    example: cust-5003
-                  cards:
+                    example: cust-5001
+                  reservations:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Card'
+                      $ref: '#/components/schemas/Reservation'
                   count:
                     type: integer
                     example: 1
@@ -363,30 +381,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /cards/{cardId}:
+  /reservations/{reservationId}:
     get:
-      operationId: getCard
-      summary: Get a card request
-      description: Get the status and details of a single card request by card id.
+      operationId: getReservation
+      summary: Get a reservation's details
+      description: >
+        Get the full details of a single reservation by reservation id,
+        including flight, passenger, dates, and current status.
       tags:
-        - Cards
+        - Reservations
       parameters:
-        - name: cardId
+        - name: reservationId
           in: path
           required: true
-          description: The unique card identifier.
+          description: The unique reservation identifier.
           schema:
             type: string
-          example: card-9001
+          example: res-8001
       responses:
         '200':
-          description: The card details.
+          description: The reservation details.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Card'
+                $ref: '#/components/schemas/Reservation'
         '404':
-          description: No card found for the supplied cardId.
+          description: No reservation found for the supplied reservationId.
           content:
             application/json:
               schema:
@@ -398,6 +418,7 @@ components:
       type: apiKey
       in: header
       name: x-api-key
+
   schemas:
     Account:
       type: object
@@ -405,8 +426,7 @@ components:
         - accountId
         - customerId
         - name
-        - phoneNumber
-        - productId
+        - email
         - status
       properties:
         accountId:
@@ -414,97 +434,155 @@ components:
           example: acct-1001
         customerId:
           type: string
-          description: Customer identifier (used for card requests).
           example: cust-5001
         name:
           type: string
           example: María González
         phoneNumber:
           type: string
-          description: Phone number in E.164 format.
           example: '+12065550101'
-        productId:
-          type: string
-          description: The AeroLatam Club tier or travel card the account is subscribed to.
-          example: prod-cuenta-nomina
-        status:
-          type: string
-          enum: [active, suspended, closed]
-          example: active
-        balance:
-          type: number
-          description: Current miles balance.
-          example: 15400
-        currency:
-          type: string
-          example: MILES
-        dueDate:
-          type: string
-          format: date
-          description: Miles expiration date.
-          example: '2026-06-20'
         email:
           type: string
           format: email
           example: maria.gonzalez@example.com
-    Product:
+        flights:
+          type: array
+          items:
+            type: string
+          description: Flight ids associated with this account.
+          example: ['flight-AL100', 'flight-AL305']
+        status:
+          type: string
+          enum: [active, suspended]
+          example: active
+        membershipTier:
+          type: string
+          enum: [classic, gold, platinum]
+          example: gold
+        miles:
+          type: number
+          description: Current miles balance.
+          example: 48250
+
+    Flight:
       type: object
       required:
-        - productId
-        - name
-        - annualFee
+        - flightId
+        - origin
+        - destination
+        - departureDate
+        - departureTime
         - price
       properties:
-        productId:
+        flightId:
           type: string
-          example: prod-tarjeta-oro
-        name:
+          example: flight-AL100
+        origin:
           type: string
-          example: Tarjeta Viajero Oro
-        annualFee:
-          type: number
-          description: Annual fee for the product.
-          example: 45.0
+          description: Origin airport IATA code.
+          example: BOG
+        destination:
+          type: string
+          description: Destination airport IATA code.
+          example: MDE
+        originCity:
+          type: string
+          example: Bogotá
+        destinationCity:
+          type: string
+          example: Medellín
+        departureDate:
+          type: string
+          format: date
+          example: '2026-08-15'
+        departureTime:
+          type: string
+          example: '06:30'
+        arrivalTime:
+          type: string
+          example: '07:45'
+        duration:
+          type: string
+          example: 1h 15m
         price:
           type: number
-          description: Price or monthly cost associated with the product.
-          example: 12.0
+          description: Price in USD.
+          example: 89
         currency:
           type: string
           example: USD
-        description:
+        airline:
           type: string
-          example: Tarjeta de viajero Oro con millas de bonificación y sin cuota anual el primer año.
-    Card:
-      type: object
-      required:
-        - cardId
-        - customerId
-        - productId
-        - status
-      properties:
-        cardId:
+          example: AeroLatam
+        aircraft:
           type: string
-          example: card-9001
-        customerId:
+          example: A320
+        availableSeats:
+          type: integer
+          example: 42
+        class:
           type: string
-          example: cust-5003
-        productId:
-          type: string
-          description: The AeroLatam Club product the card uses.
-          example: prod-tarjeta-oro
-        notes:
-          type: string
-          description: Free-text notes about the card request.
-          example: Additional card for a family member.
+          enum: [economy, business, first]
+          example: economy
         status:
           type: string
-          enum: [requested, provisioning, active, cancelled]
-          example: requested
+          enum: [scheduled, boarding, departed, arrived, cancelled]
+          example: scheduled
+
+    Reservation:
+      type: object
+      required:
+        - reservationId
+        - customerId
+        - flightId
+        - status
+        - createdAt
+      properties:
+        reservationId:
+          type: string
+          example: res-8001
+        customerId:
+          type: string
+          example: cust-5001
+        flightId:
+          type: string
+          example: flight-AL100
+        passengerName:
+          type: string
+          example: María González
+        email:
+          type: string
+          format: email
+          example: maria.gonzalez@example.com
+        date:
+          type: string
+          format: date
+          description: Departure date.
+          example: '2026-08-15'
+        time:
+          type: string
+          description: Departure time.
+          example: '06:30'
+        origin:
+          type: string
+          description: Origin airport IATA code.
+          example: BOG
+        destination:
+          type: string
+          description: Destination airport IATA code.
+          example: MDE
+        status:
+          type: string
+          enum: [pending, confirmed, cancelled]
+          example: confirmed
         createdAt:
           type: string
           format: date-time
-          example: '2026-06-01T14:30:00Z'
+          example: '2026-07-20T10:00:00Z'
+        notes:
+          type: string
+          example: Reserva confirmada; asiento 12A.
+
     Error:
       type: object
       required:
@@ -512,4 +590,4 @@ components:
       properties:
         message:
           type: string
-          example: account acct-1001 not found
+          example: resource not found

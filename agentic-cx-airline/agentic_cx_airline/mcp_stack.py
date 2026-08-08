@@ -73,8 +73,8 @@ class McpStack(Stack):
             self,
             "Tables",
             accounts_table_name=config.ACCOUNTS_TABLE_NAME,
-            products_table_name=config.PLANS_TABLE_NAME,
-            cards_table_name=config.LINES_TABLE_NAME,
+            flights_table_name=config.FLIGHTS_TABLE_NAME,
+            reservations_table_name=config.RESERVATIONS_TABLE_NAME,
         )
 
         # 2. Compute layer — all functions.
@@ -88,8 +88,8 @@ class McpStack(Stack):
             api_name=config.API_NAME,
             stage_name=config.API_STAGE_NAME,
             accounts_fn=self.lambdas.accounts,
-            products_fn=self.lambdas.products,
-            cards_fn=self.lambdas.cards,
+            flights_fn=self.lambdas.flights,
+            reservations_fn=self.lambdas.reservations,
             require_api_key=True,
         )
 
@@ -102,7 +102,7 @@ class McpStack(Stack):
             "McpGateway",
             name=config.GATEWAY_NAME,
             discovery_url=config.OIDC_DISCOVERY_URL,
-            description="Airline self-service MCP server (accounts, products, cards).",
+            description="Airline self-service MCP server (accounts, flights, reservations).",
         )
 
         # Inline OpenAPI target: the rich authored apis/openapi/openapi.yaml is
@@ -163,11 +163,11 @@ class McpStack(Stack):
             instance_arn = (
                 f"arn:aws:connect:{self.region}:{self.account}:instance/{config.INSTANCE_ID}"
             )
-            self.products_lambda_integration = LambdaConnectIntegration(
+            self.flights_lambda_integration = LambdaConnectIntegration(
                 self,
-                "ProductsLambdaIntegration",
+                "FlightsLambdaIntegration",
                 instance_arn=instance_arn,
-                function=self.lambdas.products,
+                function=self.lambdas.flights,
             )
             self.ai_session_lambda_integration = LambdaConnectIntegration(
                 self,
@@ -178,7 +178,7 @@ class McpStack(Stack):
 
     # ------------------------------------------------------------------ #
     def set_up_env_vars(self) -> None:
-        # accounts: profile/balance by id, plus lookup by phone/email via GSIs.
+        # accounts: profile/flights by id, plus lookup by phone/email via GSIs.
         self.lambdas.accounts.add_environment(
             "ACCOUNTS_TABLE", self.tables.accounts.table_name
         )
@@ -188,14 +188,16 @@ class McpStack(Stack):
         self.lambdas.accounts.add_environment(
             "ACCOUNTS_EMAIL_INDEX", self.tables.EMAIL_INDEX_NAME
         )
-        # products: catalog.
-        self.lambdas.products.add_environment(
-            "PRODUCTS_TABLE", self.tables.products.table_name
+        # flights: catalog.
+        self.lambdas.flights.add_environment(
+            "FLIGHTS_TABLE", self.tables.flights.table_name
         )
-        # cards: request/list/get, list-by-customer via GSI.
-        self.lambdas.cards.add_environment("CARDS_TABLE", self.tables.cards.table_name)
-        self.lambdas.cards.add_environment(
-            "CARDS_CUSTOMER_INDEX", self.tables.CUSTOMER_INDEX_NAME
+        # reservations: create/list/get, list-by-customer via GSI.
+        self.lambdas.reservations.add_environment(
+            "RESERVATIONS_TABLE", self.tables.reservations.table_name
+        )
+        self.lambdas.reservations.add_environment(
+            "RESERVATIONS_CUSTOMER_INDEX", self.tables.CUSTOMER_INDEX_NAME
         )
         # ai_session: customer lookup by phone/email + Wisdom session write.
         self.lambdas.ai_session.add_environment(
@@ -214,10 +216,10 @@ class McpStack(Stack):
 
     # ------------------------------------------------------------------ #
     def set_up_permissions(self) -> None:
-        # Least-privilege: accounts + products read-only; cards reads and writes.
+        # Least-privilege: accounts + flights read-only; reservations reads and writes.
         self.tables.accounts.grant_read_data(self.lambdas.accounts)
-        self.tables.products.grant_read_data(self.lambdas.products)
-        self.tables.cards.grant_read_write_data(self.lambdas.cards)
+        self.tables.flights.grant_read_data(self.lambdas.flights)
+        self.tables.reservations.grant_read_write_data(self.lambdas.reservations)
 
         # ai_session: read accounts (phone/email GSIs) + write the customer
         # record into the Q in Connect (Wisdom) session. UpdateSessionData is
@@ -269,7 +271,7 @@ class McpStack(Stack):
         ssm_names.publish(self, "PMcpToolPrefix", ssm_names.MCP_TOOL_PREFIX, tool_prefix)
 
         ssm_names.publish(
-            self, "PLPlan", ssm_names.LAMBDA_PLANS_ARN, self.lambdas.products.function_arn
+            self, "PLPlan", ssm_names.LAMBDA_PLANS_ARN, self.lambdas.flights.function_arn
         )
         ssm_names.publish(
             self,

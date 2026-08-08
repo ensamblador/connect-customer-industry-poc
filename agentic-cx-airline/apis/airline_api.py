@@ -8,14 +8,14 @@ that the Bedrock AgentCore gateway re-exposes as MCP tools.
 Resource map (operationId in parentheses — the MCP tool name):
 
     GET  /accounts/{accountId}            -> accounts_fn  (getAccount)
-    GET  /accounts/{accountId}/balance    -> accounts_fn  (getAccountBalance)
+    GET  /accounts/{accountId}/flights    -> accounts_fn  (getAccountFlights)
     GET  /accounts?phoneNumber=+1...      -> accounts_fn  (getAccountByPhone)
     GET  /accounts/by-email?email=...     -> accounts_fn  (getAccountByEmail)
-    GET  /products?maxAnnualFee=100       -> products_fn  (listProducts)
-    GET  /products/{productId}            -> products_fn  (getProduct)
-    POST /cards                           -> cards_fn     (requestCard)
-    GET  /cards?customerId=cust-...       -> cards_fn     (listCustomerCards)
-    GET  /cards/{cardId}                  -> cards_fn     (getCard)
+    GET  /flights?origin=BOG&dest=MDE     -> flights_fn   (listFlights)
+    GET  /flights/{flightId}              -> flights_fn   (getFlight)
+    POST /reservations                    -> reservations_fn (createReservation)
+    GET  /reservations?customerId=cust-.. -> reservations_fn (listCustomerReservations)
+    GET  /reservations/{reservationId}    -> reservations_fn (getReservation)
 
 API key authentication
 -----------------------
@@ -58,8 +58,8 @@ class AirlineApi(Construct):
         api_name: str,
         stage_name: str,
         accounts_fn: aws_lambda.IFunction,
-        products_fn: aws_lambda.IFunction,
-        cards_fn: aws_lambda.IFunction,
+        flights_fn: aws_lambda.IFunction,
+        reservations_fn: aws_lambda.IFunction,
         require_api_key: bool = False,
         **kwargs,
     ) -> None:
@@ -70,14 +70,14 @@ class AirlineApi(Construct):
             self,
             "RestApi",
             rest_api_name=api_name,
-            description="Airline self-service backend (accounts, products, cards).",
+            description="Airline self-service backend (accounts, flights, reservations).",
             deploy_options=apigw.StageOptions(stage_name=stage_name),
             endpoint_types=[apigw.EndpointType.REGIONAL],
         )
 
         accounts_i = apigw.LambdaIntegration(accounts_fn)
-        products_i = apigw.LambdaIntegration(products_fn)
-        cards_i = apigw.LambdaIntegration(cards_fn)
+        flights_i = apigw.LambdaIntegration(flights_fn)
+        reservations_i = apigw.LambdaIntegration(reservations_fn)
 
         # ---- /accounts -------------------------------------------------- #
         accounts = self.api.root.add_resource("accounts")
@@ -92,10 +92,10 @@ class AirlineApi(Construct):
         account = accounts.add_resource("{accountId}")
         self._add_method(account, "GET", accounts_i, operation_name="getAccount")
         self._add_method(
-            account.add_resource("balance"),
+            account.add_resource("flights"),
             "GET",
             accounts_i,
-            operation_name="getAccountBalance",
+            operation_name="getAccountFlights",
         )
         # GET /accounts/by-email?email=... (lookup by email; literal segment
         # takes routing priority over {accountId})
@@ -107,36 +107,44 @@ class AirlineApi(Construct):
             request_parameters={"method.request.querystring.email": False},
         )
 
-        # ---- /products -------------------------------------------------- #
-        products = self.api.root.add_resource("products")
+        # ---- /flights --------------------------------------------------- #
+        flights = self.api.root.add_resource("flights")
         self._add_method(
-            products,
+            flights,
             "GET",
-            products_i,
-            operation_name="listProducts",
-            request_parameters={"method.request.querystring.maxAnnualFee": False},
+            flights_i,
+            operation_name="listFlights",
+            request_parameters={
+                "method.request.querystring.origin": False,
+                "method.request.querystring.destination": False,
+            },
         )
         self._add_method(
-            products.add_resource("{productId}"),
+            flights.add_resource("{flightId}"),
             "GET",
-            products_i,
-            operation_name="getProduct",
+            flights_i,
+            operation_name="getFlight",
         )
 
-        # ---- /cards ----------------------------------------------------- #
-        cards = self.api.root.add_resource("cards")
-        # POST /cards (request a new card)
-        self._add_method(cards, "POST", cards_i, operation_name="requestCard")
-        # GET /cards?customerId=... (list a customer's card requests)
+        # ---- /reservations ---------------------------------------------- #
+        reservations = self.api.root.add_resource("reservations")
+        # POST /reservations (create a new reservation)
         self._add_method(
-            cards,
+            reservations, "POST", reservations_i, operation_name="createReservation"
+        )
+        # GET /reservations?customerId=... (list a customer's reservations)
+        self._add_method(
+            reservations,
             "GET",
-            cards_i,
-            operation_name="listCustomerCards",
+            reservations_i,
+            operation_name="listCustomerReservations",
             request_parameters={"method.request.querystring.customerId": False},
         )
         self._add_method(
-            cards.add_resource("{cardId}"), "GET", cards_i, operation_name="getCard"
+            reservations.add_resource("{reservationId}"),
+            "GET",
+            reservations_i,
+            operation_name="getReservation",
         )
 
         # API key + usage plan, keyed off a Secrets Manager secret.

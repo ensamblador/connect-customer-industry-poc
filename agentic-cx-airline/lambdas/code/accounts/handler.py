@@ -4,7 +4,7 @@ Airline accounts Lambda handler.
 Backs the /accounts endpoints of the airline self-service REST API:
 
     GET /accounts/{accountId}            -> account profile
-    GET /accounts/{accountId}/balance    -> balance projection
+    GET /accounts/{accountId}/flights    -> list of flights associated with account
     GET /accounts?phoneNumber=+1...      -> account lookup by phone number
     GET /accounts/by-email?email=...     -> account lookup by email
 
@@ -76,20 +76,20 @@ def handler(event, _context):
             return _response(404, {"message": f"no account for phone {phone}"})
         return _response(200, items[0])
 
-    # GET /accounts/{accountId}[/balance]
+    # GET /accounts/{accountId}[/flights]
     result = _table.get_item(Key={"accountId": account_id})
     item = result.get("Item")
     if not item:
         return _response(404, {"message": f"account {account_id} not found"})
 
-    if resource.endswith("/balance"):
+    if resource.endswith("/flights"):
         return _response(
             200,
             {
                 "accountId": account_id,
-                "balance": item.get("balance", 0),
-                "currency": item.get("currency", "USD"),
-                "dueDate": item.get("dueDate"),
+                "flights": item.get("flights", []),
+                "membershipTier": item.get("membershipTier", "classic"),
+                "miles": item.get("miles", 0),
             },
         )
 

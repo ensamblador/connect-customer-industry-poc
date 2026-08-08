@@ -23,8 +23,8 @@ _ddb = boto3.resource("dynamodb")
 # (display title, env var holding the table name)
 _TABLES = [
     ("Cuentas (accounts)", "ACCOUNTS_TABLE"),
-    ("Productos (products)", "PLANS_TABLE"),
-    ("Tarjetas (cards)", "LINES_TABLE"),
+    ("Vuelos (flights)", "PLANS_TABLE"),
+    ("Reservas (reservations)", "LINES_TABLE"),
 ]
 
 

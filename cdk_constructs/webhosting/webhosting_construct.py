@@ -362,7 +362,7 @@ class Webhosting(Construct):
         )
 
         CfnOutput(self, "WebsiteDistributionDomainName",
-                  value=self.distribution.distribution_domain_name,
+                  value=f"https://{self.distribution.distribution_domain_name}",
                   description="CloudFront distribution URL for the website")
         CfnOutput(self, "WebsiteDistributionId",
                   value=self.distribution.distribution_id,

@@ -5,12 +5,12 @@ Following the project convention, ALL Lambda functions for the project live
 in this single `Lambdas` construct. Handler source lives under
 `lambdas/code/<domain>/handler.py`.
 
-  * accounts    -> lambdas/code/accounts/handler.py    (profile, balance, by-phone)
-  * products    -> lambdas/code/products/handler.py    (product catalog, filter)
-  * cards       -> lambdas/code/cards/handler.py       (request/list/get card requests)
-  * ai_session  -> lambdas/code/ai_session/handler.py  (set-customer-session-airline:
-                                                        customer lookup + Wisdom
-                                                        session UpdateSessionData)
+  * accounts      -> lambdas/code/accounts/handler.py      (profile, flights, by-phone)
+  * flights       -> lambdas/code/flights/handler.py       (flight catalog, filter)
+  * reservations  -> lambdas/code/reservations/handler.py  (create/list/get reservations)
+  * ai_session    -> lambdas/code/ai_session/handler.py    (set-customer-session-airline:
+                                                            customer lookup + Wisdom
+                                                            session UpdateSessionData)
 
 Table names and GSI names are injected via environment variables by the stack
 (see set_up_env_vars / grants), so handler code carries no hardcoded names.
@@ -49,19 +49,19 @@ class Lambdas(Construct):
             **LAMBDA_CONFIG,
         )
 
-        self.products = aws_lambda.Function(
+        self.flights = aws_lambda.Function(
             self,
-            "ProductsFunction",
+            "FlightsFunction",
             handler="handler.handler",
-            code=aws_lambda.Code.from_asset(os.path.join(_CODE_ROOT, "products")),
+            code=aws_lambda.Code.from_asset(os.path.join(_CODE_ROOT, "flights")),
             **LAMBDA_CONFIG,
         )
 
-        self.cards = aws_lambda.Function(
+        self.reservations = aws_lambda.Function(
             self,
-            "CardsFunction",
+            "ReservationsFunction",
             handler="handler.handler",
-            code=aws_lambda.Code.from_asset(os.path.join(_CODE_ROOT, "cards")),
+            code=aws_lambda.Code.from_asset(os.path.join(_CODE_ROOT, "reservations")),
             **LAMBDA_CONFIG,
         )
 
@@ -77,4 +77,4 @@ class Lambdas(Construct):
         )
 
     def get_all_functions(self) -> list[aws_lambda.Function]:
-        return [self.accounts, self.products, self.cards, self.ai_session]
+        return [self.accounts, self.flights, self.reservations, self.ai_session]
