@@ -10,14 +10,14 @@ Este repositorio contiene una prueba de concepto completa que demuestra cómo re
 
 <table>
 <tr>
-<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Desafío
 
 Las atenciones simples requieren esperar a un agente humano, con disponibilidad limitada en horario 9-5.
 
 </td>
-<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Solución
 
@@ -31,14 +31,14 @@ Las atenciones simples requieren esperar a un agente humano, con disponibilidad 
 
 <table>
 <tr>
-<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Desafío
 
 IVRs estáticos sin flexibilidad: árboles de menú rígidos que frustran al cliente y no se adaptan al contexto de la conversación.
 
 </td>
-<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Solución
 
@@ -52,14 +52,14 @@ IVRs estáticos sin flexibilidad: árboles de menú rígidos que frustran al cli
 
 <table>
 <tr>
-<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Desafío
 
 Voces robóticas y monótonas que no generan confianza ni cercanía con el cliente.
 
 </td>
-<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Solución
 
@@ -73,14 +73,14 @@ Voces robóticas y monótonas que no generan confianza ni cercanía con el clien
 
 <table>
 <tr>
-<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Desafío
 
 El autoservicio no puede acceder a sistemas internos: el bot responde preguntas genéricas pero no puede consultar saldos, hacer reservas, ni ejecutar acciones reales.
 
 </td>
-<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Solución
 
@@ -94,14 +94,14 @@ El autoservicio no puede acceder a sistemas internos: el bot responde preguntas 
 
 <table>
 <tr>
-<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Desafío
 
 Cuando el autoservicio no puede resolver, el cliente es transferido a un agente humano sin contexto — y tiene que repetir todo desde cero.
 
 </td>
-<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Solución
 
@@ -115,14 +115,14 @@ Cuando el autoservicio no puede resolver, el cliente es transferido a un agente 
 
 <table>
 <tr>
-<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Desafío
 
 Los agentes humanos pierden tiempo buscando información en múltiples sistemas mientras el cliente espera en la línea.
 
 </td>
-<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Solución
 
@@ -136,14 +136,14 @@ Los agentes humanos pierden tiempo buscando información en múltiples sistemas 
 
 <table>
 <tr>
-<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Desafío
 
 El soporte solo funciona en un idioma, excluyendo a una base de clientes diversa en Latinoamérica.
 
 </td>
-<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px;">
+<td width="50%" style="background-color:#e4fce4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
 ### Solución
 
