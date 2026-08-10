@@ -215,10 +215,12 @@ Esta demo muestra cómo el agente usa un formulario visual para una acción dete
 
 ### 2.3 Probar con número telefónico (opcional)
 
-Para una demo más realista:
-1. En la consola de Amazon Connect → **Phone numbers** → reclama un número.
-2. Asócialo al flujo de contacto de self-service (el flujo inbound desplegado).
-3. Llama al número desde un teléfono real — la experiencia es idéntica a la llamada web.
+Para una demo más realista con reconocimiento automático del cliente:
+
+1. En la consola de **DynamoDB** → tabla `telco-accounts` → edita uno de los registros de prueba (p. ej. María González) y reemplaza el `phoneNumber` con **tu número de teléfono real** en formato E.164 (p. ej. `+573001234567`). Esto permite que el flujo te identifique automáticamente al llamar, sin preguntarte quién eres.
+2. En la consola de **Amazon Connect** → **Phone numbers** → reclama un número telefónico (DID).
+3. Asócialo al flujo de contacto de self-service (el flujo inbound desplegado, `telco-selfservice-es-inbound`).
+4. Llama al número desde tu celular — el agente de IA te reconocerá automáticamente por tu número y personalizará la atención ("Hola María, ¿en qué puedo ayudarte?").
 
 ---
 
