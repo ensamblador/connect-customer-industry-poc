@@ -1,3 +1,5 @@
 .kiro
 node_modules
 .venv
+.vscode
+*.sh
