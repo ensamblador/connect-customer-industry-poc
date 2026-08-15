@@ -382,7 +382,7 @@ class OrchestrationAIAgent(Construct):
         connect_instance_arn: str,
         agent_name: str,
         prompt_version_id: str,
-        locale: str,
+        locale: str = "",
         surface: "AgentSurface",
         toolset: "AgentToolset",
         assistant_association_id: str,
@@ -407,6 +407,16 @@ class OrchestrationAIAgent(Construct):
         # Native CfnAIAgent. _dict_to_cfn_tool sets override_input_values only
         # when populated and never sets output filters or maxLength.
         cfn_tools = [_dict_to_cfn_tool(t) for t in tools]
+
+        # Build orchestration config; omit locale when empty (multilingual mode).
+        orchestration_props: dict = dict(
+            orchestration_ai_prompt_id=prompt_version_id,
+            connect_instance_arn=connect_instance_arn,
+            tool_configurations=cfn_tools,
+        )
+        if locale:
+            orchestration_props["locale"] = locale
+
         self._cfn_agent = wisdom.CfnAIAgent(
             self,
             "Agent",
@@ -416,10 +426,7 @@ class OrchestrationAIAgent(Construct):
             description=agent_description,
             configuration=wisdom.CfnAIAgent.AIAgentConfigurationProperty(
                 orchestration_ai_agent_configuration=wisdom.CfnAIAgent.OrchestrationAIAgentConfigurationProperty(
-                    orchestration_ai_prompt_id=prompt_version_id,
-                    locale=locale,
-                    connect_instance_arn=connect_instance_arn,
-                    tool_configurations=cfn_tools,
+                    **orchestration_props,
                 )
             ),
         )

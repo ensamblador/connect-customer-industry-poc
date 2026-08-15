@@ -1,6 +1,6 @@
 # Amazon Connect — Agentic Customer Experience PoC
 
-> **Autoservicio inteligente, omnicanal y multiindustria** con Amazon Connect AI Agents, Q in Connect, y Bedrock AgentCore MCP.
+> **Autoservicio inteligente, omnicanal y multiindustria** con Amazon Connect AI Agents, AI Agent Assist, y Bedrock AgentCore MCP.
 
 Este repositorio contiene una prueba de concepto completa que demuestra cómo resolver los desafíos más comunes de los contact centers usando capacidades agénticas de Amazon Connect. Cada industria (telco, banco, aerolínea) re-tematiza la misma arquitectura de referencia con datos y experiencias de dominio específicas, compartiendo una sola instancia de Connect.
 
@@ -42,7 +42,7 @@ IVRs estáticos sin flexibilidad: árboles de menú rígidos que frustran al cli
 
 ### Solución
 
-**Atención agéntica conversacional** — En lugar de "Presione 1 para...", el cliente habla naturalmente. Un bot Lex V2 con Nova Sonic v2 delega al AI Agent de Q in Connect, que entiende la intención, accede a herramientas y resuelve en lenguaje natural. Sin menús, sin frustración.
+**Atención agéntica conversacional** — En lugar de "Presione 1 para...", el cliente expresa lo que necesita en lenguaje natural. El AI Agent entiende la intención, mantiene el contexto de la conversación, accede a herramientas y resuelve sin árboles de menú rígidos. La experiencia se adapta dinámicamente a lo que dice el cliente: sin menús, sin frustración.
 
 </td>
 </tr>
@@ -63,7 +63,7 @@ Voces robóticas y monótonas que no generan confianza ni cercanía con el clien
 
 ### Solución
 
-**Voces agénticas de nueva generación (Katie)** — Las nuevas voces de Amazon Connect son políglota y expresivas. Katie habla español, inglés y portugués con naturalidad, adaptando tono y ritmo al contexto de la conversación. Configuración en el bot Lex V2 con Nova Sonic v2 unified speech.
+**Voces agénticas de nueva generación** — Las nuevas voces agénticas de Amazon Connect son expresivas y políglota: hablan con entonación y ritmo naturales, adaptándose al contexto de la conversación para generar confianza y cercanía. Una misma voz maneja español, inglés y portugués, y la solución se puede extender a **más de 38 idiomas y más de 100 combinaciones de localización** sin rehacer el flujo.
 
 </td>
 </tr>
@@ -84,7 +84,7 @@ El autoservicio no puede acceder a sistemas internos: el bot responde preguntas 
 
 ### Solución
 
-**MCP Tools + Knowledge Base por industria** — Bedrock AgentCore expone una REST API (DynamoDB + Lambda) como herramientas MCP que el AI Agent invoca en tiempo real: consultar cuentas, listar vuelos/productos, crear reservas. La KB multilingüe (es/pt/en) cubre FAQs, políticas y procedimientos del dominio.
+**Herramientas y conocimiento de dominio** — El AI Agent va más allá de responder preguntas genéricas: consulta los sistemas de negocio en tiempo real mediante **herramientas MCP de propósito específico para cada industria** (consultar cuentas, listar vuelos o productos, crear reservas) y se apoya en **bases de conocimiento del dominio** (multilingües) para resolver con precisión. Al combinar acción y conocimiento, las atenciones agénticas simples se resuelven de forma autónoma, **liberando carga de los agentes humanos** y ayudando a los clientes a **resolver antes**.
 
 </td>
 </tr>
@@ -105,7 +105,7 @@ Cuando el autoservicio no puede resolver, el cliente es transferido a un agente 
 
 ### Solución
 
-**Escalación con contexto completo** — Al escalar, el AI Agent registra un `escalationSummary` con lo que se intentó y por qué se escala. El agente humano recibe un screen-pop con los datos del cliente, el resumen de la conversación y las herramientas del AI Agent a su disposición (Agent Assist).
+**Escalación con contexto completo** — Al escalar, el AI Agent registra un `escalationSummary` con lo que se intentó y por qué se escala. El agente humano recibe un screen-pop con los datos del cliente, el resumen de la conversación y las herramientas del AI Agent a su disposición (AI Agent Assist).
 
 </td>
 </tr>
@@ -126,7 +126,7 @@ Los agentes humanos pierden tiempo buscando información en múltiples sistemas 
 
 ### Solución
 
-**Agent Assist con sugerencias en tiempo real** — Q in Connect escucha la conversación y sugiere respuestas de la KB, ejecuta herramientas MCP, y ofrece **guías paso a paso** cuando detecta un tema específico (p. ej. "maleta perdida" dispara automáticamente la guía de reporte de equipaje).
+**AI Agent Assist con sugerencias en tiempo real** — AI Agent Assist escucha la conversación y sugiere respuestas de la base de conocimiento, ejecuta herramientas MCP, y ofrece **guías paso a paso** cuando detecta un tema específico (p. ej. "maleta perdida" dispara automáticamente la guía de reporte de equipaje).
 
 </td>
 </tr>
@@ -147,7 +147,7 @@ El soporte solo funciona en un idioma, excluyendo a una base de clientes diversa
 
 ### Solución
 
-**Localización nativa multilingüe** — Los prompts de IA, el bot Lex (3 locales: en_US, es_US, pt_BR), la base de conocimiento (artículos en es/pt/en) y los mensajes de espera se localizan por idioma. Los agentes utilitarios (Answer Recommendation, Note Taking) tienen prompts localizados para responder en el idioma del contacto.
+**Atención multilingüe con cambio dinámico de idioma** — Las voces políglota de Amazon Connect cambian de idioma dinámicamente a mitad de la conversación, sin cambios de flujo. El AI Agent detecta el idioma del cliente desde la transcripción y responde en ese idioma automáticamente.
 
 </td>
 </tr>
@@ -157,30 +157,21 @@ El soporte solo funciona en un idioma, excluyendo a una base de clientes diversa
 
 ## Arquitectura
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        Amazon Connect Instance                       │
-│                                                                     │
-│  ┌──────────┐   ┌──────────────┐   ┌────────────────────────────┐  │
-│  │ Lex Bot  │──▶│  AI Agents   │──▶│   Q in Connect (Wisdom)    │  │
-│  │ Nova     │   │  Voice/Chat/ │   │   KB + Retrieve + Guides   │  │
-│  │ Sonic v2 │   │  Agent Assist│   └────────────────────────────┘  │
-│  └──────────┘   └──────┬───────┘                                    │
-│                         │ MCP Tools                                  │
-│                         ▼                                            │
-│            ┌────────────────────────┐                                │
-│            │  Bedrock AgentCore     │                                │
-│            │  MCP Gateway + Target  │                                │
-│            └───────────┬────────────┘                                │
-└────────────────────────┼────────────────────────────────────────────┘
-                         │ REST API (API Key)
-                         ▼
-              ┌─────────────────────┐
-              │   API Gateway       │
-              │   + Lambda + DDB    │
-              │   (industry data)   │
-              └─────────────────────┘
-```
+![](./connec-ai-agents.jpg)
+
+### Cómo funciona
+
+El diagrama muestra el recorrido de una atención de principio a fin:
+
+1. **Entrada omnicanal** — El cliente contacta por webchat, webcall o llamada telefónica (PSTN). Todos los canales llegan a una **única instancia de Amazon Connect**, con voces agénticas multilingües (ES, EN, PT).
+2. **Autoservicio agéntico** — Connect enruta la conversación al **AI Agent de autoservicio**. El agente entiende la intención en lenguaje natural y decide cómo resolver.
+3. **Conocimiento y acción** — Para resolver, el agente combina dos capacidades reutilizables: **Retrieve** sobre una base de conocimiento (documentos de industria) y **MCP Tools** expuestas por un gateway de Bedrock AgentCore, que enruta hacia las APIs de negocio de cada industria.
+4. **Escalación con contexto** — Cuando el agente no puede resolver, invoca la **Escalate Tool**: se arma un contexto de escalación (view) y la conversación pasa a un agente humano sin que el cliente tenga que repetir nada.
+5. **Asistencia al agente humano** — Ya con el humano en línea, el **AI Agent Assist** acompaña la atención usando la **misma** base de conocimiento (Retrieve) y las **mismas** MCP Tools, sugiriendo respuestas y ejecutando acciones en tiempo real.
+
+**Conceptualmente:** una sola instancia de Connect concentra todos los canales; un cerebro agéntico razona sobre la intención del cliente y orquesta dos recursos compartidos —conocimiento (KB) y herramientas (MCP)— tanto en autoservicio como en asistencia al humano. El mismo backend de conocimiento y las mismas herramientas sirven a ambos momentos de la atención.
+
+**Beneficio:** las atenciones simples se resuelven solas 24/7, liberando a los agentes humanos para los casos complejos; y cuando hay escalación, el humano recibe todo el contexto y las mismas capacidades del agente, atendiendo más rápido y sin fricción para el cliente. La arquitectura es multiindustria: la misma base se re-tematiza (telco, banca, aerolínea) cambiando solo los datos y las herramientas de dominio.
 
 **Por industria:**
 - **Telco** → cuentas, planes, líneas móviles
@@ -225,7 +216,7 @@ agentic-cx-{industria}/
 Consulta **[instructions.md](./instructions.md)** para la guía completa de despliegue paso a paso, incluyendo:
 
 - Prerrequisitos (CDK bootstrap, virtualenvs, credenciales)
-- Creación de la instancia de Connect y el asistente de Q in Connect
+- Creación de la instancia de Connect y el asistente de AI Agent Assist (Q in Connect)
 - Despliegue de `general-localization` (una sola vez)
 - Despliegue de cada industria (6 stacks por app)
 - Post-despliegue: tagging de KB, asociación de guías, perfiles de seguridad, bot Lex, widget de chat
@@ -254,13 +245,13 @@ Después de editar un prompt: `cdk deploy CX-{INDUSTRIA}-AGENTS` y luego **publi
 
 ### Cambiar la Voz
 
-La voz se configura en el **bot Lex V2** (Nova Sonic v2 unified speech). Para cambiar de voz:
+La voz se configura en el **bot Lex V2** → cada locale → **Voice settings**:
 
 1. En la consola de Amazon Lex → tu bot → cada locale → **Voice settings**
-2. Selecciona la voz deseada (p. ej. Katie para políglota, Lupe para español, etc.)
+2. Selecciona una voz agéntica de nueva generación (políglota) o una voz específica del idioma
 3. Recompila el locale
 
-Las voces de nueva generación (Katie, Ruth, Stephen) son expresivas y políglota — una sola voz maneja múltiples idiomas sin cambiar de locale.
+Las voces agénticas de nueva generación son expresivas y políglota — una sola voz maneja múltiples idiomas sin cambiar de locale, y la solución se puede extender a más de 38 idiomas y más de 100 combinaciones de localización.
 
 ### Modificar las Herramientas MCP
 
@@ -285,7 +276,7 @@ Los artículos viven en `knowledge_bases/{industria}/entries/{idioma}/` como arc
 
 ### Logging de AI Agents (CloudWatch)
 
-El stack `CX-LANG-UTILS` configura la entrega centralizada de **EVENT_LOGS** del asistente de Q in Connect a CloudWatch Logs. Controlado por `config.ENABLE_AGENT_LOGS`:
+El stack `CX-LANG-UTILS` configura la entrega centralizada de **EVENT_LOGS** del asistente de AI Agent Assist (Q in Connect) a CloudWatch Logs. Controlado por `config.ENABLE_AGENT_LOGS`:
 
 - **Log group:** `/aws/connect/wisdom/{assistant-id}/event-logs`
 - **Contenido:** Cada invocación del agente, tool calls, resultados de Retrieve, escalaciones, y completions

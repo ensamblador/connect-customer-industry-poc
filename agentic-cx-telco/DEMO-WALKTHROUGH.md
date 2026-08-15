@@ -363,6 +363,79 @@ Inicia sesión como `aisha.khan@example.com` y pregunta:
 
 ---
 
+## 6. Multi-Lenguaje (Cambio Dinámico de Idioma)
+
+El agente soporta cambio dinámico de idioma sin necesidad de cambiar flujos ni configuración. Usa una voz multilingüe (polyglot) que soporta: English, Spanish y Portuguese. El agente detecta el idioma del cliente desde la transcripción/texto y responde en ese mismo idioma.
+
+### 6.1 Cambio de idioma en Chat
+
+Inicia sesión como cualquier cliente y abre el chat:
+
+> **Tú:** Hi, I'd like to know my balance
+
+**Respuesta esperada:**
+> *(El agente detecta inglés y responde en inglés)*
+>
+> Your pending balance is $42.50 USD, due on June 20th, 2026. Is there anything else I can help you with?
+
+Ahora cambia a español:
+
+> **Tú:** Gracias. ¿Qué plan tengo?
+
+**Respuesta esperada:**
+> *(El agente sigue tu cambio de idioma inmediatamente)*
+>
+> Tienes el plan Telco Unlimited 5G: 100 GB de datos premium 5G con hotspot y acceso prioritario, por $70.00 USD al mes. ¿Puedo ayudarte con algo más?
+
+Prueba con portugués:
+
+> **Tú:** Quais planos vocês oferecem?
+
+**Respuesta esperada:**
+> *(El agente responde en portugués)*
+>
+> Temos três planos disponíveis: Telco Basic com 5 GB por $25/mês, Telco Plus com 25 GB por $45/mês, e Telco Unlimited 5G com 100 GB por $70/mês. Gostaria de saber mais sobre algum deles?
+
+### 6.2 Cambio de idioma por Voz
+
+Inicia una llamada web y habla en diferentes idiomas:
+
+> **Tú (hablando en inglés):** "Hello, I want to check my account balance"
+
+**Respuesta (voz en inglés):**
+> "Sure, your pending balance is forty-two dollars and fifty cents, due on June twentieth. Is there anything else I can help with?"
+
+> **Tú (cambiando a español):** "Sí, ¿me puedes decir qué plan tengo?"
+
+**Respuesta (voz en español):**
+> "Tienes el plan Telco Unlimited 5G con cien gigas de datos premium, hotspot y acceso prioritario a la red, por setenta dólares al mes. ¿Hay algo más?"
+
+> **Tú (cambiando a portugués):** "Obrigado, é tudo por hoje"
+
+**Respuesta (voz en portugués):**
+> "Perfeito, obrigado por entrar em contato com a Latam Telco. Tenha um ótimo dia!"
+
+### 6.3 Idioma no soportado
+
+Si el cliente habla en un idioma fuera de la lista soportada (inglés, español, portugués):
+
+> **Tú:** Bonjour, je voudrais connaître mon solde (francés)
+
+**Respuesta esperada (en inglés):**
+> I apologize, but I can assist you in English, Spanish, or Portuguese. How can I help you in one of these languages?
+
+### 6.4 Notas sobre la configuración multilingüe
+
+- **Voz polyglot:** El Set Voice block del flujo usa una voz multilingual (Katie, Blake, Brooke, Ronald, o Gemma). No necesita cambios de flujo para cambiar de idioma.
+- **Bot Lex:** Se mantiene un solo locale (`en-US`). No se requieren locales adicionales — la voz multilingual y el prompt manejan el switching.
+- **Sin locale en el agente:** El AI Agent no tiene configurado un locale fijo. Las instrucciones de manejo de idioma están en el system prompt.
+- **Idiomas soportados:** Inglés, español y portugués. La voz polyglot soporta más idiomas, pero el prompt restringe a los tres que tienen contenido en la KB.
+- **Greeting inicial:** El greeting del Get Customer Input block define el idioma del primer turno. Después el agente sigue el idioma del cliente.
+- **Marcas diacríticas:** El agente usa acentos y caracteres apropiados (é, ñ, ü, ç) para que la pronunciación del TTS sea natural.
+- **Nombres de marca:** Se mantienen en inglés siempre (Telco Basic, Telco Plus, etc.).
+
+---
+
 ## Checklist de la Demo
 
 - [ ] Sitio web carga correctamente (CloudFront)
@@ -378,3 +451,7 @@ Inicia sesión como `aisha.khan@example.com` y pregunta:
 - [ ] Agent Assist sugiere respuestas de la KB
 - [ ] Guía paso a paso de eSIM se despliega correctamente
 - [ ] El asistente responde consultas directas del agente
+- [ ] Chat responde en el idioma del cliente (probar inglés, español, portugués)
+- [ ] Cambio de idioma mid-conversation funciona en chat
+- [ ] Voz cambia de idioma dinámicamente al seguir al caller
+- [ ] Idioma no soportado recibe respuesta amable en inglés

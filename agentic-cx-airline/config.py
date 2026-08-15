@@ -177,8 +177,9 @@ LEX_BOT_NAME = "airline-qconnect-bot-v2"
 # PHASE 4 — CX-AIRLINE-AGENTS (AiAgentsStack)
 # Orchestration AI prompts + the three AI agents (voice / chat / agent-assist).
 # ========================================================================== #
-# Active AI agent locale.
-AI_AGENT_LOCALE = "es_US"
+# Active AI agent locale. Empty string = no locale (multilingual voice handles
+# language switching dynamically via the system prompt).
+AI_AGENT_LOCALE = ""
 
 # Prompt YAML paths (relative to the app root) + the orchestration model each
 # prompt runs (kept as authored in the live domain, NOT forced to one model).
