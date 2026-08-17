@@ -12,7 +12,7 @@ Este repositorio contiene una prueba de concepto completa que demuestra cómo re
 <tr>
 <td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
-### Desafío
+### Atenciones simples deben esperar en la cola de atención
 
 Las atenciones simples requieren esperar a un agente humano, con disponibilidad limitada en horario 9-5.
 
@@ -33,7 +33,7 @@ Las atenciones simples requieren esperar a un agente humano, con disponibilidad 
 <tr>
 <td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
-### Desafío
+### IVR estático sin flexibilidad
 
 IVRs estáticos sin flexibilidad: árboles de menú rígidos que frustran al cliente y no se adaptan al contexto de la conversación.
 
@@ -54,7 +54,7 @@ IVRs estáticos sin flexibilidad: árboles de menú rígidos que frustran al cli
 <tr>
 <td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
-### Desafío
+### Voces robóticas y monótonas
 
 Voces robóticas y monótonas que no generan confianza ni cercanía con el cliente.
 
@@ -75,7 +75,7 @@ Voces robóticas y monótonas que no generan confianza ni cercanía con el clien
 <tr>
 <td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
-### Desafío
+### El autoservicio no accede a sistemas internos
 
 El autoservicio no puede acceder a sistemas internos: el bot responde preguntas genéricas pero no puede consultar saldos, hacer reservas, ni ejecutar acciones reales.
 
@@ -96,7 +96,7 @@ El autoservicio no puede acceder a sistemas internos: el bot responde preguntas 
 <tr>
 <td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
-### Desafío
+### Escalación sin contexto al agente humano
 
 Cuando el autoservicio no puede resolver, el cliente es transferido a un agente humano sin contexto — y tiene que repetir todo desde cero.
 
@@ -117,7 +117,7 @@ Cuando el autoservicio no puede resolver, el cliente es transferido a un agente 
 <tr>
 <td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
-### Desafío
+### El agente pierde tiempo buscando información
 
 Los agentes humanos pierden tiempo buscando información en múltiples sistemas mientras el cliente espera en la línea.
 
@@ -138,7 +138,7 @@ Los agentes humanos pierden tiempo buscando información en múltiples sistemas 
 <tr>
 <td width="50%" style="background-color:#fce4e4; vertical-align:top; padding:16px; color:#1a1a1a;">
 
-### Desafío
+### Soporte en un solo idioma
 
 El soporte solo funciona en un idioma, excluyendo a una base de clientes diversa en Latinoamérica.
 
@@ -155,7 +155,7 @@ El soporte solo funciona en un idioma, excluyendo a una base de clientes diversa
 
 ---
 
-## Arquitectura
+## Arquitectura de referencia
 
 ![](./connec-ai-agents.jpg)
 
@@ -164,16 +164,16 @@ El soporte solo funciona en un idioma, excluyendo a una base de clientes diversa
 El diagrama muestra el recorrido de una atención de principio a fin:
 
 1. **Entrada omnicanal** — El cliente contacta por webchat, webcall o llamada telefónica (PSTN). Todos los canales llegan a una **única instancia de Amazon Connect**, con voces agénticas multilingües (ES, EN, PT).
-2. **Autoservicio agéntico** — Connect enruta la conversación al **AI Agent de autoservicio**. El agente entiende la intención en lenguaje natural y decide cómo resolver.
+2. **Autoservicio agéntico** — Connect enruta la conversación al **AI Agent de autoservicio** (Diferenciado para Voz y Chat). El agente entiende la intención en lenguaje natural y decide cómo resolver.
 3. **Conocimiento y acción** — Para resolver, el agente combina dos capacidades reutilizables: **Retrieve** sobre una base de conocimiento (documentos de industria) y **MCP Tools** expuestas por un gateway de Bedrock AgentCore, que enruta hacia las APIs de negocio de cada industria.
-4. **Escalación con contexto** — Cuando el agente no puede resolver, invoca la **Escalate Tool**: se arma un contexto de escalación (view) y la conversación pasa a un agente humano sin que el cliente tenga que repetir nada.
+4. **Escalación con contexto** — Cuando el agente no puede resolver, invoca la **Escalate Tool**: se arma un contexto de escalación (Guía) y la conversación pasa a un agente humano sin que el cliente tenga que repetir nada.
 5. **Asistencia al agente humano** — Ya con el humano en línea, el **AI Agent Assist** acompaña la atención usando la **misma** base de conocimiento (Retrieve) y las **mismas** MCP Tools, sugiriendo respuestas y ejecutando acciones en tiempo real.
 
-**Conceptualmente:** una sola instancia de Connect concentra todos los canales; un cerebro agéntico razona sobre la intención del cliente y orquesta dos recursos compartidos —conocimiento (KB) y herramientas (MCP)— tanto en autoservicio como en asistencia al humano. El mismo backend de conocimiento y las mismas herramientas sirven a ambos momentos de la atención.
+**Conceptualmente:** una sola instancia de Connect concentra todos los canales; el Agente de IA detecta sobre la intención del cliente y orquesta dos recursos compartidos —conocimiento (KB) y herramientas (MCP)— tanto en autoservicio como en asistencia al humano. El mismo backend de conocimiento y las mismas herramientas sirven a ambos momentos de la atención.
 
 **Beneficio:** las atenciones simples se resuelven solas 24/7, liberando a los agentes humanos para los casos complejos; y cuando hay escalación, el humano recibe todo el contexto y las mismas capacidades del agente, atendiendo más rápido y sin fricción para el cliente. La arquitectura es multiindustria: la misma base se re-tematiza (telco, banca, aerolínea) cambiando solo los datos y las herramientas de dominio.
 
-**Por industria:**
+**Casos de uso por industria:**
 - **Telco** → cuentas, planes, líneas móviles
 - **Banco** → cuentas, productos financieros, tarjetas
 - **Airline** → cuentas de viajero, vuelos disponibles, reservas
