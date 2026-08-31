@@ -44,7 +44,10 @@ _DEFAULT_METHOD_RESPONSES = [
 ]
 
 # JSON key inside the secret that holds the API key string.
-SECRET_API_KEY_JSON_KEY = "apiKey"
+SECRET_API_KEY_JSON_KEY = "apiKey"  # nosec B105 # JSON field name, not a credential
+
+# Empty JSON document that Secrets Manager merges the generated value into.
+_EMPTY_JSON_TEMPLATE = "{}"
 
 
 class AirlineApi(Construct):
@@ -182,7 +185,7 @@ class AirlineApi(Construct):
             "ApiKeySecret",
             description="Airline self-service API key (API Gateway + AgentCore).",
             generate_secret_string=sm.SecretStringGenerator(
-                secret_string_template="{}",
+                secret_string_template=_EMPTY_JSON_TEMPLATE,
                 generate_string_key=SECRET_API_KEY_JSON_KEY,
                 exclude_punctuation=True,
                 password_length=40,

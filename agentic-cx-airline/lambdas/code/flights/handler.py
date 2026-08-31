@@ -38,11 +38,12 @@ def _response(status: int, body) -> dict:
 def _flight_label(flight: dict) -> str:
     """Spanish, human-readable label for a flight,
     e.g. 'AL100 Bogotá → Medellín — 2026-08-15 06:30 — $89 USD'."""
-    parts = [
+    route = (
         f"{flight['flightId'].replace('flight-', '')} "
         f"{flight.get('originCity', flight.get('origin', ''))} → "
         f"{flight.get('destinationCity', flight.get('destination', ''))}"
-    ]
+    )
+    parts = [route]
     if flight.get("departureDate"):
         parts.append(f"{flight['departureDate']} {flight.get('departureTime', '')}")
     if flight.get("price") is not None:

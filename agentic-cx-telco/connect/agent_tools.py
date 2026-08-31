@@ -85,18 +85,23 @@ RETRIEVE_INSTRUCTION = (
     "don't have that specific information available; do not make assumptions or "
     "provide information from general knowledge."
 )
+_GOOD_RETRIEVE_EXAMPLE = (
+    "Good example - message part with a source:\n"
+    "<message>\n  <message_part>\n    <text>La activacion de la eSIM tarda "
+    "unos minutos.</text>\n    <sources>\n      <sourceId>sampleSourceId_1"
+    "</sourceId>\n    </sources>\n  </message_part>\n</message>"
+)
+_BAD_RETRIEVE_EXAMPLE = (
+    "Bad example - information from retrieve results without a citation "
+    "(avoid this):\n<message>\nLa activacion tarda unos minutos.\n</message>"
+)
+_NO_RESULTS_RETRIEVE_EXAMPLE = (
+    "Example for no results:\n<message>\nNo tengo esa informacion disponible.\n</message>"
+)
 RETRIEVE_EXAMPLES = [
-    (
-        "Good example - message part with a source:\n"
-        "<message>\n  <message_part>\n    <text>La activacion de la eSIM tarda "
-        "unos minutos.</text>\n    <sources>\n      <sourceId>sampleSourceId_1"
-        "</sourceId>\n    </sources>\n  </message_part>\n</message>"
-    ),
-    (
-        "Bad example - information from retrieve results without a citation "
-        "(avoid this):\n<message>\nLa activacion tarda unos minutos.\n</message>"
-    ),
-    "Example for no results:\n<message>\nNo tengo esa informacion disponible.\n</message>",
+    _GOOD_RETRIEVE_EXAMPLE,
+    _BAD_RETRIEVE_EXAMPLE,
+    _NO_RESULTS_RETRIEVE_EXAMPLE,
 ]
 
 ASSIST_RETRIEVE_INSTRUCTION = "Use this to answer questions about plans, 4G/5G coverage, device compatibility, eSIM, store hours, roaming, and FAQs. Phrase the query as a complete, specific question, not keywords."

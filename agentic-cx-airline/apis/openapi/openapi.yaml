@@ -176,6 +176,7 @@ paths:
                     example: acct-1001
                   flights:
                     type: array
+                    maxItems: 50
                     items:
                       type: string
                     description: List of flightId values associated with this account.
@@ -234,6 +235,7 @@ paths:
                 properties:
                   flights:
                     type: array
+                    maxItems: 100
                     items:
                       $ref: '#/components/schemas/Flight'
                   count:
@@ -369,6 +371,7 @@ paths:
                     example: cust-5001
                   reservations:
                     type: array
+                    maxItems: 100
                     items:
                       $ref: '#/components/schemas/Reservation'
                   count:
@@ -447,6 +450,7 @@ components:
           example: maria.gonzalez@example.com
         flights:
           type: array
+          maxItems: 50
           items:
             type: string
           description: Flight ids associated with this account.

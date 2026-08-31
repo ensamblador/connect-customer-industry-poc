@@ -225,24 +225,26 @@ class McpStack(Stack):
         # service authorizes under the legacy "wisdom:" prefix), scoped to the
         # assistant's sessions.
         self.tables.accounts.grant_read_data(self.lambdas.ai_session)
+        wisdom_session_arn = (
+            f"arn:aws:wisdom:{self.region}:{self.account}:"
+            f"session/{config.ASSISTANT_ID}/*"
+        )
         self.lambdas.ai_session.add_to_role_policy(
             iam.PolicyStatement(
                 actions=["wisdom:UpdateSessionData", "qconnect:UpdateSessionData"],
-                resources=[
-                    f"arn:aws:wisdom:{self.region}:{self.account}:"
-                    f"session/{config.ASSISTANT_ID}/*"
-                ],
+                resources=[wisdom_session_arn],
             )
         )
         # Discover the contact's Wisdom session ARN so the Lambda can target
         # UpdateSessionData without the flow passing it.
+        contact_arn = (
+            f"arn:aws:connect:{self.region}:{self.account}:"
+            f"instance/{config.INSTANCE_ID}/contact/*"
+        )
         self.lambdas.ai_session.add_to_role_policy(
             iam.PolicyStatement(
                 actions=["connect:DescribeContact"],
-                resources=[
-                    f"arn:aws:connect:{self.region}:{self.account}:"
-                    f"instance/{config.INSTANCE_ID}/contact/*"
-                ],
+                resources=[contact_arn],
             )
         )
 

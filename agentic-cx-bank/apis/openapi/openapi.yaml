@@ -227,6 +227,7 @@ paths:
                 properties:
                   products:
                     type: array
+                    maxItems: 100
                     items:
                       $ref: '#/components/schemas/Product'
                   count:
@@ -351,6 +352,7 @@ paths:
                     example: cust-5003
                   cards:
                     type: array
+                    maxItems: 100
                     items:
                       $ref: '#/components/schemas/Card'
                   count:

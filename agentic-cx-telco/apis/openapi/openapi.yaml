@@ -226,6 +226,7 @@ paths:
                 properties:
                   plans:
                     type: array
+                    maxItems: 100
                     items:
                       $ref: '#/components/schemas/Plan'
                   count:
@@ -354,6 +355,7 @@ paths:
                     example: cust-5003
                   lines:
                     type: array
+                    maxItems: 100
                     items:
                       $ref: '#/components/schemas/Line'
                   count:

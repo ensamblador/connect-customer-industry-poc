@@ -24,6 +24,7 @@ Contract (driven by the PromptByName CDK construct):
 """
 
 import json
+import urllib.parse
 import urllib.request
 
 import boto3
@@ -55,15 +56,27 @@ def _send_response(event, context, status, data, physical_resource_id, reason=No
         "Data": data or {},
     }
     encoded = json.dumps(body).encode("utf-8")
+
+    # The response URL is a CloudFormation-issued pre-signed S3 URL and must
+    # always be HTTPS. Reject anything else so a malformed or tampered event
+    # can never make ``urlopen`` dereference ``file://`` or another scheme.
+    response_url = event["ResponseURL"]
+    if urllib.parse.urlparse(response_url).scheme != "https":
+        raise ValueError("ResponseURL must use the https scheme")
+
     request = urllib.request.Request(
-        event["ResponseURL"],
+        response_url,
         data=encoded,
         method="PUT",
         # CloudFormation requires an empty content-type and the byte length.
         headers={"content-type": "", "content-length": str(len(encoded))},
     )
-    # The URL is a CloudFormation-issued pre-signed S3 URL.
-    urllib.request.urlopen(request)  # noqa: S310
+    # Scheme is validated above, so only https requests reach this call. The
+    # scanner warnings for this line (bandit B310 / semgrep
+    # dynamic-urllib-use-detected) both concern urllib dereferencing a
+    # 'file://' or custom scheme; the guard above makes that unreachable.
+    # nosemgrep: dynamic-urllib-use-detected
+    urllib.request.urlopen(request)  # nosec B310
 
 
 def _list_prompts(instance_id):

@@ -88,7 +88,9 @@ from aws_cdk import custom_resources as cr
 from constructs import Construct
 
 # The magic token Lex substitutes with the Q in Connect assistant's answer.
-_QIC_RESPONSE_TOKEN = "((x-amz-lex:q-in-connect-response))"
+_QIC_RESPONSE_TOKEN = (
+    "((x-amz-lex:q-in-connect-response))"  # nosec B105 # Lex substitution placeholder
+)
 _DEFAULT_LOCALES = ["en_US", "es_US", "pt_BR"]
 # The fixed alias id of every Lex V2 bot's built-in test alias.
 _TEST_BOT_ALIAS_ID = "TSTALIASID"
