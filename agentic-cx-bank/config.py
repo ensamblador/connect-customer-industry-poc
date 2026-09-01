@@ -32,22 +32,70 @@ collides with a sibling project's resources on the shared Connect instance.
 import os
 
 # ========================================================================== #
+# ENVIRONMENT — the account-specific Amazon Connect identity
+# ========================================================================== #
+# The three identity values below are account-specific, so they are NOT stored
+# in this repo: they are REQUIRED environment variables, exported in the shell
+# before running `cdk` or any post-deploy script.
+#
+#     export INSTANCE_ALIAS=my-connect-alias
+#     export INSTANCE_ID=00000000-0000-0000-0000-000000000000
+#     export ASSISTANT_ID=00000000-0000-0000-0000-000000000000
+#
+# In practice keep them in a gitignored `.env` at the repo root and source it
+# once per shell (`.env.example` is the committed template):
+#
+#     set -a; source ../.env; set +a
+#
+# Importing this module IS the fail-closed gate: a missing or blank value
+# raises ConfigError immediately, so a forgotten `source` stops the deploy with
+# a message naming the variable instead of synthesizing a half-configured
+# stack or deploying against the wrong instance. Both the CDK app and the
+# post-deploy scripts import this module, so both are covered.
+
+
+class ConfigError(RuntimeError):
+    """Raised when a required environment variable is absent or blank."""
+
+
+def _require_env(name: str) -> str:
+    """Return the trimmed value of required environment variable ``name``.
+
+    Raises ``ConfigError`` when unset, empty, or whitespace-only. A plain
+    ``assert`` is deliberately avoided: assertions are stripped under
+    ``python -O`` / ``PYTHONOPTIMIZE``, which would silently restore the empty
+    values this check exists to prevent.
+    """
+    value = os.environ.get(name, "").strip()
+    if not value:
+        raise ConfigError(
+            f"Required environment variable '{name}' is missing or empty. "
+            "Export INSTANCE_ALIAS, INSTANCE_ID and ASSISTANT_ID (see the "
+            "repo-root .env.example) before running cdk or the post-deploy "
+            "scripts."
+        )
+    return value
+
+
+# ========================================================================== #
 # SHARED — Amazon Connect identity (consumed from Phase 1 onward by every stack)
 # ========================================================================== #
-# Fill these in with your real Connect instance values. Placeholders let the
-# stacks synthesize without a live instance (HAS_REAL_INSTANCE gates the
-# instance-bound resources). These three identity values are the single source
-# of truth referenced by every consumer (they intentionally match the shared
-# instance across the sibling industry projects).
-INSTANCE_ALIAS = "poc-367764689636"
-INSTANCE_ID = "3bb09f3b-875d-440b-8be9-6590d2639afa"
+# These three identity values are the single source of truth referenced by every
+# consumer. They intentionally match the shared instance across the sibling
+# industry projects, which is why they live in ONE repo-root `.env` rather than
+# being repeated per app.
+#
+# Connect instance alias — the subdomain of the instance access URL
+# (https://<alias>.my.connect.aws); also builds OIDC_DISCOVERY_URL below.
+INSTANCE_ALIAS = _require_env("INSTANCE_ALIAS")
+INSTANCE_ID = _require_env("INSTANCE_ID")
 
 # The Connect Q in Connect assistant id (a.k.a. the "AI agents domain" id — the
 # same resource). Single source of truth for every assistant reference
 # (consumed by Phase 1 ai-session env, Phase 2 KB association, Phase 3 Lex bot,
 # Phase 4 prompts/agents/logging, Phase 5 flow ASSISTANT_ARN).
 
-ASSISTANT_ID = "4bb8f994-2954-43ec-a7be-1f02598958f2"
+ASSISTANT_ID = _require_env("ASSISTANT_ID")
 # ========================================================================== #
 # PHASE 1 — CX-BANCO-MCP (McpStack)
 # data + compute + REST API + AgentCore MCP gateway + Connect MCP/Lambda integ.
@@ -79,9 +127,12 @@ AI_AGENT_MCP_TARGET = "banco-rest-api-oas-target"
 OIDC_DISCOVERY_URL = (
     f"https://{INSTANCE_ALIAS}.my.connect.aws/.well-known/openid-configuration"
 )
-# True only when a real instance alias has been set. Gates every instance-bound
-# resource (consumed by Phases 1, 3, 4, 5).
-HAS_REAL_INSTANCE = INSTANCE_ALIAS != "replace-with-connect-instance-alias"
+# Gate for every instance-bound resource (consumed by Phases 1, 3, 4, 5). Now
+# always True by construction: the identity is required, so _require_env above
+# raises before this module finishes importing when it is absent. Kept as a
+# named constant so the `if config.HAS_REAL_INSTANCE:` guards in the stacks
+# keep reading as intended; removing them is a separate cleanup.
+HAS_REAL_INSTANCE = True
 
 # ========================================================================== #
 # PHASE 2 — CX-BANCO-KB (KnowledgeBaseStack)

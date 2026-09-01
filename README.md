@@ -1,5 +1,7 @@
 # Amazon Connect — Agentic Customer Experience PoC
 
+> 🌐 **Idiomas:** **Español** (este archivo) · [English](./README-en.md)
+
 > **Autoservicio inteligente, omnicanal y multiindustria** con Amazon Connect AI Agents, AI Agent Assist, y Bedrock AgentCore MCP.
 
 Este repositorio contiene una prueba de concepto completa que demuestra cómo resolver los desafíos más comunes de los contact centers usando capacidades agénticas de Amazon Connect. Cada industria (telco, banco, aerolínea) re-tematiza la misma arquitectura de referencia con datos y experiencias de dominio específicas, compartiendo una sola instancia de Connect.
@@ -189,8 +191,10 @@ connect-customer-industry-poc/
 ├── agentic-cx-bank/            # CX-BANCO-* (6 stacks) — demo banca
 ├── agentic-cx-airline/         # CX-AIRLINE-* (6 stacks) — demo aerolínea
 ├── cdk_constructs/             # Constructs CDK compartidos (AgentCore, Connect, webhosting)
-├── instructions.md             # Guía de despliegue paso a paso
-└── README.md                   # Este archivo
+├── instructions.md             # Guía de despliegue paso a paso (español)
+├── instructions-en.md          # Guía de despliegue paso a paso (inglés)
+├── README.md                   # Este archivo
+└── README-en.md                # Versión en inglés de este archivo
 ```
 
 Cada app de industria contiene:
@@ -206,6 +210,8 @@ agentic-cx-{industria}/
 ├── flows/                      # Contact flows (JSON, Flow Language)
 ├── views/                      # Customer-managed views (formularios, guías paso a paso)
 ├── website/                    # Sitio estático (Vite) con widget de chat
+├── DEMO-WALKTHROUGH.md         # Script de demo (español)
+├── DEMO-WALKTHROUGH-en.md      # Script de demo (inglés)
 └── agentic_cx_{industria}/     # CDK stacks (6 fases)
 ```
 
@@ -215,7 +221,7 @@ agentic-cx-{industria}/
 
 Consulta **[instructions.md](./instructions.md)** para la guía completa de despliegue paso a paso, incluyendo:
 
-- Prerrequisitos (CDK bootstrap, virtualenvs, credenciales)
+- Prerrequisitos (CDK bootstrap, virtualenvs, credenciales, el `.env` con la identidad de Connect)
 - Creación de la instancia de Connect y el asistente de AI Agent Assist (Q in Connect)
 - Despliegue de `general-localization` (una sola vez)
 - Despliegue de cada industria (6 stacks por app)
@@ -299,11 +305,13 @@ Para eliminar todos los recursos desplegados:
 ```bash
 # 1. Destruir los stacks de cada industria (en orden inverso)
 cd agentic-cx-{industria}
+source ../.env                 # identidad de Connect (obligatoria para sintetizar)
 source .venv/bin/activate
 cdk destroy --all
 
 # 2. Destruir general-localization
 cd ../general-localization
+source ../.env
 source .venv/bin/activate
 cdk destroy
 

@@ -205,7 +205,11 @@ AWS credentials resolve from your local profile/SSO at deploy time).
 Key constants:
 
 - `INSTANCE_ID`, `ASSISTANT_ID` — Connect instance + Q in Connect assistant the
-  resources are created under (placeholder UUIDs synthesize offline).
+  resources are created under. **Read from the environment, not stored here**:
+  both are resolved through `config_validation.require()`, so importing
+  `config.py` raises `ConfigError` if either is unset. Keep them in the
+  gitignored repo-root `.env` (`.env.example` is the template) and
+  `source ../.env` once per shell before running `cdk`.
 - `LOCALES` — `{"en_US": True, "es_US": True, "pt_BR": False}`. `en_US` is always
   enabled for the queue experience; the AI-agent rollout iterates enabled
   non-English locales (currently `es_US`). Enabling `pt_BR` extends the build

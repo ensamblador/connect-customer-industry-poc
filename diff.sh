@@ -26,8 +26,7 @@ diff_folder() {
         echo "Stack: $stack"
         cdk diff "$stack"
     else
-        echo "Stack: --all"
-        cdk diff --all
+        cdk diff 
     fi
 
     # Deactivate if we activated

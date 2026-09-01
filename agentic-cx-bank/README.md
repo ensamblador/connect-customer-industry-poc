@@ -1,6 +1,15 @@
-> 🌎 **English:** [if you want to see the English version, click here (`README-en.md`)](README-en.md)
-
 # agentic-cx-bank
+
+> 📚 **Dónde está cada cosa**
+>
+> | Necesitas | Ve a |
+> |---|---|
+> | Visión general del PoC, arquitectura de referencia, desafíos que resuelve | [`../README.md`](../README.md) · [English](../README-en.md) |
+> | Cómo desplegar: prerrequisitos, orden de fases, scripts y pasos manuales de consola | [`../instructions.md`](../instructions.md) · [English](../instructions-en.md) |
+> | Cómo demostrarlo: preguntas exactas, qué esperar, checklist | [`DEMO-WALKTHROUGH.md`](./DEMO-WALKTHROUGH.md) · [English](./DEMO-WALKTHROUGH-en.md) |
+> | **Detalle interno de esta app**: recursos por fase, Lambdas, contrato SSM, configuración | este archivo |
+>
+> Este README documenta **solo lo específico de banco**. Lo común a las tres industrias vive en los documentos maestros de arriba y no se repite aquí.
 
 Un ejemplo por fases en AWS CDK (Python) que levanta un **backend de autoservicio de
 banca retail** y lo expone a los **agentes de IA de Amazon Connect** como un servidor
@@ -51,78 +60,6 @@ flujo.
 
 En este proyecto **no hay tareas/servicios de ECS** ni **máquinas de estado de Step
 Functions** — todo el cómputo es Lambda.
-
-```mermaid
-graph TD
-    Caller["Web / phone / chat caller"]
-    CF["CloudFront (OAC)"]
-    SITE_S3["S3: website build (private)"]
-    DV["Lambda: data_viewer"]
-    Connect["Amazon Connect instance"]
-
-    Caller -->|HTTPS| CF
-    CF -->|"/*"| SITE_S3
-    CF -->|"/datos"| DV
-    Caller -->|voice / chat| Connect
-
-    subgraph PHASE1["Phase 1 — MCP backend (CX-BANCO-MCP)"]
-        API["API Gateway: banco-api"]
-        ACC["Lambda: accounts"]
-        PRD["Lambda: products"]
-        CRD["Lambda: cards"]
-        AIS["Lambda: ai_session"]
-        SEC["Secrets Manager: API key"]
-        DDB_A[("DynamoDB: banco-accounts")]
-        DDB_P[("DynamoDB: banco-products")]
-        DDB_C[("DynamoDB: banco-cards")]
-        GW["AgentCore MCP gateway"]
-        CREDP["API-key credential provider"]
-    end
-
-    subgraph PHASE2["Phase 2 — Knowledge base (CX-BANCO-KB)"]
-        KB_S3["S3: KB articles (KMS)"]
-        DI["AppIntegrations DataIntegration"]
-        KB["Q in Connect EXTERNAL KB"]
-    end
-
-    subgraph AI["Q in Connect AI layer (CX-BANCO-AGENTS)"]
-        ASSIST["Assistant / AI agents domain"]
-        VOICE["AI agent: voice"]
-        CHAT["AI agent: chat"]
-        AGASSIST["AI agent: agent-assist"]
-    end
-
-    API --> ACC
-    API --> PRD
-    API --> CRD
-    ACC --> DDB_A
-    PRD --> DDB_P
-    CRD --> DDB_C
-    API -->|API key check| SEC
-
-    GW -->|API key| CREDP
-    CREDP --> SEC
-    GW -->|"invokes REST (MCP tools)"| API
-    Connect -->|MCP server integration| GW
-
-    Connect -->|LAMBDA_FUNCTION| PRD
-    Connect -->|LAMBDA_FUNCTION| AIS
-    AIS --> DDB_A
-    AIS -->|UpdateSessionData| ASSIST
-
-    KB_S3 --> DI --> KB --> ASSIST
-    ASSIST --> VOICE
-    ASSIST --> CHAT
-    ASSIST --> AGASSIST
-    VOICE -->|MCP tools| GW
-    CHAT -->|MCP tools| GW
-    AGASSIST -->|MCP tools| GW
-    VOICE -->|Retrieve| KB
-
-    DV --> DDB_A
-    DV --> DDB_P
-    DV --> DDB_C
-```
 
 ### Detalle por fase
 
@@ -251,265 +188,6 @@ datos de demo para las tres tablas DynamoDB.
 
 ---
 
-## Flujos de código de los Lambda
-
-Cada Lambda desplegado es Python 3.12 en ARM64. Las cuatro funciones del backend de
-banca (`accounts`, `products`, `cards`, `ai_session`) comparten un helper `_response()` /
-`_json_default` que serializa los valores `Decimal` de DynamoDB a números JSON nativos.
-**Ningún handler escribe en `/tmp` ni en S3** — la persistencia es solo DynamoDB, datos
-de sesión de Q in Connect, o el estado de perfiles de seguridad de Connect.
-
-### accounts
-
-**Disparador:** API Gateway REST (proxy). Rutas: `GET /accounts?phoneNumber=`,
-`GET /accounts/by-email?email=`, `GET /accounts/{accountId}`,
-`GET /accounts/{accountId}/balance`. Lee la tabla `banco-accounts`
-(+ GSIs de phone/email).
-
-```mermaid
-graph TD
-    START["handler(event)"] --> PARSE["Parse pathParameters / query / resource"]
-    PARSE --> BYEMAIL{"resource ends with /by-email ?"}
-    BYEMAIL -->|yes| EMAILQ{"email param present ?"}
-    EMAILQ -->|no| E400A["400 email required"]
-    EMAILQ -->|yes| QEMAIL["DynamoDB query email-index"]
-    QEMAIL --> EMAILHIT{"items found ?"}
-    EMAILHIT -->|no| E404A["404 no account"]
-    EMAILHIT -->|yes| OK200A["200 items[0]"]
-
-    BYEMAIL -->|no| HASID{"accountId present ?"}
-    HASID -->|no| PHONEQ{"phoneNumber param present ?"}
-    PHONEQ -->|no| E400B["400 phoneNumber required"]
-    PHONEQ -->|yes| QPHONE["DynamoDB query phoneNumber-index"]
-    QPHONE --> PHONEHIT{"items found ?"}
-    PHONEHIT -->|no| E404B["404 no account"]
-    PHONEHIT -->|yes| OK200B["200 items[0]"]
-
-    HASID -->|yes| GET["DynamoDB get_item accountId"]
-    GET --> FOUND{"item found ?"}
-    FOUND -->|no| E404C["404 not found"]
-    FOUND -->|yes| BAL{"resource ends with /balance ?"}
-    BAL -->|yes| OK200C["200 balance / currency / dueDate"]
-    BAL -->|no| OK200D["200 full item"]
-```
-
-### products
-
-**Disparador:** DUAL. (a) Proxy REST de API Gateway: `GET /products?maxAnnualFee=`,
-`GET /products/{productId}`. (b) **Invoke AWS Lambda function** de Amazon Connect
-(detectado cuando el evento tiene una clave `Details` de nivel superior y no tiene
-`httpMethod`). Lee la tabla `banco-products`.
-
-```mermaid
-graph TD
-    START["handler(event)"] --> CONNECT{"has Details and no httpMethod ?"}
-    CONNECT -->|yes| SCANC["DynamoDB scan products"]
-    SCANC --> SORTC["Sort by annualFee, normalize Decimals"]
-    SORTC --> OPTS["Build productOptions (Label / Value)"]
-    OPTS --> RETC["Return products / productOptions / count"]
-
-    CONNECT -->|no| PRODID{"productId in path ?"}
-    PRODID -->|yes| GET["DynamoDB get_item productId"]
-    GET --> FOUND{"item found ?"}
-    FOUND -->|no| E404["404 not found"]
-    FOUND -->|yes| OK200["200 item"]
-
-    PRODID -->|no| SCAN["DynamoDB scan products"]
-    SCAN --> MAXFEE{"maxAnnualFee query present ?"}
-    MAXFEE -->|yes| NUM{"maxAnnualFee is a number ?"}
-    NUM -->|no| E400["400 maxAnnualFee must be a number"]
-    NUM -->|yes| FILTER["Filter annualFee <= maxAnnualFee"]
-    MAXFEE -->|no| SORT["Sort by annualFee ascending"]
-    FILTER --> SORT
-    SORT --> OKLIST["200 products / count"]
-```
-
-### cards
-
-**Disparador:** Proxy REST de API Gateway. Rutas: `POST /cards`, `GET /cards?customerId=`,
-`GET /cards/{cardId}`. Lee/escribe la tabla `banco-cards` (+ GSI de customerId); genera
-`cardId` del lado del servidor con `uuid4`.
-
-```mermaid
-graph TD
-    START["handler(event)"] --> METHOD{"httpMethod == POST ?"}
-    METHOD -->|yes| BODY["json.loads(body)"]
-    BODY --> VALIDJSON{"valid JSON ?"}
-    VALIDJSON -->|no| E400A["400 body must be valid JSON"]
-    VALIDJSON -->|yes| REQ{"customerId and productId present ?"}
-    REQ -->|no| E400B["400 customerId / productId required"]
-    REQ -->|yes| BRANCH{"deliveryBranch valid 3-digit ?"}
-    BRANCH -->|no| E400C["400 deliveryBranch must be 3-digit"]
-    BRANCH -->|yes| PUT["DynamoDB put_item (status=requested)"]
-    PUT --> OK201["201 card"]
-
-    METHOD -->|no| HASID{"cardId in path ?"}
-    HASID -->|yes| GET["DynamoDB get_item cardId"]
-    GET --> FOUND{"item found ?"}
-    FOUND -->|no| E404["404 not found"]
-    FOUND -->|yes| OK200["200 item"]
-
-    HASID -->|no| CUST{"customerId query present ?"}
-    CUST -->|no| E400D["400 customerId required"]
-    CUST -->|yes| QUERY["DynamoDB query customerId-index"]
-    QUERY --> OKLIST["200 customerId / cards / count"]
-```
-
-### ai_session
-
-**Disparador:** `InvokeLambdaFunction` de Amazon Connect desde el módulo de flujo
-`set-customer-session-banco`. Devuelve un **STRING_MAP** plano. Lee la tabla
-`banco-accounts` (GSIs de phone/email), llama a `connect:DescribeContact` para encontrar
-el ARN de la sesión de Wisdom del contacto, y a `qconnect:UpdateSessionData` para
-escribir atributos en la sesión de Q in Connect. Todas las fallas de Connect/sesión se
-silencian para que una escritura de personalización nunca bloquee el contacto.
-
-```mermaid
-graph TD
-    START["handler(event)"] --> READ["Read Parameters + ContactId; phone / email"]
-    READ --> MODE{"phone or email present ?"}
-
-    MODE -->|no| WRITABLE{"any writable params ?"}
-    WRITABLE -->|no| RETFALSE["Return session_updated=false"]
-    WRITABLE -->|yes| WRITE["_write_session_values"]
-    WRITE --> ARN1["connect:DescribeContact -> session ARN"]
-    ARN1 --> HASARN1{"session ARN found ?"}
-    HASARN1 -->|no| WSKIP["skip; session_updated=false"]
-    HASARN1 -->|yes| UPD1["qconnect:UpdateSessionData"]
-    UPD1 --> WRESP["Return session_updated + echoed keys"]
-    WSKIP --> WRESP
-
-    MODE -->|yes| LOOKUP["_lookup_customer: DynamoDB query phone/email GSI"]
-    LOOKUP --> ITEM{"customer found ?"}
-    ITEM -->|no| NOTCUST["Return is_customer=FALSE"]
-    ITEM -->|yes| ARN2["connect:DescribeContact -> session ARN"]
-    ARN2 --> HASARN2{"ARN + data present ?"}
-    HASARN2 -->|no| LSKIP["session_updated stays false"]
-    HASARN2 -->|yes| UPD2["qconnect:UpdateSessionData"]
-    UPD2 --> LRESP["Return is_customer=TRUE + fields"]
-    LSKIP --> LRESP
-```
-
-### ProfileDetacher (custom resource, en borrado)
-
-**Disparador:** custom resource de CloudFormation (`cr.Provider`) en el stack de MCP. En
-**Create/Update es un no-op**; en **Delete** quita el namespace de esta aplicación MCP
-(el id del gateway) de cada perfil de seguridad de Connect que aún lo conceda, para que
-`DeleteIntegrationAssociation` pueda proceder automáticamente. Llama a
-`connect:ListSecurityProfiles`, `ListSecurityProfileApplications`, y
-`UpdateSecurityProfile`.
-
-```mermaid
-graph TD
-    START["on_event(event)"] --> RT{"RequestType == Delete ?"}
-    RT -->|no| NOOP["Return PhysicalResourceId (no-op)"]
-    RT -->|yes| LIST["connect:ListSecurityProfiles (paginated)"]
-    LIST --> LOOP["For each security profile"]
-    LOOP --> APPS["ListSecurityProfileApplications"]
-    APPS --> HAS{"namespace present on profile ?"}
-    HAS -->|no| LOOP
-    HAS -->|yes| REBUILD["Drop matching namespace"]
-    REBUILD --> UPDATE["connect:UpdateSecurityProfile"]
-    UPDATE --> LOOP
-    LOOP --> DONE["Return PhysicalResourceId"]
-```
-
-### BasicQueueLookup (custom resource, en despliegue)
-
-**Disparador:** custom resource de CloudFormation en el stack de FLOWS. Resuelve el ARN
-de la cola estándar por nombre (`connect:ListQueues`, paginado) para que los flujos
-transfieran a una cola válida sin id hardcodeado. Lanza un error ruidoso si la cola
-nombrada no se encuentra.
-
-```mermaid
-graph TD
-    START["handler(event)"] --> RT{"RequestType == Delete ?"}
-    RT -->|yes| NOOP["Return PhysicalResourceId (no-op)"]
-    RT -->|no| PAGE["connect:ListQueues (STANDARD, paginated)"]
-    PAGE --> MATCH{"queue name matches ?"}
-    MATCH -->|no| PAGE
-    MATCH -->|yes| FOUND["Capture Arn + Id"]
-    FOUND --> CHECK{"arn resolved ?"}
-    CHECK -->|no| RAISE["raise Exception (fail deploy)"]
-    CHECK -->|yes| RET["Return QueueArn / QueueId"]
-```
-
-### data_viewer (sitio web)
-
-**Disparador:** Lambda detrás de un comportamiento `/datos` de CloudFront (proxy de API
-Gateway con OAC). Escanea las tres tablas DynamoDB (`banco-accounts`, `banco-products`,
-`banco-cards`) con paginación completa y renderiza una única página HTML de solo lectura
-en memoria (sin `/tmp`, sin S3). Un único try/except devuelve una página HTML 500 ante
-cualquier error.
-
-```mermaid
-graph TD
-    START["handler(event)"] --> TRY["try: for each table"]
-    TRY --> SCAN["DynamoDB scan (paginated)"]
-    SCAN --> SECTION["Build HTML table section"]
-    SECTION --> MORE{"more tables ?"}
-    MORE -->|yes| SCAN
-    MORE -->|no| PAGE["Render _PAGE with content"]
-    PAGE --> OK200["200 text/html (no-store)"]
-    TRY -->|Exception| ERR["Render error section"]
-    ERR --> E500["500 text/html"]
-```
-
-## Flujos de código de tareas y servicios de ECS
-
-Ninguno. Este proyecto no despliega tareas ni servicios de ECS.
-
-## Workflows de Step Functions
-
-Ninguno. Este proyecto no despliega máquinas de estado de Step Functions.
-
----
-
-## Estructura del proyecto
-
-```
-agentic-cx-bank/
-├── app.py                     # Entrada de la app CDK — cablea los seis stacks por fases + dependencias
-├── config.py                  # Config plana a nivel de módulo, agrupada por fase de despliegue (sin secretos)
-├── cdk.json                   # Ejecuta `python3 app.py`
-├── requirements.txt           # Deps de runtime (aws-cdk-lib, constructs, PyYAML, boto3)
-├── requirements-dev.txt       # Deps de dev (pytest)
-│
-├── agentic_cx_bank/           # Los seis stacks CDK
-│   ├── mcp_stack.py               # Fase 1  CX-BANCO-MCP
-│   ├── knowledge_base_stack.py    # Fase 2  CX-BANCO-KB
-│   ├── connect_support_stack.py   # Fase 3  CX-BANCO-CONNECT-SUPPORT
-│   ├── ai_agents_stack.py         # Fase 4  CX-BANCO-AGENTS
-│   ├── contact_flows_stack.py     # Fase 5  CX-BANCO-FLOWS
-│   └── website_stack.py           # Fase 6  CX-BANCO-WEBSITE
-│
-├── lambdas/
-│   ├── project_lambdas.py     # Construct `Lambdas` (accounts / products / cards / ai_session)
-│   └── code/                  # Código de los handlers, una carpeta por función
-│       ├── accounts/handler.py
-│       ├── products/handler.py
-│       ├── cards/handler.py
-│       ├── ai_session/handler.py
-│       └── data_viewer/index.py   # handler del visor de datos /datos (branding por industria)
-│
-├── apis/                      # Datos de industria: openapi/openapi.yaml + banco_api.py (mapa de rutas REST)
-├── databases/                # Construct `Tables` (schema por industria) + datos semilla (data/)
-├── knowledge_bases/          # Contenido de la KB (artículos de banca) + scripts post-despliegue
-│   ├── tag_kb_content.py                  # post-despliegue: etiqueta el contenido de la KB para segmentación de Retrieve
-│   └── associate_guide.py   # post-despliegue: crea la asociación AMAZON_CONNECT_GUIDE
-├── connect/                  # Datos de industria de Connect
-│   └── agent_tools.py             # `AgentToolset`: catálogo de tools MCP, instrucciones, guía de chat
-├── connect_ai_agents/        # YAML de prompts de orquestación por superficie de agente
-│   ├── bank-selfservice-voice/prompts/*.yaml
-│   ├── bank-selfservice-chat/prompts/*.yaml
-│   └── bank-agent-assist-es/prompts/*.yaml
-├── flows/                    # JSON de flujos de contacto + módulos (una carpeta por flujo)
-├── views/                    # JSON de vistas administradas por el cliente (formulario solicitud tarjeta / guía activar tarjeta / traspaso)
-├── website/                  # Front-end Vite "Latam Banco" (salida del build → website/dist)
-├── shared/ssm_names.py       # El contrato de nombres de parámetros SSM entre stacks
-└── tests/unit/               # Andamiaje de pytest
-```
-
 ## Pruebas
 
 La dependencia de dev es `pytest` (`requirements-dev.txt`). Ejecuta la suite desde la
@@ -534,6 +212,14 @@ despliegue), ordenadas por la fase de despliegue que primero consume cada valor.
 clave: identidad de Connect (`INSTANCE_ID`, `INSTANCE_ALIAS`, `ASSISTANT_ID`,
 `HAS_REAL_INSTANCE`), nombres, ajustes de KB, perfiles de seguridad, vistas/guía, bot de
 Lex, agentes de IA/prompts/modelos, flujos de contacto, y ajustes de build del sitio.
+La **identidad de Connect es la excepción**: `INSTANCE_ALIAS`, `INSTANCE_ID` y
+`ASSISTANT_ID` no están escritos en `config.py`, se leen del entorno como variables
+obligatorias (`_require_env`), así que importar `config.py` lanza `ConfigError` si falta
+alguna. Guárdalas en el `.env` de la raíz del repo (gitignored; `.env.example` es la
+plantilla) y haz `source ../.env` una vez por terminal antes de `cdk` o de los scripts
+post-despliegue. `HAS_REAL_INSTANCE` es por tanto siempre `True`; sigue existiendo como
+constante para los guards `if config.HAS_REAL_INSTANCE:` de los stacks.
+
 Cada nombre de recurso lleva el prefijo de su industria, así que nunca colisiona con los
 recursos de un proyecto hermano en la instancia de Connect compartida. Ver `config.py`
 para la lista completa anotada.
@@ -567,76 +253,35 @@ Secrets Manager).
 > Connect y lo consume el flujo inbound de la Fase 5 como su módulo de inicio.
 > `CX-LANG-UTILS` debe desplegarse primero para que el parámetro exista en tiempo de
 > despliegue.
-
 ---
 
 ## Despliegue
 
-```bash
-source .venv/bin/activate
-pip install -r requirements.txt
+El procedimiento de despliegue es **idéntico para las tres industrias**, así que vive una
+sola vez en la guía maestra en lugar de en tres copias que se desincronizan:
 
-# synth (puerta de verificación) — cdk.json ejecuta `python3 app.py`
-cdk synth
+> ### → [`../instructions.md`](../instructions.md) · [English](../instructions-en.md)
 
-# Fase 1 + Fase 2 — independientes, se despliegan en cualquier orden
-cdk deploy CX-BANCO-MCP --profile connect-industry
-cdk deploy CX-BANCO-KB  --profile connect-industry
+Cubre los prerrequisitos, el despliegue de `CX-LANG-UTILS` (una sola vez), el orden de las
+seis fases, los scripts post-despliegue (`tag_kb_content.py`, `associate_guide.py`) y los
+pasos manuales de consola: adjuntar los perfiles de seguridad **y publicar una nueva
+versión**, la alternancia de Lex Bot Management, la compilación de locales y el widget de
+chat.
 
-# Fase 3 — depende de la Fase 1 (gateway id) y de la Fase 2 (kb id)
-cdk deploy CX-BANCO-CONNECT-SUPPORT --profile connect-industry
+### Los valores de esta app
 
-# Fase 4 — depende de la Fase 1 (prefijo de herramientas MCP) y de la Fase 2 (asociación de KB)
-cdk deploy CX-BANCO-AGENTS --profile connect-industry
+Sustituye `{industria}` / `{INDUSTRIA}` en la guía maestra por estos:
 
-# Fase 5 — depende de la Fase 1 (Lambda ai_session), la Fase 3 (vista + alias Lex),
-# y la Fase 4 (ARNs de agentes)
-cdk deploy CX-BANCO-FLOWS --profile connect-industry
+| | |
+|---|---|
+| Stacks, en orden de fase | `CX-BANCO-MCP` · `CX-BANCO-KB` · `CX-BANCO-CONNECT-SUPPORT` · `CX-BANCO-AGENTS` · `CX-BANCO-FLOWS` · `CX-BANCO-WEBSITE` |
+| Perfiles de seguridad a adjuntar | voz + chat → `banco-selfservice-ai-agent` · agent-assist → `banco-agent-assist-iac` |
+| Flujo de la guía a asociar | `Activar tarjeta` → contenido `activar-tarjeta` de la KB |
+| Bot Lex a compilar | `banco-qconnect-bot-v2` (`en_US`, `es_US`, `pt_BR`) |
 
-# Fase 6 — compila el sitio primero, luego despliega (S3 + CloudFront)
-cd website && npm install && npm run build && cd ..
-cdk deploy CX-BANCO-WEBSITE --profile connect-industry
-```
+> Qué despliega cada stack y por qué depende del anterior está arriba, en
+> [Detalle por fase](#detalle-por-fase). El contrato SSM que los conecta está en
+> [Parámetros SSM](#parámetros-ssm-el-contrato-entre-stacks).
 
-Orden de despliegue: **`CX-BANCO-MCP` → `CX-BANCO-KB` → `CX-BANCO-CONNECT-SUPPORT` →
-`CX-BANCO-AGENTS` → `CX-BANCO-FLOWS` → `CX-BANCO-WEBSITE`.**
-
-### Pasos post-despliegue
-
-Después de que la **Fase 2** termine su primer sync, etiqueta el contenido de la KB para
-que la herramienta Retrieve lo encuentre, luego cablea la guía de activar tarjeta a su
-artículo. Ambos scripts resuelven el KB id desde SSM `KB_ID` (o `--kb-id`), así que no
-hace falta copiar ningún id a mano:
-
-```bash
-# 1. Etiqueta cada ítem de contenido de la KB (industry: bank + una etiqueta de idioma es/pt/en por ítem).
-#    --wait sondea hasta que 21 ítems estén ACTIVE, luego los etiqueta.
-python knowledge_bases/tag_kb_content.py --wait --expect 21 --profile connect-industry
-
-# 2. Vincula el flujo de la guía "Activar tarjeta" con el contenido activar-tarjeta de la KB
-#    (asociación AMAZON_CONNECT_GUIDE idempotente). Añade --dry-run para previsualizar.
-python knowledge_bases/associate_guide.py --profile connect-industry
-python knowledge_bases/associate_guide.py --dry-run --profile connect-industry
-```
-
-Después de la **Fase 4**, asigna los perfiles de seguridad de la Fase 3 a los agentes de
-IA (manual — no hay recurso nativo de CFN para `connect:AssociateSecurityProfiles` con
-`EntityType=AI_AGENT`):
-
-1. En el **sitio de administración de Amazon Connect**, abre **AI agents** (Q in Connect).
-2. Asigna perfiles: voz + chat → `banco-selfservice-ai-agent`, agent-assist →
-   `banco-agent-assist-iac` (usa los valores `SP_SELFSERVICE_ID` / `SP_ASSIST_ID`
-   publicados en SSM para identificarlos).
-3. Para **agent-assist**, los agentes humanos que usan el panel del asistente también
-   deben llevar los mismos permisos — las llamadas a herramientas se autorizan contra la
-   intersección de los perfiles del agente de IA y del agente humano.
-
-Después de la **Fase 3**, compila los tres locales del bot Lex (`en_US`, `es_US`,
-`pt_BR`) en la consola de Amazon Lex V2 para que su **TestBotAlias** quede activo para el
-flujo inbound (los locales intencionalmente no se auto-compilan para mantener el
-despliegue rápido).
-
-> La habilitación de los locales en el TestBotAlias la maneja automáticamente un custom
-> resource en `CX-BANCO-CONNECT-SUPPORT`, así que el chat funciona sin la alternancia
-> manual de locales del alias. Aun así necesitas **compilar** los tres locales en la
-> consola de Lex.
+Para demostrar la app una vez desplegada, ver
+[`DEMO-WALKTHROUGH.md`](./DEMO-WALKTHROUGH.md) ([English](./DEMO-WALKTHROUGH-en.md)).

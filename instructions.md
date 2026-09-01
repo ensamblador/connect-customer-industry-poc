@@ -1,5 +1,7 @@
 # Instrucciones de despliegue — Connect Customer Industry PoC
 
+> 🌐 **Idiomas:** **Español** (este archivo) · [English](./instructions-en.md)
+
 Configuración de extremo a extremo para las apps CDK de este repositorio:
 
 - **`general-localization/`** → stack **`CX-LANG-UTILS`** (flujo de cola localizado + prompts/agentes utilitarios de Q in Connect por locale, más el logging centralizado de los agentes de IA en CloudWatch).
@@ -18,6 +20,7 @@ Los pasos marcados **[MANUAL]** se hacen a mano en una consola; los pasos **[SCR
 - Node.js + npm (para el CLI de CDK y el build del sitio con Vite).
 - Python 3 con un virtualenv **por app CDK** (`agentic-cx-{industria}/.venv`, `general-localization/.venv`). Créalo con `python3 -m venv .venv` dentro de cada app antes del primer despliegue.
 - Credenciales de AWS disponibles en tu entorno (p. ej. `AWS_PROFILE` / SSO). Los scripts auxiliares usan `boto3.client(...)` directamente y heredan la región/perfil de tu shell — **no** aceptan `--profile`/`--region`.
+- Las tres **variables de entorno de identidad de Connect** exportadas en tu shell — `INSTANCE_ALIAS`, `INSTANCE_ID`, `ASSISTANT_ID` (ver el paso 0a).
 - CLI de AWS CDK (`npm i -g aws-cdk` o usa `npx cdk`).
 
 ```bash
@@ -45,6 +48,31 @@ cd ..
 deactivate
 ```
 
+### 0a. Identidad de Connect vía variables de entorno
+
+Los ids de la instancia de Connect y del asistente **no viven en el repositorio**: los cuatro `config.py` los leen del entorno como variables **obligatorias** y lanzan `ConfigError` al importarse si falta alguna. Esto evita publicar valores específicos de tu cuenta (el alias contiene tu número de cuenta) y hace que un `source` olvidado detenga el despliegue con un error nombrando la variable, en vez de sintetizar un stack a medio configurar o desplegar contra la instancia equivocada.
+
+Las tres variables son las mismas para las cuatro apps (misma instancia, mismo asistente), así que un único archivo `.env` en la raíz del repo configura todo. `.env` está en `.gitignore`; `.env.example` es la plantilla versionada:
+
+```bash
+cp .env.example .env
+# edita .env con tu alias + los dos UUIDs (paso 1)
+```
+
+`.env` lleva `export` en cada línea, así que basta con hacer `source` una vez por terminal, antes de cualquier `cdk` o script auxiliar:
+
+```bash
+cd agentic-cx-{industria}
+source ../.env          # equivalente: set -a; source ../.env; set +a
+
+# comprobación rápida
+echo $INSTANCE_ALIAS $INSTANCE_ID $ASSISTANT_ID
+```
+
+> Si prefieres no volver a hacer `source` en cada terminal nueva, expórtalas en tu perfil de shell o usa [direnv](https://direnv.net/), que carga `.env` automáticamente al entrar al directorio.
+
+> **Los tests no necesitan estas variables.** Cada app trae un `conftest.py` en su raíz que rellena valores ficticios cuando no están definidas (los tests solo sintetizan plantillas, nunca llaman a AWS), así que `pytest` funciona en un shell limpio. Un valor exportado de verdad sigue teniendo prioridad.
+
 ---
 
 ## 1. [MANUAL] Crear la instancia de Amazon Connect + el asistente de IA de Q in Connect
@@ -52,13 +80,24 @@ deactivate
 1. En la consola de **Amazon Connect**, crea (o elige) una **instancia** de Connect. Anota su **instance id** y su **instance alias**.
 2. Crea un dominio de **Q in Connect** / **asistente de IA** (el "dominio de agentes de IA"). Anota su **assistant id**.
 
-Luego actualiza la configuración en cada app para que apunten a la instancia real:
+Luego pon esos tres valores en el `.env` de la raíz del repo (**no** se editan en `config.py` — ver el paso 0a):
 
-- `agentic-cx-{industria}/config.py` → define `INSTANCE_ALIAS`, `INSTANCE_ID`, `ASSISTANT_ID`.
-  - `HAS_REAL_INSTANCE` pasa a `True` automáticamente en cuanto `INSTANCE_ALIAS` deja de ser el placeholder; controla cada recurso ligado a la instancia.
-- `general-localization/config.py` → define `INSTANCE_ID`, `ASSISTANT_ID` (la misma instancia/asistente).
+```bash
+export INSTANCE_ALIAS=mi-alias-de-connect     # subdominio de https://<alias>.my.connect.aws
+export INSTANCE_ID=00000000-0000-0000-0000-000000000000
+export ASSISTANT_ID=00000000-0000-0000-0000-000000000000
+```
 
-> Todas las apps de industria comparten la misma instancia y el mismo asistente; sus `config.py` llevan los mismos `INSTANCE_ID` / `ASSISTANT_ID`. Cada **nombre de recurso** lleva el prefijo de su industria (`telco-*` / `banco-*` / `airline-*`), así que nunca choca con los de otra industria en la instancia compartida.
+Si necesitas recuperarlos desde la CLI:
+
+```bash
+aws connect list-instances      # -> Id (INSTANCE_ID) + Alias (INSTANCE_ALIAS)
+aws qconnect list-assistants    # -> assistantId (ASSISTANT_ID)
+```
+
+Las cuatro apps (`general-localization` + las tres de industria) leen estas mismas tres variables, así que un solo `.env` en la raíz las configura todas. Cada **nombre de recurso** lleva el prefijo de su industria (`telco-*` / `banco-*` / `airline-*`), así que nunca choca con los de otra industria en la instancia compartida.
+
+> `INSTANCE_ALIAS` construye además la `OIDC_DISCOVERY_URL` del authorizer JWT de entrada del gateway MCP de AgentCore, por eso se necesita el alias y no solo el id.
 
 ---
 
@@ -66,6 +105,7 @@ Luego actualiza la configuración en cada app para que apunten a la instancia re
 
 ```bash
 cd general-localization
+source ../.env                 # INSTANCE_ID + ASSISTANT_ID (paso 0a)
 source .venv/bin/activate
 pip install -r requirements.txt
 cdk deploy
@@ -114,6 +154,7 @@ cd ..
 
 ```bash
 cd agentic-cx-{industria}
+source ../.env            # INSTANCE_ALIAS + INSTANCE_ID + ASSISTANT_ID (paso 0a)
 source .venv/bin/activate
 cdk diff                 # puerta de verificación
 cdk deploy --all          # o desplegar fase por fase (orden abajo)
@@ -134,7 +175,7 @@ Orden de fases (impuesto por `add_dependency`, solo ordenamiento — los valores
 
 ## 5. [SCRIPT] Post-despliegue: etiquetar el contenido de la KB + asociar la guía
 
-Ejecuta después de que `CX-{INDUSTRIA}-KB` termine su primer sync **asíncrono** (esto no puede ser un recurso de CloudFormation porque el crawler crea ids de contenido nuevos y sin etiquetar en cada sync). Desde `agentic-cx-{industria}/`, con el venv activo y tu perfil/región de AWS definidos en el entorno:
+Ejecuta después de que `CX-{INDUSTRIA}-KB` termine su primer sync **asíncrono** (esto no puede ser un recurso de CloudFormation porque el crawler crea ids de contenido nuevos y sin etiquetar en cada sync). Desde `agentic-cx-{industria}/`, con el venv activo, `source ../.env` hecho (los scripts importan `config.py`, que exige las tres variables) y tu perfil/región de AWS definidos en el entorno:
 
 ```bash
 # 1) Etiqueta cada ítem de contenido para que el filtro Retrieve de los agentes lo encuentre.
@@ -209,7 +250,8 @@ cdk deploy CX-{INDUSTRIA}-WEBSITE
 |---|---|---|
 | 0 | manual | `cdk bootstrap aws://<account-id>/<region>` (por cuenta/región) |
 | 0 | manual | `python3 -m venv .venv` en cada app CDK (`general-localization`, `agentic-cx-{industria}`) |
-| 1 | manual | Crear la instancia de Connect + el asistente de Q in Connect; actualizar `config.py` en cada app |
+| 0a | manual | `cp .env.example .env` en la raíz del repo, rellenarlo, y `source ../.env` en cada shell antes de `cdk` o los scripts |
+| 1 | manual | Crear la instancia de Connect + el asistente de Q in Connect; poner `INSTANCE_ALIAS` / `INSTANCE_ID` / `ASSISTANT_ID` en `.env` |
 | 2 | manual | Definir los agentes utilitarios localizados como predeterminados del dominio (Answer Recommendation / Manual Search / Note Taking) |
 | 3 | manual | `npm install && npm run build` del sitio antes del despliegue de cada app |
 | 5 | script | `tag_kb_content.py --wait` (el KB id se auto-resuelve desde SSM) |
@@ -221,4 +263,6 @@ cdk deploy CX-{INDUSTRIA}-WEBSITE
 
 > Repite los pasos **3–7** por cada industria (`telco`, `banco`, `airline`) que quieras desplegar, sustituyendo `{industria}` / `{INDUSTRIA}`.
 
-> El detalle completo por stack, el contrato SSM entre stacks, y la referencia de configuración viven en el `README.md` de cada app (`README-en.md` para la versión en inglés).
+> El detalle completo por stack, el contrato SSM entre stacks, y la referencia de configuración viven en el `README.md` de cada app (`agentic-cx-{industria}/README.md`).
+
+> Para demostrar cada app una vez desplegada: `agentic-cx-{industria}/DEMO-WALKTHROUGH.md` (inglés: `DEMO-WALKTHROUGH-en.md`).

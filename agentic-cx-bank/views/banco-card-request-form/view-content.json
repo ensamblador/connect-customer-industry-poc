@@ -27,19 +27,19 @@
             "Type": "Button",
             "_id": "b-basic",
             "Props": { "Variant": "primary", "Action": "prod-tarjeta-clasica" },
-            "Content": ["Tarjeta Clásica — sin anualidad — $0/año"]
+            "Content": ["Tarjeta Clásica — pagos sin contacto — $30/año"]
           },
           {
             "Type": "Button",
             "_id": "b-plus",
             "Props": { "Variant": "primary", "Action": "prod-tarjeta-oro" },
-            "Content": ["Tarjeta Oro — cashback 1.5% — $45/año"]
+            "Content": ["Tarjeta Oro — cashback 2% — $120/año"]
           },
           {
             "Type": "Button",
             "_id": "b-unlimited",
             "Props": { "Variant": "primary", "Action": "prod-tarjeta-platino" },
-            "Content": ["Tarjeta Platino — cashback 3% — $120/año"]
+            "Content": ["Tarjeta Platino — cashback 3% — $180/año"]
           },
           {
             "Type": "Button",

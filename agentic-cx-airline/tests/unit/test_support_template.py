@@ -25,8 +25,9 @@ Two complementary layers of guard for the airline Connect support resources:
      content-only: identical ``_id`` set and identical recursive component tree
      (``{_id, Type}`` at every node), with only text ``Content`` / ``Props``
      differing (Requirements 6.9, 6.10):
-       * ``airline-card-request-form``      vs telco ``telco-newline-form``;
-       * ``airline-card-activation-guide``  vs telco ``telco-esim-activation-guide``.
+       * ``airline-lost-baggage-guide``  vs telco ``telco-esim-activation-guide``.
+
+     The guided reservation form is excluded on purpose — see VIEW_PAIRS.
 
 Validates: Requirements 6.1, 6.5, 6.6, 6.9, 6.10
 """
@@ -73,10 +74,13 @@ EXPECTED_SSM_NAMES = {
 
 # (airline view, telco source view) pairs for the structure-preservation diff.
 VIEW_PAIRS = {
-    "card-request-form": (
-        AIRLINE_ROOT / "views" / "airline-card-request-form" / "view-content.json",
-        TELCO_ROOT / "views" / "telco-newline-form" / "view-content.json",
-    ),
+    # NOTE: the guided reservation form has NO telco counterpart pair here. The
+    # deployed AirlineReservationForm offers five flights where telco's
+    # telco-newline-form offers three plans, so it is deliberately NOT a
+    # structure-preserving re-theme and cannot be diffed against it. (A fossil
+    # airline-card-request-form used to be kept solely to satisfy this pair; it
+    # was never deployed — config.NEWLINE_VIEW_CONTENT points at
+    # airline-reservation-form — so it was removed rather than maintained.)
     "lost-baggage-guide": (
         AIRLINE_ROOT / "views" / "airline-lost-baggage-guide" / "view-content.json",
         TELCO_ROOT / "views" / "telco-esim-activation-guide" / "view-content.json",

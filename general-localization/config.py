@@ -1,5 +1,30 @@
-INSTANCE_ID = "3bb09f3b-875d-440b-8be9-6590d2639afa"
-ASSISTANT_ID = "4bb8f994-2954-43ec-a7be-1f02598958f2"
+import os
+
+from config_validation import require
+
+# ========================================================================== #
+# ENVIRONMENT — the account-specific Amazon Connect identity
+# ========================================================================== #
+# The two identity values below are account-specific, so they are NOT stored in
+# this repo: they are REQUIRED environment variables, exported in the shell
+# before running `cdk`. They name the SAME instance and Q in Connect assistant
+# that every industry app uses, so one repo-root `.env` configures all of them.
+#
+#     export INSTANCE_ID=00000000-0000-0000-0000-000000000000
+#     export ASSISTANT_ID=00000000-0000-0000-0000-000000000000
+#
+# In practice keep them in a gitignored `.env` at the repo root and source it
+# once per shell (`.env.example` is the committed template):
+#
+#     set -a; source ../.env; set +a
+#
+# Resolution goes through config_validation.require(), the same fail-closed
+# helper the stack already uses for its other mandatory constants, so a missing
+# or blank value raises ConfigError naming the variable at import time instead
+# of deploying a half-configured stack. (A plain `assert` is deliberately
+# avoided — assertions are stripped under `python -O` / `PYTHONOPTIMIZE`.)
+INSTANCE_ID = require("INSTANCE_ID", os.environ.get("INSTANCE_ID"))
+ASSISTANT_ID = require("ASSISTANT_ID", os.environ.get("ASSISTANT_ID"))
 
 # --- AI-agent CloudWatch logging (shared across every industry project) ---
 # The ASSISTANT_ID above is the Q in Connect AI Agents domain SHARED by every

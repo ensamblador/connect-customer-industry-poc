@@ -1,6 +1,8 @@
 # Script de Demo — Telco PoC
 
-Guía paso a paso para demostrar las capacidades de la PoC de telecomunicaciones. Incluye diálogos exactos y respuestas esperadas.
+> 🌐 **Idiomas:** **Español** (este archivo) · [English](./DEMO-WALKTHROUGH-en.md)
+
+Guía paso a paso para demostrar las capacidades de la PoC de telecomunicaciones. Indica las preguntas a usar y qué esperar en cada paso, sin guionizar las respuestas del agente (son generadas en vivo y varían).
 
 ---
 
@@ -28,13 +30,13 @@ Antes de comenzar, familiarízate con los datos sintéticos disponibles:
 
 ### 1.1 Acceder al sitio web
 
-1. Abre el output de CloudFormation del stack **CX-TELCO-WEBSITE** → toma el valor de `WebhostingDistributionDomainName` (dominio CloudFront, p. ej. `https://d1234abcdef.cloudfront.net`).
+1. Abre el output de CloudFormation del stack **CX-TELCO-WEBSITE** → toma el valor de `WebsiteDistributionDomainName` (dominio CloudFront, p. ej. `https://d1234abcdef.cloudfront.net`). El output `WebsiteDataViewerPath` te da directamente la URL de `/datos`.
 2. Navega al sitio web. Verás la página de "Latam Telco" con secciones de planes, cobertura y ayuda.
 
 ### 1.2 Simular un usuario logueado
 
 1. Haz clic en **"Iniciar sesión"** en el header.
-2. Ingresa un email de los datos de prueba, por ejemplo: `maria.gonzalez@example.com`
+2. Ingresa un email de los datos de prueba, por ejemplo: `diego.fernandez@example.com`
 3. Haz clic en "Entrar". El sitio guarda el email en sessionStorage y lo envía como atributo del contacto al widget de chat.
 
 > Esto permite que el agente de IA identifique automáticamente al cliente sin preguntar.
@@ -47,42 +49,23 @@ Haz clic en el **widget de chat** (burbuja en la esquina inferior derecha). Se a
 
 ### Demo 1: Preguntas de Knowledge Base
 
-Estas preguntas se responden desde la base de conocimiento (artículos en `knowledge_bases/telco/entries/es/`).
+El agente responde estas preguntas **con los artículos de la base de conocimiento**, no con conocimiento propio del modelo. Los artículos viven en `knowledge_bases/telco/entries/<idioma>/`, con una carpeta por idioma (`es`, `en`, `pt`): el agente recupera la entrada correspondiente al idioma en que está conversando el cliente.
 
-#### Roaming internacional
+Preguntas para probar:
 
 > **Tú:** ¿Cómo puedo usar mi teléfono en el extranjero?
 
-**Respuesta esperada del agente:**
-> Tu teléfono funciona en el extranjero si tu plan incluye roaming. Algunos planes lo incluyen para ciertos países; otros requieren un paquete de viaje. Para evitar cargos sorpresa: revisa si tu plan cubre tu destino, desactiva los datos en roaming desde los ajustes, y usa WiFi cuando sea posible. Las llamadas y mensajes pueden tener tarifas diferentes; las apps de mensajería por WiFi son la opción más económica.
-
-#### Llamadas por WiFi
-
 > **Tú:** ¿Cómo activo las llamadas por WiFi?
-
-**Respuesta esperada:**
-> Para activar las llamadas por WiFi, ve a los ajustes de tu teléfono, busca la sección de llamadas o red móvil, y habilita la opción de llamadas por WiFi (WiFi Calling). Esto te permite hacer y recibir llamadas usando tu conexión WiFi cuando la señal celular es débil.
-
-#### Cobertura 5G
 
 > **Tú:** ¿Tienen cobertura 5G en mi zona?
 
-**Respuesta esperada:**
-> Tenemos cobertura 5G en la mayoría de áreas metropolitanas y 4G LTE a nivel nacional. Puedes verificar la cobertura exacta en tu zona usando el mapa de cobertura en nuestro sitio web con tu código postal. Si tu plan incluye 5G, no tiene costo adicional. Tu teléfono debe ser compatible con 5G para aprovechar esa velocidad; si es solo 4G, seguirá funcionando sin la velocidad 5G.
-
-#### Horarios de tiendas
-
 > **Tú:** ¿A qué hora abren las tiendas?
-
-**Respuesta esperada:**
-> Nuestras tiendas tienen el siguiente horario general: lunes a viernes de 9:00 AM a 9:00 PM, sábados de 10:00 AM a 8:00 PM, y domingos de 11:00 AM a 6:00 PM. Tenemos tiendas en Los Ángeles, San Francisco, Houston, Miami y Phoenix. La tienda de Phoenix no abre los domingos.
-
-#### Compatibilidad de equipos
 
 > **Tú:** ¿Cómo sé si mi teléfono es compatible con ustedes?
 
-**Respuesta esperada:**
-> La mayoría de los teléfonos recientes desbloqueados son compatibles. Puedes verificar marcando *#06# para obtener tu IMEI, o buscándolo en Configuración → Acerca del teléfono. Luego consulta la compatibilidad en nuestro sitio web. Tu teléfono debe estar desbloqueado (no ligado a otro operador). Si está bloqueado, debes pedir a tu operador anterior que lo desbloquee.
+**Qué esperar:** una respuesta redactada a partir del artículo correspondiente, en el idioma del cliente y citando la fuente recuperada. Si la pregunta no está cubierta por ningún artículo, el agente no debe inventar la respuesta.
+
+**Otras preguntas para seguir explorando** (mismas fuentes, sin salir de la KB): activación de eSIM, portabilidad numérica, qué incluye cada plan, uso de hotspot, cargos por exceso de datos.
 
 ---
 
@@ -90,82 +73,54 @@ Estas preguntas se responden desde la base de conocimiento (artículos en `knowl
 
 Estas preguntas disparan herramientas MCP que consultan la base de datos en tiempo real.
 
-#### Consultar saldo
-
 > **Tú:** ¿Cuánto debo de mi factura?
-
-**Respuesta esperada:**
-> *(El agente primero busca la cuenta por el email de sesión, luego consulta el saldo)*
->
-> Tu saldo pendiente es de **$42.50 USD** con fecha de vencimiento el **20 de junio de 2026**. ¿Hay algo más en lo que pueda ayudarte?
-
-#### Ver plan actual
 
 > **Tú:** ¿Qué plan tengo contratado?
 
-**Respuesta esperada:**
-> Tienes el plan **Telco Unlimited 5G**: 100 GB de datos premium 5G con hotspot y acceso prioritario a la red, llamadas y mensajes ilimitados, por $70.00 USD al mes.
-
-#### Listar planes disponibles
-
 > **Tú:** ¿Qué planes ofrecen?
 
-**Respuesta esperada:**
-> Tenemos tres planes disponibles:
-> 1. **Telco Basic** — 5 GB de datos, $25/mes. Ideal para usuarios ligeros. Llamadas y mensajes ilimitados.
-> 2. **Telco Plus** — 25 GB de datos con hotspot, $45/mes. Llamadas y mensajes ilimitados.
-> 3. **Telco Unlimited 5G** — 100 GB de datos premium 5G con hotspot y acceso prioritario, $70/mes.
->
-> ¿Te interesa alguno en particular?
+**Qué esperar:** el agente primero resuelve la cuenta a partir del email de la sesión y luego invoca la herramienta MCP. La respuesta puede ser algo como el **saldo pendiente y su fecha de vencimiento**, tomados en vivo de la API vía MCP . Verifica contra `/datos` que los valores coincidan con el registro del cliente.
+
+**Preguntas de follow-up para probar:**
+
+> **Tú:** ¿Cuándo vence mi próximo pago?
+
+> **Tú:** ¿Mi plan incluye hotspot?
+
+> **Tú:** ¿Cuánto me costaría cambiarme a Unlimited 5G?
+
+> **Tú:** ¿Tengo alguna línea adicional en mi cuenta?
 
 ---
 
 ### Demo 3: Solicitar una nueva línea (Formulario guiado)
 
-Esta demo muestra cómo el agente usa un formulario visual para una acción determinística (sin interpretación).
+Esta demo muestra una acción determinística con **human-in-the-loop, donde el humano en el loop es el cliente**: en lugar de dejar que el modelo interprete la elección conversacionalmente, el cliente la confirma en un formulario. 
 
 > **Tú:** Quiero agregar una nueva línea a mi cuenta
 
-**Respuesta esperada:**
-> *(El agente identifica tu cuenta y abre el formulario guiado)*
->
-> Perfecto, voy a abrir un formulario para que elijas el plan de tu nueva línea.
+**Qué esperar:** el agente identifica tu cuenta, avisa brevemente que va a abrir un formulario y devuelve el control al flujo. En el chat verás un **formulario con botones** para elegir una opción (o cancelar).
 
-**Lo que verás en el chat:** Un formulario visual con botones:
-- Telco Basic — 5 GB — $25/mes
-- Telco Plus — 25 GB — $45/mes
-- Telco Unlimited 5G — 100 GB — $70/mes
-- Cancelar
+> **Tú:** *(Haz clic en una de las opciones del formulario)*
 
-> **Tú:** *(Haz clic en "Telco Plus — 25 GB — $45/mes")*
+**Qué esperar:** el agente retoma la conversación, confirma la solicitud y te da el identificador de la nueva línea con su estado inicial.
 
-**Respuesta esperada del agente:**
-> He solicitado tu nueva línea con el plan Telco Plus. Tu número de solicitud es **line-XXXXXXXX** y el estado es "solicitada" (pendiente de aprovisionamiento). ¿Hay algo más en lo que pueda ayudarte?
+**Verificación:** navega a `/datos` en el sitio web → verás el nuevo producto o servicio con status **`requested`**.
 
-**Verificación:** Navega a `/datos` en el sitio web → tabla "Líneas (lines)" → verás la nueva línea con status "requested".
+**Follow-up opcional**, para cerrar el ciclo en la misma conversación:
 
----
-
-### Demo 4: Verificar líneas existentes
-
-> **Tú:** ¿Puedo ver mis líneas activas?
-
-**Respuesta esperada:**
-> Tienes las siguientes líneas asociadas a tu cuenta:
-> - **line-9001** — Plan Telco Plus, código de área 206, estado: activa. Nota: línea adicional para un miembro de la familia.
-> - *(La línea recién solicitada también aparecerá aquí)*
->
-> ¿Necesitas algo más?
+> **Tú:** ¿Puedo ver mis líneas solicitadas?
 
 ---
 
 ## 2. Self-Service por Voz
 
-### 2.1 Iniciar llamada web
+### 2.1 Simular el login e iniciar la llamada web
 
-1. En el widget de chat (ya abierto), haz clic en el ícono de **teléfono/llamada web** (WebRTC call).
-2. El navegador pedirá acceso al **micrófono** → concédelo.
-3. Se establece la llamada y escucharás una voz natural (Katie, Nova Sonic v2) saludándote.
+1. Igual que en el chat: entra al sitio, haz clic en **"Iniciar sesión"** e ingresa `diego.fernandez@example.com`. Así la llamada llega ya identificada y el agente no tiene que preguntar quién eres.
+2. En el widget de chat, haz clic en el ícono de **teléfono/llamada web** (WebRTC call).
+3. El navegador pedirá acceso al **micrófono** → concédelo.
+4. Se establece la llamada y escucharás una **voz agéntica** saludándote.
 
 > **Nota:** No se requiere un número telefónico para probar. La llamada web usa el mismo flujo de self-service y ofrece las mismas capacidades que una llamada real.
 
@@ -175,52 +130,36 @@ Esta demo muestra cómo el agente usa un formulario visual para una acción dete
 
 > **Tú (hablando):** "Hola, quiero saber cómo activar las llamadas por WiFi en mi teléfono"
 
-**Respuesta esperada (voz):**
-> "Para activar las llamadas por WiFi, ve a los ajustes de tu teléfono, busca la sección de llamadas o red móvil, y habilita la opción. Esto te permite hacer y recibir llamadas usando tu conexión WiFi cuando la señal celular es débil. ¿Puedo ayudarte con algo más?"
+**Qué esperar:** una respuesta hablada basada en los artículos de la KB, en el mismo idioma en que preguntaste.
 
-#### Consulta de saldo por voz
+**Otras preguntas para probar por voz:** roaming en el extranjero, cobertura 5G, horarios de tiendas, compatibilidad de equipos.
+
+#### Consulta de cuenta por voz
 
 > **Tú:** "Quiero saber cuánto debo"
 
-**Respuesta esperada:**
-> *(Si no te ha identificado aún)*
-> "Claro, necesito verificar tu cuenta. ¿Me puedes dar tu correo electrónico o número de teléfono?"
+**Qué esperar:**  responde con el saldo y su fecha de vencimiento, en voz natural.
 
-> **Tú:** "Mi correo es maria.gonzalez@example.com"
+**Otras preguntas para probar:** qué plan tienes contratado, qué planes hay disponibles, cuándo vence el próximo pago.
 
-**Respuesta:**
-> "Gracias María. Tu saldo pendiente es de cuarenta y dos dólares con cincuenta centavos, con vencimiento el veinte de junio. ¿Hay algo más en lo que pueda ayudarte?"
+### 2.3 Contratación de línea por voz (prueba separada)
 
-#### Solicitar nueva línea por voz
+Vale la pena probar esta acción por separado, porque por voz **no** se usa el formulario: la confirmación es conversacional y explícita.
 
 > **Tú:** "Quiero una línea nueva"
 
-**Respuesta esperada:**
-> "¡Perfecto! ¿Qué plan te gustaría para la nueva línea? Tenemos Telco Basic con 5 gigas por 25 dólares al mes, Telco Plus con 25 gigas por 45 dólares, y Telco Unlimited 5G con 100 gigas por 70 dólares."
+**Qué esperar:** el agente presenta las opciones de plan, y antes de ejecutar la acción pide una **confirmación explícita** (la confirmación de usuario está activada en voz). Solo al confirmar crea la solicitud y te devuelve el identificador de la nueva línea.
 
-> **Tú:** "El plan Plus"
+**Verificación:** navega a `/datos` en el sitio web → verás la nueva línea con status **`requested`**.
 
-**Respuesta:**
-> "Entonces sería una nueva línea con el plan Telco Plus a 45 dólares mensuales. ¿Confirmas que deseas proceder?"
+### 2.4 Probar con número telefónico (opcional)
 
-> **Tú:** "Sí, confirmo"
+Para una demno con una llamada telefónica con reconocimiento automático del cliente:
 
-**Respuesta:**
-> "Listo, tu solicitud de nueva línea ha sido creada con éxito. Tu número de solicitud es line-[id]. El estado es solicitada y se aprovisionará pronto. ¿Puedo ayudarte con algo más?"
-
-> **Tú:** "No, eso es todo, gracias"
-
-**Respuesta:**
-> "Perfecto, gracias por comunicarte con Latam Telco. ¡Que tengas un excelente día!"
-
-### 2.3 Probar con número telefónico (opcional)
-
-Para una demo más realista con reconocimiento automático del cliente:
-
-1. En la consola de **DynamoDB** → tabla `telco-accounts` → edita uno de los registros de prueba (p. ej. María González) y reemplaza el `phoneNumber` con **tu número de teléfono real** en formato E.164 (p. ej. `+573001234567`). Esto permite que el flujo te identifique automáticamente al llamar, sin preguntarte quién eres.
+1. En la consola de **DynamoDB** → tabla `telco-accounts` → edita uno de los registros de prueba (p. ej. Diego Fernández) y reemplaza el `phoneNumber` con **tu número de teléfono real** en formato E.164 (p. ej. `+573001234567`). Esto permite que el flujo te identifique automáticamente al llamar, sin preguntarte quién eres.
 2. En la consola de **Amazon Connect** → **Phone numbers** → reclama un número telefónico (DID).
 3. Asócialo al flujo de contacto de self-service (el flujo inbound desplegado, `telco-selfservice-es-inbound`).
-4. Llama al número desde tu celular — el agente de IA te reconocerá automáticamente por tu número y personalizará la atención ("Hola María, ¿en qué puedo ayudarte?").
+4. Llama al número desde tu celular — el agente de IA te reconocerá automáticamente por tu número y personalizará la atención.
 
 ---
 
@@ -230,37 +169,32 @@ Para una demo más realista con reconocimiento automático del cliente:
 
 1. Inicia sesión en el **workspace de agente** de Amazon Connect (CCP/Agent Workspace).
 2. Verifica que tu usuario esté asignado a **BasicQueue** en el perfil de enrutamiento.
-3. Coloca tu estado en **Available** (disponible) para recibir contactos.
+3. Verifica que el usuario cuenta con permisos en security profile para interactuar con las Tools, Views y Wisdom (las mismas que el Agente IA de Assist). **Esto es obligatorio para la sección 4** — el detalle de qué permiso habilita qué está al inicio de esa sección.
+4. Coloca tu estado en **Available** (disponible) para recibir contactos.
 
 ### 3.2 Provocar la escalación (chat)
 
-Desde el widget de chat del sitio web (logueado como maria.gonzalez@example.com):
+Desde el widget de chat del sitio web (logueado como `diego.fernandez@example.com`):
 
-> **Tú:** Hola, tengo un problema con mi factura. Me están cobrando $42.50 pero ya pagué el mes pasado. Necesito que me ajusten el saldo.
+> **Tú:** Hola, tengo un problema con mi factura. Me están cobrando $15.75 pero ya pagué el mes pasado. Necesito que me ajusten el saldo.
 
-**Respuesta esperada del agente:**
-> *(El agente reconoce que temas de facturación/disputas están fuera de su alcance)*
->
-> Entiendo tu preocupación con el cobro. Los ajustes de facturación los maneja directamente un representante. Voy a transferirte con un agente que podrá resolver esto. Un momento por favor.
+**Qué esperar:** el agente reconoce que los ajustes de facturación están fuera de su alcance, lo explica y anuncia la transferencia a un representante.
 
-**Lo que sucede:** El agente de IA ejecuta la herramienta `Escalate` con:
-- **Razón:** `billing_question`
-- **Sentimiento:** frustrado/neutral
-- **Resumen:** "El cliente reporta un cobro de $42.50 que considera incorrecto porque ya pagó. Solicita ajuste de saldo. Fuera del alcance del autoservicio."
+**Lo que sucede por detrás:** el agente de IA ejecuta la herramienta `Escalate` con la razón (`billing_question`), el sentimiento detectado y un resumen de lo intentado en el autoservicio.
 
 ### 3.3 Recibir la escalación en el Agent Workspace
 
-En tu pantalla de agente verás:
+En tu pantalla de agente verás (algo por el estilo):
 
 1. **Screen-pop inmediato** con la vista de "Contacto escalado" que muestra:
    - **Motivo de escalación:** billing_question
    - **Sentimiento del cliente:** neutral / frustrado
-   - **Intención del cliente:** Ajuste de saldo por cobro duplicado
+   - **Intención del cliente:** ajuste de saldo por un cobro que considera ya pagado
    - **Resumen de escalación:** (generado por la IA) — qué pidió el cliente, qué intentó el autoservicio, por qué necesita un humano
-   - **Acción recomendada:** Verificar pago y ajustar saldo si corresponde
-   - **Ya intentado en autoservicio:** Se verificó la cuenta y el saldo pendiente
+   - **Acción recomendada:** verificar pago y ajustar saldo si corresponde
+   - **Ya intentado en autoservicio:** se verificó la cuenta y el saldo pendiente
 
-2. Haz clic en **"Entendido"** para aceptar el contacto y comenzar la atención.
+2. Haz clic en **aceptar el contacto** para comenzar la atención.
 
 > Esto demuestra que el agente humano tiene **contexto completo** sin que el cliente repita nada.
 
@@ -268,7 +202,27 @@ En tu pantalla de agente verás:
 
 ## 4. Agent Assist (Asistencia al Agente Humano)
 
-Una vez que aceptaste el contacto escalado, el panel de **Q in Connect** (Agent Assist) se activa:
+> ### ⚠️ Requisito previo: el agente HUMANO también necesita los permisos
+>
+> En agent-assistance las llamadas a herramientas se autorizan contra la
+> **intersección** del perfil de seguridad del agente de IA **y** el del agente
+> humano. No basta con que el agente de IA (`telco-agent-assist-iac`) tenga los
+> permisos: el usuario humano que abre el panel debe llevar **los mismos**, o las
+> herramientas fallan solo en su sesión.
+>
+> El agente humano necesita las tres cosas:
+>
+> | Necesita | Permiso / concesión | Sin esto no funciona |
+> |---|---|---|
+> | **Wisdom** | `Wisdom.View` | las sugerencias de la KB y las consultas al asistente (4.1, 4.3) |
+> | **Views** | `CustomViews.Access` | la guía paso a paso de eSIM (4.2) |
+> | **MCP tools** | aplicación `Type: MCP` en el perfil, con namespace = id del gateway y los nueve ids `telco-rest-api-oas-target___<operación>` | las consultas de datos en vivo (4.4) |
+>
+> Lo más simple es asignar al usuario humano el mismo perfil **`telco-agent-assist-iac`** que despliega la Fase 3 (su id se publica en SSM como `SP_ASSIST_ID`), o añadir esos permisos y la concesión MCP a su perfil actual.
+>
+> **Publica una nueva versión del perfil después de editarlo.** El agente en ejecución usa la versión publicada; si adjuntaste el perfil pero no publicaste, las llamadas MCP fallan con `Target entity not found` aunque el gateway y la REST API estén sanos.
+
+Una vez que aceptaste el contacto escalado, el panel de **Agent Assist** se activa:
 
 ### 4.1 Sugerencias automáticas de la KB
 
@@ -277,19 +231,14 @@ Mientras hablas con el cliente, Q in Connect escucha la conversación y sugiere 
 > **Cliente:** "Además, quiero saber si puedo activar una eSIM en mi teléfono nuevo"
 
 **En el panel de Agent Assist verás:**
-- Una sugerencia con la información de activación de eSIM (del artículo `esim-activacion.txt`)
-- Un **botón de guía "Activar eSIM"** — al hacer clic, se despliega una guía paso a paso con las instrucciones completas
+- Una respuesta con la información de activación de eSIM y el link al la entrada de la KB (del artículo `esim-activacion.txt`)
+- Un **botón de guía "Activar eSIM"** Sugerido automáticamente
 
 ### 4.2 La guía paso a paso (eSIM)
 
-Haz clic en el botón **"Activar eSIM"** en el panel de sugerencias:
+Haz clic en el botón **"Activar eSIM"** en el panel de sugerencias.
 
-1. **Paso 1:** Verificar compatibilidad — ir a Configuración → Red/Datos móviles y buscar la opción eSIM
-2. **Paso 2:** Conectar a WiFi para la descarga del perfil
-3. **Paso 3:** Ir a Configuración → agregar eSIM → escanear el código QR enviado por email
-4. **Paso 4:** Confirmar que la eSIM se activó (puede tardar unos minutos)
-
-> Cada paso se muestra uno a la vez con botones "Anterior" y "Siguiente". Esto guía al agente para dar instrucciones consistentes.
+Lo que aporta la guía no es información nueva: es el **paso a paso asociado a la entrada de la KB**, presentado un paso a la vez con botones "Anterior" y "Siguiente". El valor está en que el agente **resuelve más rápido** — no tiene que leer y resumir el artículo completo en vivo — y en que todos los agentes dan las mismas instrucciones, en el mismo orden, en cada contacto. Human in the Loop de nuevo, pero ahora el Agente.
 
 ### 4.3 Consultas directas al asistente
 
@@ -297,22 +246,17 @@ El agente humano puede escribir preguntas directamente en el panel de Agent Assi
 
 > **Agente escribe:** "¿Cuáles son los horarios de la tienda de Miami?"
 
-**Respuesta en el panel:**
-> La tienda de Miami (Tienda Midtown) está ubicada en 321 Ocean Blvd. Horario: lunes a viernes 9AM-9PM, sábados 10AM-8PM, domingos 11AM-6PM. Teléfono: 800-555-0103.
+**Qué esperar:** la respuesta con los datos de esa tienda tomados del artículo de horarios de la KB.
 
 ### 4.4 Herramientas MCP desde Agent Assist
 
-El asistente también puede invocar las mismas herramientas MCP:
+El asistente también puede invocar las mismas herramientas MCP que el self-service, sobre el cliente del contacto activo:
 
 > **Agente escribe:** "¿Cuál es el saldo de este cliente?"
 
-**Respuesta:**
-> El saldo pendiente de María González (cuenta acct-1001) es de $42.50 USD con vencimiento el 20 de junio de 2026.
-
 > **Agente escribe:** "¿Qué líneas tiene activas?"
 
-**Respuesta:**
-> María tiene 1 línea activa: line-9001 con plan Telco Plus, código de área 206. También puede haber una línea recién solicitada pendiente de aprovisionamiento.
+**Qué esperar:** datos en vivo de la cuenta (saldo y vencimiento, líneas y su estado), sin que el agente tenga que salir del workspace ni consultar otra herramienta.
 
 ---
 
@@ -322,19 +266,13 @@ El asistente también puede invocar las mismas herramientas MCP:
 
 > **Tú (chat):** Prefiero hablar con una persona, por favor.
 
-**Respuesta:**
-> Entendido, te transfiero con un representante ahora mismo. Un momento.
->
-> *(Escala con razón "customer_request")*
+**Qué esperar:** el agente escala de inmediato con razón `customer_request`, sin insistir en resolverlo.
 
 ### 5.2 Tema fuera de alcance
 
 > **Tú:** Quiero cancelar mi línea
 
-**Respuesta:**
-> Las cancelaciones de línea las gestiona directamente un representante. Voy a transferirte para que te ayuden con eso.
->
-> *(Escala con razón "out_of_scope")*
+**Qué esperar:** el agente explica que las cancelaciones las gestiona un representante y escala con razón `out_of_scope`.
 
 ### 5.3 Cuenta suspendida
 
@@ -342,30 +280,23 @@ Inicia sesión como `aisha.khan@example.com` y pregunta:
 
 > **Tú:** ¿Por qué no puedo hacer llamadas?
 
-**Respuesta esperada:**
-> *(El agente consulta la cuenta y detecta status "suspended")*
->
-> Veo que tu cuenta está actualmente suspendida. Esto puede deberse a un saldo pendiente de $88.00 con fecha de vencimiento 10 de junio. Te recomiendo comunicarte con un representante para resolver la reactivación. ¿Quieres que te transfiera?
+**Qué esperar:** el agente consulta la cuenta, detecta el status `suspended` y lo relaciona con el saldo pendiente, ofreciendo la transferencia a un representante para la reactivación.
 
 ### 5.4 Consulta de un plan específico
 
 > **Tú:** ¿Cuántos datos incluye el plan Basic?
 
-**Respuesta:**
-> El plan Telco Basic incluye 5 GB de datos de alta velocidad, llamadas y mensajes ilimitados, por $25 al mes. No incluye hotspot. Es ideal para usuarios con uso ligero de datos.
-
 ### 5.5 Portabilidad numérica
 
 > **Tú:** ¿Puedo conservar mi número si me cambio a ustedes?
 
-**Respuesta (de la KB):**
-> Sí, puedes conservar tu número actual. Es importante que mantengas tu línea activa con tu operador actual durante el proceso de transferencia — no la canceles antes. La portabilidad se gestiona durante la activación de tu nueva línea con nosotros.
+**Qué esperar:** respuesta basada en el artículo de portabilidad de la KB.
 
 ---
 
 ## 6. Multi-Lenguaje (Cambio Dinámico de Idioma)
 
-El agente soporta cambio dinámico de idioma sin necesidad de cambiar flujos ni configuración. Usa una voz multilingüe (polyglot) que soporta: English, Spanish y Portuguese. El agente detecta el idioma del cliente desde la transcripción/texto y responde en ese mismo idioma.
+El agente soporta cambio dinámico de idioma sin necesidad de cambiar flujos ni configuración. Usa una voz multilingüe (polyglot) que soporta English, Spanish y Portuguese. El agente detecta el idioma del cliente desde la transcripción/texto y responde en ese mismo idioma, recuperando además los artículos de la KB en la carpeta de idioma correspondiente.
 
 ### 6.1 Cambio de idioma en Chat
 
@@ -373,28 +304,15 @@ Inicia sesión como cualquier cliente y abre el chat:
 
 > **Tú:** Hi, I'd like to know my balance
 
-**Respuesta esperada:**
-> *(El agente detecta inglés y responde en inglés)*
->
-> Your pending balance is $42.50 USD, due on June 20th, 2026. Is there anything else I can help you with?
-
 Ahora cambia a español:
 
 > **Tú:** Gracias. ¿Qué plan tengo?
-
-**Respuesta esperada:**
-> *(El agente sigue tu cambio de idioma inmediatamente)*
->
-> Tienes el plan Telco Unlimited 5G: 100 GB de datos premium 5G con hotspot y acceso prioritario, por $70.00 USD al mes. ¿Puedo ayudarte con algo más?
 
 Prueba con portugués:
 
 > **Tú:** Quais planos vocês oferecem?
 
-**Respuesta esperada:**
-> *(El agente responde en portugués)*
->
-> Temos três planos disponíveis: Telco Basic com 5 GB por $25/mês, Telco Plus com 25 GB por $45/mês, e Telco Unlimited 5G com 100 GB por $70/mês. Gostaria de saber mais sobre algum deles?
+**Qué esperar:** cada respuesta llega en el idioma del último mensaje del cliente, siguiendo el cambio de inmediato y sin perder el contexto de la conversación.
 
 ### 6.2 Cambio de idioma por Voz
 
@@ -402,37 +320,11 @@ Inicia una llamada web y habla en diferentes idiomas:
 
 > **Tú (hablando en inglés):** "Hello, I want to check my account balance"
 
-**Respuesta (voz en inglés):**
-> "Sure, your pending balance is forty-two dollars and fifty cents, due on June twentieth. Is there anything else I can help with?"
-
 > **Tú (cambiando a español):** "Sí, ¿me puedes decir qué plan tengo?"
-
-**Respuesta (voz en español):**
-> "Tienes el plan Telco Unlimited 5G con cien gigas de datos premium, hotspot y acceso prioritario a la red, por setenta dólares al mes. ¿Hay algo más?"
 
 > **Tú (cambiando a portugués):** "Obrigado, é tudo por hoje"
 
-**Respuesta (voz en portugués):**
-> "Perfeito, obrigado por entrar em contato com a Latam Telco. Tenha um ótimo dia!"
-
-### 6.3 Idioma no soportado
-
-Si el cliente habla en un idioma fuera de la lista soportada (inglés, español, portugués):
-
-> **Tú:** Bonjour, je voudrais connaître mon solde (francés)
-
-**Respuesta esperada (en inglés):**
-> I apologize, but I can assist you in English, Spanish, or Portuguese. How can I help you in one of these languages?
-
-### 6.4 Notas sobre la configuración multilingüe
-
-- **Voz polyglot:** El Set Voice block del flujo usa una voz multilingual (Katie, Blake, Brooke, Ronald, o Gemma). No necesita cambios de flujo para cambiar de idioma.
-- **Bot Lex:** Se mantiene un solo locale (`en-US`). No se requieren locales adicionales — la voz multilingual y el prompt manejan el switching.
-- **Sin locale en el agente:** El AI Agent no tiene configurado un locale fijo. Las instrucciones de manejo de idioma están en el system prompt.
-- **Idiomas soportados:** Inglés, español y portugués. La voz polyglot soporta más idiomas, pero el prompt restringe a los tres que tienen contenido en la KB.
-- **Greeting inicial:** El greeting del Get Customer Input block define el idioma del primer turno. Después el agente sigue el idioma del cliente.
-- **Marcas diacríticas:** El agente usa acentos y caracteres apropiados (é, ñ, ü, ç) para que la pronunciación del TTS sea natural.
-- **Nombres de marca:** Se mantienen en inglés siempre (Telco Basic, Telco Plus, etc.).
+**Qué esperar:** la voz cambia de idioma dinámicamente siguiendo al cliente, dentro de la misma llamada y sin transferencias ni reinicios.
 
 ---
 
@@ -441,17 +333,18 @@ Si el cliente habla en un idioma fuera de la lista soportada (inglés, español,
 - [ ] Sitio web carga correctamente (CloudFront)
 - [ ] Login con email funciona y se refleja en el header
 - [ ] Widget de chat se abre y responde
-- [ ] Preguntas de KB obtienen respuestas con información del dominio
-- [ ] Consulta de saldo devuelve datos reales de la cuenta
+- [ ] Preguntas de KB obtienen respuestas basadas en los artículos del idioma en uso
+- [ ] Consulta de saldo devuelve datos reales de la cuenta (coinciden con `/datos`)
 - [ ] Formulario de nueva línea se muestra al solicitar una línea
-- [ ] La línea solicitada aparece en `/datos`
-- [ ] Llamada web funciona y la voz es natural (Katie / Nova Sonic)
+- [ ] La línea solicitada aparece en `/datos` con status `requested`
+- [ ] Llamada web funciona y la voz suena natural
+- [ ] La contratación de línea por voz pide confirmación explícita antes de ejecutar
 - [ ] Escalación transfiere al agente con contexto completo
 - [ ] Screen-pop muestra resumen, razón y acción recomendada
+- [ ] **El usuario humano lleva `Wisdom.View` + `CustomViews.Access` + la concesión MCP, en una versión publicada del perfil**
 - [ ] Agent Assist sugiere respuestas de la KB
 - [ ] Guía paso a paso de eSIM se despliega correctamente
 - [ ] El asistente responde consultas directas del agente
 - [ ] Chat responde en el idioma del cliente (probar inglés, español, portugués)
 - [ ] Cambio de idioma mid-conversation funciona en chat
 - [ ] Voz cambia de idioma dinámicamente al seguir al caller
-- [ ] Idioma no soportado recibe respuesta amable en inglés

@@ -7,3 +7,7 @@ __pycache__
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+# Local environment values (Connect instance/assistant ids) — never commit.
+.env
+.env.*
+!.env.example

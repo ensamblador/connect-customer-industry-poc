@@ -4,3 +4,8 @@ node_modules
 .vscode
 *.sh
 *.bkp
+# Local environment values (Connect instance/assistant ids). Never commit.
+# `.env.example` is the committed template.
+.env
+.env.*
+!.env.example
