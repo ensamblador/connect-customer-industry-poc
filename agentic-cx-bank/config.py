@@ -39,15 +39,15 @@ import os
 # instance-bound resources). These three identity values are the single source
 # of truth referenced by every consumer (they intentionally match the shared
 # instance across the sibling industry projects).
-INSTANCE_ALIAS = "chat-demos-latam"
-INSTANCE_ID = "30b0e238-b3bd-4f61-9f04-c0b24e4a2f74"
+INSTANCE_ALIAS = "poc-367764689636"
+INSTANCE_ID = "3bb09f3b-875d-440b-8be9-6590d2639afa"
 
 # The Connect Q in Connect assistant id (a.k.a. the "AI agents domain" id — the
 # same resource). Single source of truth for every assistant reference
 # (consumed by Phase 1 ai-session env, Phase 2 KB association, Phase 3 Lex bot,
 # Phase 4 prompts/agents/logging, Phase 5 flow ASSISTANT_ARN).
 
-ASSISTANT_ID = "e1de1c2a-08ea-49e9-9dae-2ad3c80e78fd"
+ASSISTANT_ID = "4bb8f994-2954-43ec-a7be-1f02598958f2"
 # ========================================================================== #
 # PHASE 1 — CX-BANCO-MCP (McpStack)
 # data + compute + REST API + AgentCore MCP gateway + Connect MCP/Lambda integ.
@@ -171,9 +171,17 @@ LEX_BOT_NAME = "banco-qconnect-bot-v2"
 # PHASE 4 — CX-BANCO-AGENTS (AiAgentsStack)
 # Orchestration AI prompts + the three AI agents (voice / chat / agent-assist).
 # ========================================================================== #
-# Active AI agent locale. Empty string = no locale (multilingual voice handles
-# language switching dynamically via the system prompt).
+# Active AI agent locale for the SELF-SERVICE agents (voice / chat). Empty
+# string = no locale (multilingual voice handles language switching dynamically
+# via the system prompt).
 AI_AGENT_LOCALE = ""
+
+# Locale for the AGENT-ASSIST agent. Unlike the self-service agents, agent
+# assist serves Spanish-speaking human agents in a single language, so it is
+# pinned to Spanish (US) instead of running multilingual. The value is the
+# Q in Connect locale code (underscore form) as returned by
+# `aws qconnect list-ai-agents` -> configuration.*.locale.
+AI_AGENT_ASSIST_LOCALE = "es_US"
 
 # Prompt YAML paths (relative to the app root) + the orchestration model each
 # prompt runs (kept as authored in the live domain, NOT forced to one model).

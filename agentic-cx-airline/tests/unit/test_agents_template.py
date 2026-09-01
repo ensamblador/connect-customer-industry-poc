@@ -13,7 +13,7 @@ Two complementary layers of guard for the airline AI agents:
          ``Configuration.OrchestrationAIAgentConfiguration.ToolConfigurations``
          list (Requirement 7.1):
            - voice  = Retrieve + 9 MCP + Escalate + Complete            (12 tools)
-           - chat   = voice surface + ShowCardRequestGuide              (13 tools)
+           - chat   = voice surface + ShowReservationGuide              (13 tools)
            - assist = Retrieve + 9 MCP                                  (10 tools)
        * a complementary check on ``connect.ai_agents.build_tools`` for the same
          three surfaces confirms the 12 / 13 / 10 counts and exact tool-name

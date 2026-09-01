@@ -3,7 +3,7 @@
 
 Phased, decoupled stacks that pass values to each other only through SSM
 Parameter Store (shared/ssm_names.py) — no CloudFormation exports, no nested
-stacks. Deploy order is enforced with stack.add_dependency (ordering only; it
+stacks. Deploy order is enforced with stack.add_stack_dependency (ordering only; it
 emits no Fn::ImportValue).
 
 Phases (added incrementally):
@@ -39,8 +39,8 @@ kb = KnowledgeBaseStack(app, "CX-TELCO-KB")
 # MCP grant namespace) and the KB id from Phase 2 (eSIM content association), so
 # it depends on BOTH. Edges are ordering-only (no Fn::ImportValue).
 support = ConnectSupportStack(app, "CX-TELCO-CONNECT-SUPPORT")
-support.add_dependency(mcp)
-support.add_dependency(kb)
+support.add_stack_dependency(mcp)
+support.add_stack_dependency(kb)
 
 # Phase 4 — AI prompts + the three agents. The prompts only need the Q in
 # Connect domain id (config); the agents consume MCP_TOOL_PREFIX (Phase 1) and
@@ -48,17 +48,17 @@ support.add_dependency(kb)
 # agent's security profile is a MANUAL post-deploy step (Phase 3 publishes the
 # profile ids to SSM for it), so this stack no longer depends on `support`.
 agents = AiAgentsStack(app, "CX-TELCO-AGENTS")
-agents.add_dependency(kb)
-agents.add_dependency(mcp)
+agents.add_stack_dependency(kb)
+agents.add_stack_dependency(mcp)
 
 # Phase 5 — contact flow modules + contact flows. Consumes the ai_session
 # Lambda ARN (Phase 1), the new-line view ARN + Lex bot alias ARN (Phase 3),
 # and the three agent ARNs (Phase 4). Resolves every *_PLACEHOLDER marker in
 # the flow JSON at synth. The BasicQueue is left literal (manual re-select).
 flows = ContactFlowsStack(app, "CX-TELCO-FLOWS")
-flows.add_dependency(mcp)
-flows.add_dependency(support)
-flows.add_dependency(agents)
+flows.add_stack_dependency(mcp)
+flows.add_stack_dependency(support)
+flows.add_stack_dependency(agents)
 
 # Phase 6 — static "Latam Telco" website (S3 private + CloudFront OAC). Hosts
 # the Amazon Connect chat widget and passes the logged-in email as a contact
@@ -68,7 +68,7 @@ flows.add_dependency(agents)
 # with no Fn::ImportValue. Build the site first (cd website && npm install &&
 # npm run build); gated by config.BUILD_WEBSITE.
 web = WebsiteStack(app, "CX-TELCO-WEBSITE")
-web.add_dependency(flows)
-web.add_dependency(mcp)
+web.add_stack_dependency(flows)
+web.add_stack_dependency(mcp)
 
 app.synth()

@@ -1,5 +1,5 @@
-INSTANCE_ID = "30b0e238-b3bd-4f61-9f04-c0b24e4a2f74"
-ASSISTANT_ID = "e1de1c2a-08ea-49e9-9dae-2ad3c80e78fd"
+INSTANCE_ID = "3bb09f3b-875d-440b-8be9-6590d2639afa"
+ASSISTANT_ID = "4bb8f994-2954-43ec-a7be-1f02598958f2"
 
 # --- AI-agent CloudWatch logging (shared across every industry project) ---
 # The ASSISTANT_ID above is the Q in Connect AI Agents domain SHARED by every

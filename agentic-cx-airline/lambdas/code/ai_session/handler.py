@@ -21,8 +21,8 @@ Invoked synchronously by the ``set-customer-session-airline`` contact flow modul
 Second mode — generic session write: when invoked WITHOUT a lookup endpoint
 (no ``phoneNumber`` / ``email`` parameter), it writes every other parameter
 passed by the flow into the Wisdom session as ``$.Custom.<key>`` and echoes
-them back. This is how the card-request product picker persists
-``selectedProduct``, but any future attribute can be written the same way with
+them back. This is how the reservation flight picker persists
+``selectedFlight``, but any future attribute can be written the same way with
 no code change — the flow just passes it as a parameter.
 
 Read-only on DynamoDB; no PII is logged. Never raises on a session-write
@@ -169,7 +169,7 @@ def handler(event, _context):
     # Generic session-write mode: when invoked without a lookup endpoint
     # (no phoneNumber / email) the flow is asking us to persist arbitrary
     # key/value pairs into the contact's Wisdom session as $.Custom.<key>
-    # (e.g. selectedProduct from the card-request product picker). Any future
+    # (e.g. selectedFlight from the reservation flight picker). Any future
     # attribute can be written this way with no Lambda code change — the flow
     # just passes it as a parameter.
     if not phone and not email:

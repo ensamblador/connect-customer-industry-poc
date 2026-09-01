@@ -10,6 +10,14 @@ Escalate/Complete skeletons) lives in ``cdk_constructs.connect.ai_agents``.
 
 ``AiAgentsStack`` imports ``TOOLSET`` from here and passes it to
 ``OrchestrationAIAgent``.
+
+KEEP EVERY STRING IN THIS FILE ASCII-ONLY. Tool instructions/examples round-trip
+through CloudFormation into the Wisdom provider, which does not preserve
+non-ASCII bytes: an accented city name authored as "Bogotá" comes back as
+"Bogot?", so the deployed value never matches the template and `cdk diff`
+reports a permanent phantom change on the agent. Write place names unaccented
+(Bogota, Medellin) here. Customer-facing Spanish copy with accents belongs in
+the prompt YAML under ``connect_ai_agents/``, not in tool metadata.
 """
 
 from __future__ import annotations
@@ -42,8 +50,8 @@ MCP_TOOLS = [
     },
     {
         "name": "listFlights",
-        "instruction": "List available flights, optionally filtered by origin and/or destination airport code (IATA 3-letter, e.g. BOG, MDE, LIM). Use for \"what flights are available\", \"flights from Bogotá to Lima\".",
-        "examples": ["Customer: \"flights from Bogotá to Medellín\" -> origin=\"BOG\", destination=\"MDE\".", "Customer: \"what flights do you have\" -> no filter."],
+        "instruction": "List available flights, optionally filtered by origin and/or destination airport code (IATA 3-letter, e.g. BOG, MDE, LIM). Use for \"what flights are available\", \"flights from Bogota to Lima\".",
+        "examples": ["Customer: \"flights from Bogota to Medellin\" -> origin=\"BOG\", destination=\"MDE\".", "Customer: \"what flights do you have\" -> no filter."],
     },
     {
         "name": "getFlight",

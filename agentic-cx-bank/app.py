@@ -3,7 +3,7 @@
 
 Phased, decoupled stacks that pass values to each other only through SSM
 Parameter Store (shared/ssm_names.py) — no CloudFormation exports, no nested
-stacks. Deploy order is enforced with stack.add_dependency (ordering only; it
+stacks. Deploy order is enforced with stack.add_stack_dependency (ordering only; it
 emits no Fn::ImportValue).
 
 Phases (added incrementally):
@@ -39,8 +39,8 @@ kb = KnowledgeBaseStack(app, "CX-BANCO-KB")
 # MCP grant namespace) and the KB id from Phase 2 (content association), so
 # it depends on BOTH. Edges are ordering-only (no Fn::ImportValue).
 support = ConnectSupportStack(app, "CX-BANCO-CONNECT-SUPPORT")
-support.add_dependency(mcp)
-support.add_dependency(kb)
+support.add_stack_dependency(mcp)
+support.add_stack_dependency(kb)
 
 # Phase 4 — AI prompts + the agents. The prompts only need the Q in Connect
 # domain id (config); the agents consume MCP_TOOL_PREFIX (Phase 1) and
@@ -48,17 +48,17 @@ support.add_dependency(kb)
 # agent's security profile is a MANUAL post-deploy step (Phase 3 publishes the
 # profile ids to SSM for it), so this stack no longer depends on `support`.
 agents = AiAgentsStack(app, "CX-BANCO-AGENTS")
-agents.add_dependency(kb)
-agents.add_dependency(mcp)
+agents.add_stack_dependency(kb)
+agents.add_stack_dependency(mcp)
 
 # Phase 5 — contact flow modules + contact flows. Consumes the ai_session
 # Lambda ARN (Phase 1), the view ARN + Lex bot alias ARN (Phase 3), and the
 # agent ARNs (Phase 4). Resolves every *_PLACEHOLDER marker in the flow JSON
 # at synth. The BasicQueue is left literal (manual re-select).
 flows = ContactFlowsStack(app, "CX-BANCO-FLOWS")
-flows.add_dependency(mcp)
-flows.add_dependency(support)
-flows.add_dependency(agents)
+flows.add_stack_dependency(mcp)
+flows.add_stack_dependency(support)
+flows.add_stack_dependency(agents)
 
 # Phase 6 — static "Latam Banco" website (S3 private + CloudFront OAC). Hosts
 # the Amazon Connect chat widget and passes the logged-in email as a contact
@@ -67,7 +67,7 @@ flows.add_dependency(agents)
 # are reconstructed from config names, with no Fn::ImportValue. Build the site
 # first (cd website && npm install && npm run build); gated by config.BUILD_WEBSITE.
 web = WebsiteStack(app, "CX-BANCO-WEBSITE")
-web.add_dependency(flows)
-web.add_dependency(mcp)
+web.add_stack_dependency(flows)
+web.add_stack_dependency(mcp)
 
 app.synth()

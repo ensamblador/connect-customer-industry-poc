@@ -12,7 +12,7 @@ Cross-stack values travel ONLY through these parameters — no CloudFormation
 exports / ``Fn::ImportValue`` and no nested stacks. Consumers resolve at DEPLOY
 time via ``value_for_string_parameter`` (an ``AWS::SSM::Parameter::Value<String>``
 template parameter), and deploy order is enforced separately with
-``stack.add_dependency`` in ``app.py``.
+``stack.add_stack_dependency`` in ``app.py``.
 
 This registry holds ONLY the values that genuinely cross a stack boundary.
 Everything else a phase produces (REST API id/url, gateway url, table names,

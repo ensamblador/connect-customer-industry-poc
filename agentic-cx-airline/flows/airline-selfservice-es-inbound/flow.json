@@ -247,7 +247,7 @@
               "value": "Equals",
               "shortDisplay": "="
             },
-            "value": "ShowCardRequestGuide"
+            "value": "ShowReservationGuide"
           }
         ]
       },
@@ -668,7 +668,7 @@
             "Condition": {
               "Operator": "Equals",
               "Operands": [
-                "ShowCardRequestGuide"
+                "ShowReservationGuide"
               ]
             }
           }
@@ -792,7 +792,7 @@
             "Condition": {
               "Operator": "Equals",
               "Operands": [
-                "prod-tarjeta-clasica"
+                "flight-AL100"
               ]
             }
           },
@@ -801,7 +801,7 @@
             "Condition": {
               "Operator": "Equals",
               "Operands": [
-                "prod-tarjeta-oro"
+                "flight-AL200"
               ]
             }
           },
@@ -810,7 +810,25 @@
             "Condition": {
               "Operator": "Equals",
               "Operands": [
-                "prod-tarjeta-platino"
+                "flight-AL305"
+              ]
+            }
+          },
+          {
+            "NextAction": "nl-write-plan",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "flight-AL410"
+              ]
+            }
+          },
+          {
+            "NextAction": "nl-write-plan",
+            "Condition": {
+              "Operator": "Equals",
+              "Operands": [
+                "flight-AL520"
               ]
             }
           },
@@ -845,7 +863,7 @@
         "LambdaFunctionARN": "AI_SESSION_LAMBDA_ARN_PLACEHOLDER",
         "InvocationTimeLimitSeconds": "8",
         "LambdaInvocationAttributes": {
-          "selectedProduct": "$.Views.Action"
+          "selectedFlight": "$.Views.Action"
         },
         "ResponseValidation": {
           "ResponseType": "STRING_MAP"
@@ -902,7 +920,7 @@
           "x-amz-lex:q-in-connect:ai-agent-arn": "CHAT_AGENT_LATEST_ARN_PLACEHOLDER"
         },
         "LexInitializationData": {
-          "InitialMessage": "[FORMULARIO_SOLICITUD_TARJETA] El cliente seleccionó una tarjeta para la solicitud (ver selectedProduct en la sesión). Continúa con la solicitud."
+          "InitialMessage": "[FORMULARIO_RESERVA] El cliente seleccionó un vuelo para la reserva (ver selectedFlight en la sesión). Continúa con la reserva."
         }
       },
       "Identifier": "nl-resume",

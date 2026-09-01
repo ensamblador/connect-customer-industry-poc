@@ -286,7 +286,7 @@ class McpServerIntegration(Construct):
                 "Namespace": gateway_id,
             },
         )
-        # Deleted BEFORE the association (add_dependency => this is torn down
+        # Deleted BEFORE the association (node.add_dependency => this is torn down
         # first), so the grants are gone before DeleteIntegrationAssociation.
         self.profile_detacher.node.add_dependency(self.association)
 

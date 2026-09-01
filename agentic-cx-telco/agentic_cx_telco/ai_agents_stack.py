@@ -16,6 +16,11 @@ Tool surfaces:
     chat   : voice surface + ShowNewLineGuide                 (newLine confirm OFF)
     assist : Retrieve + 9 MCP only                            (no handoff tools)
 
+Locales: voice/chat carry NO locale (multilingual — the system prompt handles
+language switching), while agent-assist is pinned to Spanish (US), `es_US`, via
+config.AI_AGENT_ASSIST_LOCALE. `es_US` is the Q in Connect locale code (underscore
+form) — verify with `aws qconnect list-ai-agents`.
+
 Consumes from SSM at deploy time: MCP_TOOL_PREFIX (Phase 1) and KB_ASSOC_ID
 (Phase 2, the Retrieve tool binding). Publishes the three agent ARNs for Phase 5.
 
@@ -141,14 +146,19 @@ class AiAgentsStack(Stack):
         )
         self.chat_agent.node.add_dependency(self.chat_prompt)
 
+        # Agent assist is pinned to Spanish (US) rather than multilingual: it
+        # serves Spanish-speaking human agents only. Everything else matches the
+        # self-service agents.
+        assist_common = dict(common, locale=config.AI_AGENT_ASSIST_LOCALE)
+
         self.assist_agent = OrchestrationAIAgent(
             self,
             "AssistAgent",
             agent_name="telco-agent-assist-es",
             prompt_version_id=self.assist_prompt.ai_prompt_version_id,
             surface=AgentSurface.ASSIST,
-            description="Telco agent-assistance orchestration agent (es-US).",
-            **common,
+            description="Telco agent-assistance orchestration agent (es_US).",
+            **assist_common,
         )
         self.assist_agent.node.add_dependency(self.assist_prompt)
 

@@ -106,5 +106,5 @@ class AiAgentLogging(Construct):
             delivery_source_name=source_name,
             delivery_destination_arn=self.destination.attr_arn,
         )
-        self.delivery.add_dependency(self.source)
-        self.delivery.add_dependency(self.destination)
+        self.delivery.add_resource_dependency(self.source)
+        self.delivery.add_resource_dependency(self.destination)

@@ -61,21 +61,21 @@ def _build_app() -> tuple[cdk.App, dict[str, cdk.Stack]]:
     kb = KnowledgeBaseStack(app, "CX-BANCO-KB")
 
     support = ConnectSupportStack(app, "CX-BANCO-CONNECT-SUPPORT")
-    support.add_dependency(mcp)
-    support.add_dependency(kb)
+    support.add_stack_dependency(mcp)
+    support.add_stack_dependency(kb)
 
     agents = AiAgentsStack(app, "CX-BANCO-AGENTS")
-    agents.add_dependency(kb)
-    agents.add_dependency(mcp)
+    agents.add_stack_dependency(kb)
+    agents.add_stack_dependency(mcp)
 
     flows = ContactFlowsStack(app, "CX-BANCO-FLOWS")
-    flows.add_dependency(mcp)
-    flows.add_dependency(support)
-    flows.add_dependency(agents)
+    flows.add_stack_dependency(mcp)
+    flows.add_stack_dependency(support)
+    flows.add_stack_dependency(agents)
 
     web = WebsiteStack(app, "CX-BANCO-WEBSITE")
-    web.add_dependency(flows)
-    web.add_dependency(mcp)
+    web.add_stack_dependency(flows)
+    web.add_stack_dependency(mcp)
 
     stacks = {
         s.stack_name: s

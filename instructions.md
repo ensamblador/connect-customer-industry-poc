@@ -16,13 +16,33 @@ Los pasos marcados **[MANUAL]** se hacen a mano en una consola; los pasos **[SCR
 ## 0. Prerrequisitos
 
 - Node.js + npm (para el CLI de CDK y el build del sitio con Vite).
-- Python 3 con un virtualenv por app CDK (`agentic-cx-{industria}/.venv`, `general-localization/.venv`).
+- Python 3 con un virtualenv **por app CDK** (`agentic-cx-{industria}/.venv`, `general-localization/.venv`). Créalo con `python3 -m venv .venv` dentro de cada app antes del primer despliegue.
 - Credenciales de AWS disponibles en tu entorno (p. ej. `AWS_PROFILE` / SSO). Los scripts auxiliares usan `boto3.client(...)` directamente y heredan la región/perfil de tu shell — **no** aceptan `--profile`/`--region`.
 - CLI de AWS CDK (`npm i -g aws-cdk` o usa `npx cdk`).
 
 ```bash
-# una vez por cuenta/región de AWS
-cdk bootstrap
+# una vez por cuenta/región de AWS — usa la forma explícita aws://<account-id>/<region>
+cdk bootstrap #opcional account id y region: cdk bootstrap aws://123456789012/us-east-1
+```
+
+Crea el virtualenv de cada app CDK que vayas a desplegar (una sola vez por app):
+
+```bash
+# general-localization
+cd general-localization 
+python3 -m venv .venv 
+source .venv/bin/activate 
+pip install -r requirements.txt
+cd ..
+deactivate
+
+# una por industria: telco / banco / airline
+cd agentic-cx-{industria} 
+python3 -m venv .venv 
+source .venv/bin/activate
+pip install -r requirements.txt
+cd ..
+deactivate
 ```
 
 ---
@@ -49,6 +69,7 @@ cd general-localization
 source .venv/bin/activate
 pip install -r requirements.txt
 cdk deploy
+cd ..
 ```
 
 **Despliega:**
@@ -80,6 +101,7 @@ Deja los demás casos de uso (Self Service, Email *, Case Summarization, Agent A
 cd agentic-cx-{industria}/website
 npm install
 npm run build      # produce website/dist, consumido por CX-{INDUSTRIA}-WEBSITE
+cd ..
 ```
 
 `config.BUILD_WEBSITE` controla el stack del sitio — debe encontrar `website/dist` en tiempo de synth. (Volverás a compilar + redesplegar el sitio en el paso 7, después de cablear el widget de chat.)
@@ -93,8 +115,7 @@ npm run build      # produce website/dist, consumido por CX-{INDUSTRIA}-WEBSITE
 ```bash
 cd agentic-cx-{industria}
 source .venv/bin/activate
-pip install -r requirements.txt
-cdk synth                 # puerta de verificación
+cdk diff                 # puerta de verificación
 cdk deploy --all          # o desplegar fase por fase (orden abajo)
 ```
 
@@ -186,7 +207,8 @@ cdk deploy CX-{INDUSTRIA}-WEBSITE
 
 | # | Tipo | Paso |
 |---|---|---|
-| 0 | manual | `cdk bootstrap` (por cuenta/región) |
+| 0 | manual | `cdk bootstrap aws://<account-id>/<region>` (por cuenta/región) |
+| 0 | manual | `python3 -m venv .venv` en cada app CDK (`general-localization`, `agentic-cx-{industria}`) |
 | 1 | manual | Crear la instancia de Connect + el asistente de Q in Connect; actualizar `config.py` en cada app |
 | 2 | manual | Definir los agentes utilitarios localizados como predeterminados del dominio (Answer Recommendation / Manual Search / Note Taking) |
 | 3 | manual | `npm install && npm run build` del sitio antes del despliegue de cada app |
